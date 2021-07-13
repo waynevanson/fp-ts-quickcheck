@@ -1,4 +1,15 @@
 {
+  "main": "dist/es6/index.js",
+  "module": "dist/es6/index.js",
+  "types": "dist/es6/index.d",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.es6.json",
+    "test": "jest"
+  },
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/jest": "^26.0.24",
     "@types/node": "^16.3.1",
