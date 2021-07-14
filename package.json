@@ -2,6 +2,7 @@
   "main": "dist/es6/index.js",
   "module": "dist/es6/index.js",
   "types": "dist/es6/index.d",
+  "version": "0.0.0",
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.es6.json & tsc -p tsconfig.cjs.json",
     "test": "jest"
