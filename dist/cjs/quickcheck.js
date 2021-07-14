@@ -90,7 +90,7 @@ function quickCheck(options) {
         return function_1.pipe(ST.of(function_1.constVoid()), 
         // this is where the work happens
         utils_1.tailRecM(ST.Monad)(function () {
-            return function_1.pipe(ST.gets(function (a) { return a.index >= options.count; }), ST.map(tap), ST.chain(fp_ts_1.boolean.matchW(function () { return function_1.pipe(exports.onRepeat(options, Arbitrary), ST.map(fp_ts_1.either.left)); }, function () { return ST.of(fp_ts_1.either.right(function_1.constVoid())); })));
+            return function_1.pipe(ST.gets(function (a) { return a.index >= options.count; }), ST.chain(fp_ts_1.boolean.matchW(function () { return function_1.pipe(exports.onRepeat(options, Arbitrary), ST.map(fp_ts_1.either.left)); }, function () { return ST.of(fp_ts_1.either.right(function_1.constVoid())); })));
         }), 
         // initial state - seed should be random af on some other functions
         ST.executeTask({

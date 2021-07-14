@@ -32,7 +32,7 @@ ST.chainFirst(({ seed }) => withSeed(seed)), ST.chainFirst(() => incrementIndex)
 export function quickCheck(options) {
     return (Arbitrary) => pipe(ST.of(constVoid()), 
     // this is where the work happens
-    tailRecM(ST.Monad)(() => pipe(ST.gets((a) => a.index >= options.count), ST.map(tap), ST.chain(BL.matchW(() => pipe(onRepeat(options, Arbitrary), ST.map(E.left)), () => ST.of(E.right(constVoid())))))), 
+    tailRecM(ST.Monad)(() => pipe(ST.gets((a) => a.index >= options.count), ST.chain(BL.matchW(() => pipe(onRepeat(options, Arbitrary), ST.map(E.left)), () => ST.of(E.right(constVoid())))))), 
     // initial state - seed should be random af on some other functions
     ST.executeTask({
         failures: A.zero(),
