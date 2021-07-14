@@ -1,7 +1,7 @@
 {
   "main": "dist/es6/index.js",
   "module": "dist/es6/index.js",
-  "types": "dist/es6/index.d",
+  "types": "dist/cjs/index.d.ts",
   "version": "0.0.0",
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.es6.json & tsc -p tsconfig.cjs.json",
