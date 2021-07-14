@@ -11,43 +11,124 @@
  */
 import * as lcg from "@no-day/fp-ts-lcg";
 import {
+  number as NUM,
+  ord as ORD,
   readonlyArray as A,
   readonlyNonEmptyArray as NEA,
   state as S,
-  ord as ORD,
-  number as NUM,
 } from "fp-ts";
-import {
-  Endomorphism,
-  flow,
-  pipe,
-  Predicate,
-  Refinement,
-} from "fp-ts/lib/function";
+import { Apply1 } from "fp-ts/lib/Apply";
+import { Chain1 } from "fp-ts/lib/Chain";
+import { flow, pipe } from "fp-ts/lib/function";
+import { Functor1 } from "fp-ts/lib/Functor";
+import { Pointed1 } from "fp-ts/lib/Pointed";
 import * as lens from "monocle-ts/Lens";
 
+/**
+ * @category Model
+ */
 export const URI = "Gen";
+
+/**
+ * @category Model
+ */
 export type URI = typeof URI;
 
+/**
+ * @category Model
+ */
 export interface GenState {
   seed: lcg.Seed;
   size: number;
 }
 
+/**
+ * @category Model
+ */
 export interface Gen<A> extends S.State<GenState, A> {}
 
-declare module "fp-ts" {
+declare module "fp-ts/HKT" {
   export interface URItoKind<A> {
     readonly [URI]: Gen<A>;
   }
 }
 
+// PIPEABLES
+
+export const of: <A>(a: A) => Gen<A> = S.of;
+export const map: <A, B>(f: (a: A) => B) => (fa: Gen<A>) => Gen<B> = S.map;
+export const ap: <A>(fa: Gen<A>) => <B>(fa: Gen<(a: A) => B>) => Gen<B> = S.ap;
+export const chain: <A, B>(f: (a: A) => Gen<B>) => (fa: Gen<A>) => Gen<B> =
+  S.chain;
+
+// INSTANCES
+
+/*
+ * @category Instances
+ */
+export const Pointed: Pointed1<URI> = { URI, of };
+
+/*
+ * @category Instances
+ */
+export const Functor: Functor1<URI> = { URI, map: (fa, f) => map(f)(fa) };
+
+/*
+ * @category Instances
+ */
+export const Apply: Apply1<URI> = { ...Functor, ap: (fab, fa) => ap(fa)(fab) };
+
+/*
+ * @category Instances
+ */
+export const Chain: Chain1<URI> = { ...Apply, chain: (fa, f) => chain(f)(fa) };
+
+// CONSTRUCTORS
+
 /**
  * @summary
  * State's `get` constructor but with `GenState` type applied.
+ *
+ * @category Constructors
  */
-export const stated = S.get<GenState>();
+const stated = S.get<GenState>();
 
+/**
+ * @category Constructors
+ */
+export const next: Gen<void> = S.modify(
+  pipe(lens.id<GenState>(), lens.prop("seed"), lens.modify(lcg.lcgNext))
+);
+
+/**
+ * @category Constructors
+ */
+export const uniform: Gen<number> = pipe(
+  next,
+  S.chain(() => seeded)
+);
+
+/**
+ * @summary
+ * Modifies the seed using an LCG perturber.
+ *
+ * @category Constructors
+ */
+export function perturb(perturber: number): Gen<void> {
+  return S.modify(
+    pipe(
+      lens.id<GenState>(),
+      lens.prop("seed"),
+      lens.modify(lcg.lcgPertub(perturber))
+    )
+  );
+}
+
+/**
+ * @summary
+ *
+ * @category Constructors
+ */
 export function repeatable<A, B>(kleisli: (a: A) => Gen<B>): Gen<(a: A) => B> {
   return pipe(
     stated,
@@ -76,22 +157,32 @@ export function variant(seed: number): Gen<void> {
 /**
  * @summary
  * Get the size of the current generator.
+ *
+ * @category Constructors
  */
 export const sized: Gen<number> = S.gets((state) => state.size);
 
+/**
+ * @summary
+ * Retrieves the current `Seed` from the state, coerced to a number.
+ * Useful when using the seed to generate values
+ *
+ * @category Constructors
+ */
 export const seeded: Gen<number> = S.gets((state) => lcg.unSeed(state.seed));
 
 /**
  * @summary
  * Select a randomly uniform integer betwee `min` and `max`. Also takes a bounded instance.
  *
- * This were to be called "range", but range should be applied to the seed or size
- *
+ * @category Constructors
  * @todo **note**: Normalize the value to a 32 bit integer.
  */
 export function chooseInt(min: number, max: number): Gen<number> {
   return pipe(uniform, S.map(ORD.clamp(NUM.Ord)(min, max)));
 }
+
+// COMBINATORS
 
 /**
  * @summary
@@ -104,47 +195,5 @@ export function oneOf<A>(gens: NEA.ReadonlyNonEmptyArray<Gen<A>>): Gen<A> {
     chooseInt(0, A.size(gens) - 1),
     // index is always in range
     S.chain((index) => gens[index] as Gen<A>)
-  );
-}
-
-/**
- * @summary
- *
- * **Please note** that this may loop forever if the predicate never returns true.
- *
- * @todo Implement as stack safe.
- */
-export function suchThat<A, B extends A>(
-  predicate: Predicate<A> | Refinement<A, B>
-): Endomorphism<Gen<B>> {
-  return (gen) => {
-    const self: Gen<B> = pipe(
-      gen,
-      S.chain((a) => (predicate(a) ? S.of(a) : self))
-    );
-    return self;
-  };
-}
-
-export const next: Gen<void> = S.modify(
-  pipe(lens.id<GenState>(), lens.prop("seed"), lens.modify(lcg.lcgNext))
-);
-
-export const uniform: Gen<number> = pipe(
-  next,
-  S.chain(() => seeded)
-);
-
-/**
- * @summary
- * Modifies the seed using an LCG perturber
- */
-export function perturb(perturber: number): Gen<void> {
-  return S.modify(
-    pipe(
-      lens.id<GenState>(),
-      lens.prop("seed"),
-      lens.modify(lcg.lcgPertub(perturber))
-    )
   );
 }
