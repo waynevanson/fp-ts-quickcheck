@@ -24,12 +24,17 @@ import {
   Predicate,
   Refinement,
 } from "fp-ts/lib/function";
-import * as GS from "./gen-state";
+import * as lens from "monocle-ts/Lens";
 
 export const URI = "Gen";
 export type URI = typeof URI;
 
-export interface Gen<A> extends S.State<GS.GenState, A> {}
+export interface GenState {
+  seed: lcg.Seed;
+  size: number;
+}
+
+export interface Gen<A> extends S.State<GenState, A> {}
 
 declare module "fp-ts" {
   export interface URItoKind<A> {
@@ -41,13 +46,13 @@ declare module "fp-ts" {
  * @summary
  * State's `get` constructor but with `GenState` type applied.
  */
-export const stated = S.get<GS.GenState>();
+export const stated = S.get<GenState>();
 
 export function repeatable<A, B>(kleisli: (a: A) => Gen<B>): Gen<(a: A) => B> {
   return pipe(
     stated,
     S.map((state) => flow(kleisli, S.evaluate(state))),
-    S.chainFirst(() => S.modify(GS.next))
+    S.chainFirst(() => next)
   );
 }
 
@@ -59,19 +64,22 @@ export function repeatable<A, B>(kleisli: (a: A) => Gen<B>): Gen<(a: A) => B> {
  * @category Constructors
  */
 export function variant(seed: number): Gen<void> {
-  return S.modify(GS.lensSeed.set(lcg.mkSeed(seed)));
+  return S.modify(
+    pipe(
+      lens.id<GenState>(),
+      lens.prop("seed"),
+      lens.modify(() => lcg.mkSeed(seed))
+    )
+  );
 }
 
 /**
  * @summary
  * Get the size of the current generator.
  */
-export const sized: Gen<number> = S.gets(GS.lensSize.get);
+export const sized: Gen<number> = S.gets((state) => state.size);
 
-export const seeded: Gen<number> = pipe(
-  S.gets(GS.lensSeed.get),
-  S.map(lcg.unSeed)
-);
+export const seeded: Gen<number> = S.gets((state) => lcg.unSeed(state.seed));
 
 /**
  * @summary
@@ -79,7 +87,7 @@ export const seeded: Gen<number> = pipe(
  *
  * This were to be called "range", but range should be applied to the seed or size
  *
- * @todo **note**: Coerces the value to a 32 bit integer.
+ * @todo **note**: Normalize the value to a 32 bit integer.
  */
 export function chooseInt(min: number, max: number): Gen<number> {
   return pipe(uniform, S.map(ORD.clamp(NUM.Ord)(min, max)));
@@ -100,23 +108,27 @@ export function oneOf<A>(gens: NEA.ReadonlyNonEmptyArray<Gen<A>>): Gen<A> {
 }
 
 /**
- * @todo Implement as stack safe.
+ * @summary
  *
- * @category Filterable
+ * **Please note** that this may loop forever if the predicate never returns true.
+ *
+ * @todo Implement as stack safe.
  */
-export function filter<A, B extends A>(
+export function suchThat<A, B extends A>(
   predicate: Predicate<A> | Refinement<A, B>
 ): Endomorphism<Gen<B>> {
   return (gen) => {
-    function self(state: GS.GenState): [B, GS.GenState] {
-      const [a, nextState] = gen(state);
-      return predicate(a) ? [a, nextState] : self(nextState);
-    }
+    const self: Gen<B> = pipe(
+      gen,
+      S.chain((a) => (predicate(a) ? S.of(a) : self))
+    );
     return self;
   };
 }
 
-export const next: Gen<void> = S.modify(GS.next);
+export const next: Gen<void> = S.modify(
+  pipe(lens.id<GenState>(), lens.prop("seed"), lens.modify(lcg.lcgNext))
+);
 
 export const uniform: Gen<number> = pipe(
   next,
@@ -128,5 +140,11 @@ export const uniform: Gen<number> = pipe(
  * Modifies the seed using an LCG perturber
  */
 export function perturb(perturber: number): Gen<void> {
-  return S.modify(GS.perturb(perturber));
+  return S.modify(
+    pipe(
+      lens.id<GenState>(),
+      lens.prop("seed"),
+      lens.modify(lcg.lcgPertub(perturber))
+    )
+  );
 }
