@@ -3,6 +3,7 @@ import { pipe } from "fp-ts/lib/function";
 import { Kind2, URIS2 } from "fp-ts/lib/HKT";
 import { Monad2 } from "fp-ts/lib/Monad";
 
+export type EnforceNonEmptyRecord<R> = keyof R extends never ? never : R;
 /**
  * @summary
  * Tail recursion via Monad.

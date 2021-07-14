@@ -1,20 +1,29 @@
 /**
- * To shrink these bad boys, we need some TSRATEGIES!
- *
- *
- *
+ * @summary
+ * The `Arbitrary` typeclass represents a value that can be generated.
  */
-import * as gen from "./gen";
-import { constant, flow, pipe, unsafeCoerce } from "fp-ts/lib/function";
-import { state as S, readonlyArray as A, readonlyRecord, functor } from "fp-ts";
-import { Pointed1 } from "fp-ts/lib/Pointed";
-import { Functor1 } from "fp-ts/lib/Functor";
+import { readonlyArray as A, state as S } from "fp-ts";
 import { Applicative1 } from "fp-ts/lib/Applicative";
 import { Apply1, sequenceS, sequenceT } from "fp-ts/lib/Apply";
+import { constant, flow, pipe, unsafeCoerce } from "fp-ts/lib/function";
+import { Functor1 } from "fp-ts/lib/Functor";
+import { Pointed1 } from "fp-ts/lib/Pointed";
+import * as gen from "./gen";
+import { EnforceNonEmptyRecord } from "./utils";
 
+/**
+ * @category Model
+ */
 export const URI = "Arbitrary";
+
+/**
+ * @category Model
+ */
 export type URI = typeof URI;
 
+/**
+ * @category Model
+ */
 export interface Arbitrary<A> {
   arbitrary: gen.Gen<A>;
 }
@@ -25,52 +34,72 @@ declare module "fp-ts/HKT" {
   }
 }
 
+// PIPEABLES
+
+/**
+ * @category Pointed
+ */
 export const of: <A>(a: A) => Arbitrary<A> = (a) => ({ arbitrary: S.of(a) });
 
+/**
+ * @category Functor
+ */
 export const map: <A, B>(f: (a: A) => B) => (fa: Arbitrary<A>) => Arbitrary<B> =
   (f) => (fa) => ({ arbitrary: pipe(fa.arbitrary, S.map(f)) });
 
+/**
+ * @category Apply
+ */
 export const ap: <A>(
   fa: Arbitrary<A>
 ) => <B>(fab: Arbitrary<(a: A) => B>) => Arbitrary<B> = (fa) => (fab) => ({
   arbitrary: pipe(fab.arbitrary, S.ap(fa.arbitrary)),
 });
 
+/**
+ * @category Chain
+ */
 export const chain: <A, B>(
   f: (a: A) => Arbitrary<B>
 ) => (fa: Arbitrary<A>) => Arbitrary<B> = (f) => (fa) => ({
   arbitrary: pipe(fa.arbitrary, S.chain(flow(f, (b) => b.arbitrary))),
 });
 
-export const Pointed: Pointed1<URI> = { URI, of };
-
-export const Functor: Functor1<URI> = { URI, map: (fa, f) => map(f)(fa) };
-
-export const Apply: Apply1<URI> = { ...Functor, ap: (fab, fa) => ap(fa)(fab) };
-
-export const Applicative: Applicative1<URI> = { ...Pointed, ...Apply };
+// INSTANCES
 
 /**
- * @category Primitives
+ * @category Typeclasses
  */
-export const number: Arbitrary<number> = {
-  arbitrary: gen.chooseInt(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
-};
+export const Pointed: Pointed1<URI> = { URI, of };
+
+/**
+ * @category Typeclasses
+ */
+export const Functor: Functor1<URI> = { URI, map: (fa, f) => map(f)(fa) };
+
+/**
+ * @category Typeclasses
+ */
+export const Apply: Apply1<URI> = { ...Functor, ap: (fab, fa) => ap(fa)(fab) };
+
+/**
+ * @category Typeclasses
+ */
+export const Applicative: Applicative1<URI> = { ...Pointed, ...Apply };
+
+// CONSTRUCTORS
 
 /**
  * @summary
- * Generate a single character string.
+ * Lift a generator into the `Arbitrary` typeclass.
  *
- * `65536` seems to be the maximum charcode supported by javascript.
- *
- * @category Primitives
+ * @category Constructors
  */
-export const character: Arbitrary<string> = {
-  arbitrary: pipe(
-    gen.chooseInt(0, 65536),
-    S.map((a) => String.fromCharCode(a))
-  ),
-};
+export function fromGen<A>(gen: gen.Gen<A>): Arbitrary<A> {
+  return { arbitrary: gen };
+}
+
+// COMBINATORS
 
 /**
  * @summary
@@ -90,28 +119,61 @@ export function array<A>(arbitrary: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> {
   };
 }
 
-export function readonly<A>(fa: Arbitrary<A>): Arbitrary<Readonly<A>> {
-  return unsafeCoerce(fa);
-}
+/**
+ * @category Combinators
+ */
+export const readonly: <A>(fa: Arbitrary<A>) => Arbitrary<Readonly<A>> =
+  unsafeCoerce;
 
-export function mutable<A>(fa: Arbitrary<Readonly<A>>): Arbitrary<A> {
-  return unsafeCoerce(fa);
-}
+/**
+ * @summary
+ * Removes the `Readonly` constraint from the value within an `Arbitrary` instance.
+ *
+ * @category Combinators
+ */
+export const mutable: <A>(fa: Arbitrary<Readonly<A>>) => Arbitrary<A> =
+  unsafeCoerce;
 
-export type EnforceNonEmptyRecord<R> = keyof R extends never ? never : R;
-
+/**
+ * @category Combinators
+ */
 export function tuple<
   R extends readonly [Arbitrary<unknown>, ...Arbitrary<unknown>[]]
 >(...arbitraries: R) {
   return pipe(sequenceT(Apply)(...arbitraries));
 }
 
+/**
+ * @category Combinators
+ */
 export function struct<R extends Record<string, Arbitrary<unknown>>>(
   struct: EnforceNonEmptyRecord<R>
 ) {
-  return pipe(sequenceS(Apply)(struct));
+  return sequenceS(Apply)(struct);
 }
 
+//PRIMITIVES
+
+/**
+ * @category Primitives
+ */
+export const number: Arbitrary<number> = {
+  arbitrary: gen.chooseInt(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
+};
+
+/**
+ * @summary
+ * Generate a single character string.
+ *
+ * @category Primitives
+ * @todo Would you prefer stricter typing with the `Char` type?
+ */
+export const character: Arbitrary<string> = {
+  arbitrary: pipe(
+    gen.chooseInt(0, 65536),
+    S.map((a) => String.fromCharCode(a))
+  ),
+};
 /**
  * @category Primitives
  */
