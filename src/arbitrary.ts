@@ -174,6 +174,7 @@ export const character: Arbitrary<string> = {
     S.map((a) => String.fromCharCode(a))
   ),
 };
+
 /**
  * @category Primitives
  */
