@@ -11,25 +11,66 @@
  */
 import * as lcg from "@no-day/fp-ts-lcg";
 import { readonlyNonEmptyArray as NEA, state as S } from "fp-ts";
-import { Endomorphism, Predicate, Refinement } from "fp-ts/lib/function";
+import { Apply1 } from "fp-ts/lib/Apply";
+import { Chain1 } from "fp-ts/lib/Chain";
+import { Functor1 } from "fp-ts/lib/Functor";
+import { Pointed1 } from "fp-ts/lib/Pointed";
+/**
+ * @category Model
+ */
 export declare const URI = "Gen";
+/**
+ * @category Model
+ */
 export declare type URI = typeof URI;
+/**
+ * @category Model
+ */
 export interface GenState {
     seed: lcg.Seed;
     size: number;
 }
+/**
+ * @category Model
+ */
 export interface Gen<A> extends S.State<GenState, A> {
 }
-declare module "fp-ts" {
+declare module "fp-ts/HKT" {
     interface URItoKind<A> {
         readonly [URI]: Gen<A>;
     }
 }
+export declare const of: <A>(a: A) => Gen<A>;
+export declare const map: <A, B>(f: (a: A) => B) => (fa: Gen<A>) => Gen<B>;
+export declare const ap: <A>(fa: Gen<A>) => <B>(fa: Gen<(a: A) => B>) => Gen<B>;
+export declare const chain: <A, B>(f: (a: A) => Gen<B>) => (fa: Gen<A>) => Gen<B>;
+export declare const Pointed: Pointed1<URI>;
+export declare const Functor: Functor1<URI>;
+export declare const Apply: Apply1<URI>;
+export declare const Chain: Chain1<URI>;
+export declare const chainFirst: <A, B>(f: (a: A) => Gen<B>) => (first: Gen<A>) => Gen<A>;
+export declare const bind: <N extends string, A, B>(name: Exclude<N, keyof A>, f: (a: A) => Gen<B>) => (ma: Gen<A>) => Gen<{ readonly [K in N | keyof A]: K extends keyof A ? A[K] : B; }>;
+export declare const Do: Gen<{}>;
+/**
+ * @category Constructors
+ */
+export declare const next: Gen<void>;
+/**
+ * @category Constructors
+ */
+export declare const uniform: Gen<number>;
 /**
  * @summary
- * State's `get` constructor but with `GenState` type applied.
+ * Modifies the seed using an LCG perturber.
+ *
+ * @category Constructors
  */
-export declare const stated: S.State<GenState, GenState>;
+export declare function perturb(perturber: number): Gen<void>;
+/**
+ * @summary
+ *
+ * @category Constructors
+ */
 export declare function repeatable<A, B>(kleisli: (a: A) => Gen<B>): Gen<(a: A) => B>;
 /**
  * @summary
@@ -42,15 +83,23 @@ export declare function variant(seed: number): Gen<void>;
 /**
  * @summary
  * Get the size of the current generator.
+ *
+ * @category Constructors
  */
 export declare const sized: Gen<number>;
+/**
+ * @summary
+ * Retrieves the current `Seed` from the state, coerced to a number.
+ * Useful when using the seed to generate values
+ *
+ * @category Constructors
+ */
 export declare const seeded: Gen<number>;
 /**
  * @summary
  * Select a randomly uniform integer betwee `min` and `max`. Also takes a bounded instance.
  *
- * This were to be called "range", but range should be applied to the seed or size
- *
+ * @category Constructors
  * @todo **note**: Normalize the value to a 32 bit integer.
  */
 export declare function chooseInt(min: number, max: number): Gen<number>;
@@ -61,18 +110,3 @@ export declare function chooseInt(min: number, max: number): Gen<number>;
  * @category Combinators
  */
 export declare function oneOf<A>(gens: NEA.ReadonlyNonEmptyArray<Gen<A>>): Gen<A>;
-/**
- * @summary
- *
- * **Please note** that this may loop forever if the predicate never returns true.
- *
- * @todo Implement as stack safe.
- */
-export declare function suchThat<A, B extends A>(predicate: Predicate<A> | Refinement<A, B>): Endomorphism<Gen<B>>;
-export declare const next: Gen<void>;
-export declare const uniform: Gen<number>;
-/**
- * @summary
- * Modifies the seed using an LCG perturber
- */
-export declare function perturb(perturber: number): Gen<void>;

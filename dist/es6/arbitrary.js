@@ -1,43 +1,64 @@
 /**
- * To shrink these bad boys, we need some TSRATEGIES!
- *
- *
- *
+ * @summary
+ * The `Arbitrary` typeclass represents a value that can be generated.
  */
-import * as gen from "./gen";
-import { constant, flow, pipe, unsafeCoerce } from "fp-ts/lib/function";
-import { state as S, readonlyArray as A } from "fp-ts";
+import { readonlyArray as A, state as S } from "fp-ts";
 import { sequenceS, sequenceT } from "fp-ts/lib/Apply";
+import { constant, flow, pipe, unsafeCoerce } from "fp-ts/lib/function";
+import * as gen from "./gen";
+/**
+ * @category Model
+ */
 export const URI = "Arbitrary";
+// PIPEABLES
+/**
+ * @category Pointed
+ */
 export const of = (a) => ({ arbitrary: S.of(a) });
+/**
+ * @category Functor
+ */
 export const map = (f) => (fa) => ({ arbitrary: pipe(fa.arbitrary, S.map(f)) });
+/**
+ * @category Apply
+ */
 export const ap = (fa) => (fab) => ({
     arbitrary: pipe(fab.arbitrary, S.ap(fa.arbitrary)),
 });
+/**
+ * @category Chain
+ */
 export const chain = (f) => (fa) => ({
     arbitrary: pipe(fa.arbitrary, S.chain(flow(f, (b) => b.arbitrary))),
 });
-export const Pointed = { URI, of };
-export const Functor = { URI, map: (fa, f) => map(f)(fa) };
-export const Apply = Object.assign(Object.assign({}, Functor), { ap: (fab, fa) => ap(fa)(fab) });
-export const Applicative = Object.assign(Object.assign({}, Pointed), Apply);
+// INSTANCES
 /**
- * @category Primitives
+ * @category Typeclasses
  */
-export const number = {
-    arbitrary: gen.chooseInt(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
-};
+export const Pointed = { URI, of };
+/**
+ * @category Typeclasses
+ */
+export const Functor = { URI, map: (fa, f) => map(f)(fa) };
+/**
+ * @category Typeclasses
+ */
+export const Apply = Object.assign(Object.assign({}, Functor), { ap: (fab, fa) => ap(fa)(fab) });
+/**
+ * @category Typeclasses
+ */
+export const Applicative = Object.assign(Object.assign({}, Pointed), Apply);
+// CONSTRUCTORS
 /**
  * @summary
- * Generate a single character string.
+ * Lift a generator into the `Arbitrary` typeclass.
  *
- * `65536` seems to be the maximum charcode supported by javascript.
- *
- * @category Primitives
+ * @category Constructors
  */
-export const character = {
-    arbitrary: pipe(gen.chooseInt(0, 65536), S.map((a) => String.fromCharCode(a))),
-};
+export function fromGen(gen) {
+    return { arbitrary: gen };
+}
+// COMBINATORS
 /**
  * @summary
  * Generates an array with a random size, then each has the random contents.
@@ -49,18 +70,46 @@ export function array(arbitrary) {
         arbitrary: pipe(gen.sized, S.chain((size) => gen.chooseInt(0, size)), S.chain((size) => pipe(A.makeBy(size, constant(arbitrary.arbitrary)), S.sequenceArray))),
     };
 }
-export function readonly(fa) {
-    return unsafeCoerce(fa);
-}
-export function mutable(fa) {
-    return unsafeCoerce(fa);
-}
+/**
+ * @category Combinators
+ */
+export const readonly = unsafeCoerce;
+/**
+ * @summary
+ * Removes the `Readonly` constraint from the value within an `Arbitrary` instance.
+ *
+ * @category Combinators
+ */
+export const mutable = unsafeCoerce;
+/**
+ * @category Combinators
+ */
 export function tuple(...arbitraries) {
     return pipe(sequenceT(Apply)(...arbitraries));
 }
+/**
+ * @category Combinators
+ */
 export function struct(struct) {
-    return pipe(sequenceS(Apply)(struct));
+    return sequenceS(Apply)(struct);
 }
+//PRIMITIVES
+/**
+ * @category Primitives
+ */
+export const number = {
+    arbitrary: gen.chooseInt(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
+};
+/**
+ * @summary
+ * Generate a single character string.
+ *
+ * @category Primitives
+ * @todo Would you prefer stricter typing with the `Char` type?
+ */
+export const character = {
+    arbitrary: pipe(gen.chooseInt(0, 65536), S.map((a) => String.fromCharCode(a))),
+};
 /**
  * @category Primitives
  */

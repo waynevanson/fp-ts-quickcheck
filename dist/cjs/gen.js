@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
@@ -19,7 +30,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.perturb = exports.uniform = exports.next = exports.suchThat = exports.oneOf = exports.chooseInt = exports.seeded = exports.sized = exports.variant = exports.repeatable = exports.stated = exports.URI = void 0;
+exports.oneOf = exports.chooseInt = exports.seeded = exports.sized = exports.variant = exports.repeatable = exports.perturb = exports.uniform = exports.next = exports.Do = exports.bind = exports.chainFirst = exports.Chain = exports.Apply = exports.Functor = exports.Pointed = exports.chain = exports.ap = exports.map = exports.of = exports.URI = void 0;
 /**
  * @description
  * When researching how to create this library, there's definitely a lack of documentation on how the internals work.
@@ -35,14 +46,68 @@ var lcg = __importStar(require("@no-day/fp-ts-lcg"));
 var fp_ts_1 = require("fp-ts");
 var function_1 = require("fp-ts/lib/function");
 var lens = __importStar(require("monocle-ts/Lens"));
+/**
+ * @category Model
+ */
 exports.URI = "Gen";
+// PIPEABLES
+exports.of = fp_ts_1.state.of;
+exports.map = fp_ts_1.state.map;
+exports.ap = fp_ts_1.state.ap;
+exports.chain = fp_ts_1.state.chain;
+// INSTANCES
+/*
+ * @category Instances
+ */
+exports.Pointed = { URI: exports.URI, of: exports.of };
+/*
+ * @category Instances
+ */
+exports.Functor = { URI: exports.URI, map: function (fa, f) { return exports.map(f)(fa); } };
+/*
+ * @category Instances
+ */
+exports.Apply = __assign(__assign({}, exports.Functor), { ap: function (fab, fa) { return exports.ap(fa)(fab); } });
+/*
+ * @category Instances
+ */
+exports.Chain = __assign(__assign({}, exports.Apply), { chain: function (fa, f) { return exports.chain(f)(fa); } });
+exports.chainFirst = fp_ts_1.chain.chainFirst(exports.Chain);
+exports.bind = fp_ts_1.chain.bind(exports.Chain);
+exports.Do = exports.of({});
+// CONSTRUCTORS
 /**
  * @summary
  * State's `get` constructor but with `GenState` type applied.
+ *
+ * @category Constructors
  */
-exports.stated = fp_ts_1.state.get();
+var stated = fp_ts_1.state.get();
+/**
+ * @category Constructors
+ */
+exports.next = fp_ts_1.state.modify(function_1.pipe(lens.id(), lens.prop("seed"), lens.modify(lcg.lcgNext)));
+/**
+ * @category Constructors
+ */
+exports.uniform = function_1.pipe(exports.next, fp_ts_1.state.chain(function () { return exports.seeded; }));
+/**
+ * @summary
+ * Modifies the seed using an LCG perturber.
+ *
+ * @category Constructors
+ */
+function perturb(perturber) {
+    return fp_ts_1.state.modify(function_1.pipe(lens.id(), lens.prop("seed"), lens.modify(lcg.lcgPertub(perturber))));
+}
+exports.perturb = perturb;
+/**
+ * @summary
+ *
+ * @category Constructors
+ */
 function repeatable(kleisli) {
-    return function_1.pipe(exports.stated, fp_ts_1.state.map(function (state) { return function_1.flow(kleisli, fp_ts_1.state.evaluate(state)); }), fp_ts_1.state.chainFirst(function () { return exports.next; }));
+    return function_1.pipe(stated, fp_ts_1.state.map(function (state) { return function_1.flow(kleisli, fp_ts_1.state.evaluate(state)); }), fp_ts_1.state.chainFirst(function () { return exports.next; }));
 }
 exports.repeatable = repeatable;
 /**
@@ -59,21 +124,30 @@ exports.variant = variant;
 /**
  * @summary
  * Get the size of the current generator.
+ *
+ * @category Constructors
  */
 exports.sized = fp_ts_1.state.gets(function (state) { return state.size; });
+/**
+ * @summary
+ * Retrieves the current `Seed` from the state, coerced to a number.
+ * Useful when using the seed to generate values
+ *
+ * @category Constructors
+ */
 exports.seeded = fp_ts_1.state.gets(function (state) { return lcg.unSeed(state.seed); });
 /**
  * @summary
  * Select a randomly uniform integer betwee `min` and `max`. Also takes a bounded instance.
  *
- * This were to be called "range", but range should be applied to the seed or size
- *
+ * @category Constructors
  * @todo **note**: Normalize the value to a 32 bit integer.
  */
 function chooseInt(min, max) {
     return function_1.pipe(exports.uniform, fp_ts_1.state.map(fp_ts_1.ord.clamp(fp_ts_1.number.Ord)(min, max)));
 }
 exports.chooseInt = chooseInt;
+// COMBINATORS
 /**
  * @summary
  * From a `ReadonlyNonEmptyArray` of `Gen<A>`'s, randomly pick a generator.
@@ -86,27 +160,3 @@ function oneOf(gens) {
     fp_ts_1.state.chain(function (index) { return gens[index]; }));
 }
 exports.oneOf = oneOf;
-/**
- * @summary
- *
- * **Please note** that this may loop forever if the predicate never returns true.
- *
- * @todo Implement as stack safe.
- */
-function suchThat(predicate) {
-    return function (gen) {
-        var self = function_1.pipe(gen, fp_ts_1.state.chain(function (a) { return (predicate(a) ? fp_ts_1.state.of(a) : self); }));
-        return self;
-    };
-}
-exports.suchThat = suchThat;
-exports.next = fp_ts_1.state.modify(function_1.pipe(lens.id(), lens.prop("seed"), lens.modify(lcg.lcgNext)));
-exports.uniform = function_1.pipe(exports.next, fp_ts_1.state.chain(function () { return exports.seeded; }));
-/**
- * @summary
- * Modifies the seed using an LCG perturber
- */
-function perturb(perturber) {
-    return fp_ts_1.state.modify(function_1.pipe(lens.id(), lens.prop("seed"), lens.modify(lcg.lcgPertub(perturber))));
-}
-exports.perturb = perturb;

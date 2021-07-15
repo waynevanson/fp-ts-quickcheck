@@ -1,6 +1,7 @@
 import { either as E } from "fp-ts";
 import { Kind2 } from "fp-ts/lib/HKT";
 import { Monad2 } from "fp-ts/lib/Monad";
+export declare type EnforceNonEmptyRecord<R> = keyof R extends never ? never : R;
 /**
  * @summary
  * Tail recursion via Monad.

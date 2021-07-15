@@ -6,7 +6,7 @@
  *
  */
 import { mkSeed } from "@no-day/fp-ts-lcg";
-import { boolean as BL, either as E, readonlyArray as A, task as T, taskEither as TE, console as Console, } from "fp-ts";
+import { boolean as BL, console as Console, either as E, readonlyArray as A, task as T, taskEither as TE, } from "fp-ts";
 import { constVoid, flow, identity, increment, pipe, tupled, unsafeCoerce, } from "fp-ts/lib/function";
 import * as lens from "monocle-ts/Lens";
 import * as ST from "./StateTask";
@@ -41,3 +41,7 @@ export function quickCheck(options) {
         seed: mkSeed(options.initialSeed),
     }), T.chain(T.fromIOK(Console.log)));
 }
+// when an error happens we should advise what cooked up.
+// show them the first. if they want more, require "verbose" flag in options
+// that will show more than just the first test failed.
+// if they want it looged in a file,

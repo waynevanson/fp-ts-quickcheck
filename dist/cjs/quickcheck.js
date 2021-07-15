@@ -102,3 +102,7 @@ function quickCheck(options) {
     };
 }
 exports.quickCheck = quickCheck;
+// when an error happens we should advise what cooked up.
+// show them the first. if they want more, require "verbose" flag in options
+// that will show more than just the first test failed.
+// if they want it looged in a file,

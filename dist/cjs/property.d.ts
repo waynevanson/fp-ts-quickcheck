@@ -1,7 +1,3 @@
-/**
- * @summary
- *
- */
 import { readerTask as RT } from "fp-ts";
 /**
  * @summary

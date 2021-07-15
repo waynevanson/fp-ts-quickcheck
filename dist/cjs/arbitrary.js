@@ -30,51 +30,73 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.boolean = exports.string = exports.struct = exports.tuple = exports.mutable = exports.readonly = exports.array = exports.character = exports.number = exports.Applicative = exports.Apply = exports.Functor = exports.Pointed = exports.chain = exports.ap = exports.map = exports.of = exports.URI = void 0;
+exports.boolean = exports.string = exports.character = exports.number = exports.struct = exports.tuple = exports.mutable = exports.readonly = exports.array = exports.fromGen = exports.Applicative = exports.Apply = exports.Functor = exports.Pointed = exports.chain = exports.ap = exports.map = exports.of = exports.URI = void 0;
 /**
- * To shrink these bad boys, we need some TSRATEGIES!
- *
- *
- *
+ * @summary
+ * The `Arbitrary` typeclass represents a value that can be generated.
  */
-var gen = __importStar(require("./gen"));
-var function_1 = require("fp-ts/lib/function");
 var fp_ts_1 = require("fp-ts");
 var Apply_1 = require("fp-ts/lib/Apply");
+var function_1 = require("fp-ts/lib/function");
+var gen = __importStar(require("./gen"));
+/**
+ * @category Model
+ */
 exports.URI = "Arbitrary";
+// PIPEABLES
+/**
+ * @category Pointed
+ */
 var of = function (a) { return ({ arbitrary: fp_ts_1.state.of(a) }); };
 exports.of = of;
+/**
+ * @category Functor
+ */
 var map = function (f) { return function (fa) { return ({ arbitrary: function_1.pipe(fa.arbitrary, fp_ts_1.state.map(f)) }); }; };
 exports.map = map;
+/**
+ * @category Apply
+ */
 var ap = function (fa) { return function (fab) { return ({
     arbitrary: function_1.pipe(fab.arbitrary, fp_ts_1.state.ap(fa.arbitrary)),
 }); }; };
 exports.ap = ap;
+/**
+ * @category Chain
+ */
 var chain = function (f) { return function (fa) { return ({
     arbitrary: function_1.pipe(fa.arbitrary, fp_ts_1.state.chain(function_1.flow(f, function (b) { return b.arbitrary; }))),
 }); }; };
 exports.chain = chain;
-exports.Pointed = { URI: exports.URI, of: exports.of };
-exports.Functor = { URI: exports.URI, map: function (fa, f) { return exports.map(f)(fa); } };
-exports.Apply = __assign(__assign({}, exports.Functor), { ap: function (fab, fa) { return exports.ap(fa)(fab); } });
-exports.Applicative = __assign(__assign({}, exports.Pointed), exports.Apply);
+// INSTANCES
 /**
- * @category Primitives
+ * @category Typeclasses
  */
-exports.number = {
-    arbitrary: gen.chooseInt(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
-};
+exports.Pointed = { URI: exports.URI, of: exports.of };
+/**
+ * @category Typeclasses
+ */
+exports.Functor = { URI: exports.URI, map: function (fa, f) { return exports.map(f)(fa); } };
+/**
+ * @category Typeclasses
+ */
+exports.Apply = __assign(__assign({}, exports.Functor), { ap: function (fab, fa) { return exports.ap(fa)(fab); } });
+/**
+ * @category Typeclasses
+ */
+exports.Applicative = __assign(__assign({}, exports.Pointed), exports.Apply);
+// CONSTRUCTORS
 /**
  * @summary
- * Generate a single character string.
+ * Lift a generator into the `Arbitrary` typeclass.
  *
- * `65536` seems to be the maximum charcode supported by javascript.
- *
- * @category Primitives
+ * @category Constructors
  */
-exports.character = {
-    arbitrary: function_1.pipe(gen.chooseInt(0, 65536), fp_ts_1.state.map(function (a) { return String.fromCharCode(a); })),
-};
+function fromGen(gen) {
+    return { arbitrary: gen };
+}
+exports.fromGen = fromGen;
+// COMBINATORS
 /**
  * @summary
  * Generates an array with a random size, then each has the random contents.
@@ -89,14 +111,20 @@ function array(arbitrary) {
     };
 }
 exports.array = array;
-function readonly(fa) {
-    return function_1.unsafeCoerce(fa);
-}
-exports.readonly = readonly;
-function mutable(fa) {
-    return function_1.unsafeCoerce(fa);
-}
-exports.mutable = mutable;
+/**
+ * @category Combinators
+ */
+exports.readonly = function_1.unsafeCoerce;
+/**
+ * @summary
+ * Removes the `Readonly` constraint from the value within an `Arbitrary` instance.
+ *
+ * @category Combinators
+ */
+exports.mutable = function_1.unsafeCoerce;
+/**
+ * @category Combinators
+ */
 function tuple() {
     var arbitraries = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -105,10 +133,30 @@ function tuple() {
     return function_1.pipe(Apply_1.sequenceT(exports.Apply).apply(void 0, arbitraries));
 }
 exports.tuple = tuple;
+/**
+ * @category Combinators
+ */
 function struct(struct) {
-    return function_1.pipe(Apply_1.sequenceS(exports.Apply)(struct));
+    return Apply_1.sequenceS(exports.Apply)(struct);
 }
 exports.struct = struct;
+//PRIMITIVES
+/**
+ * @category Primitives
+ */
+exports.number = {
+    arbitrary: gen.chooseInt(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
+};
+/**
+ * @summary
+ * Generate a single character string.
+ *
+ * @category Primitives
+ * @todo Would you prefer stricter typing with the `Char` type?
+ */
+exports.character = {
+    arbitrary: function_1.pipe(gen.chooseInt(0, 65536), fp_ts_1.state.map(function (a) { return String.fromCharCode(a); })),
+};
 /**
  * @category Primitives
  */
