@@ -1,9 +1,4 @@
-/**
- * @summary
- *
- */
-import { task as T, readerTask as RT, eq as EQ } from "fp-ts";
-import { pipe } from "fp-ts/lib/function";
+import { readerTask as RT } from "fp-ts";
 
 /**
  * @summary
@@ -12,3 +7,7 @@ import { pipe } from "fp-ts/lib/function";
  * and testing frameworks like jest.
  */
 export type Property<R extends readonly unknown[], A> = RT.ReaderTask<R, A>;
+
+// what else to put in this file, lifters?
+
+// from io,
