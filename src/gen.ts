@@ -16,6 +16,7 @@ import {
   readonlyArray as A,
   readonlyNonEmptyArray as NEA,
   state as S,
+  chain as CHF,
 } from "fp-ts";
 import { Apply1 } from "fp-ts/lib/Apply";
 import { Chain1 } from "fp-ts/lib/Chain";
@@ -83,6 +84,9 @@ export const Apply: Apply1<URI> = { ...Functor, ap: (fab, fa) => ap(fa)(fab) };
  */
 export const Chain: Chain1<URI> = { ...Apply, chain: (fa, f) => chain(f)(fa) };
 
+export const chainFirst = CHF.chainFirst(Chain);
+export const bind = CHF.bind(Chain);
+export const Do = of({});
 // CONSTRUCTORS
 
 /**
