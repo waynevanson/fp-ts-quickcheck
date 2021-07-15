@@ -6,14 +6,14 @@
  *
  */
 
-import { lcgNext, mkSeed, Seed } from "@no-day/fp-ts-lcg";
+import { mkSeed, Seed } from "@no-day/fp-ts-lcg";
 import {
   boolean as BL,
+  console as Console,
   either as E,
   readonlyArray as A,
   task as T,
   taskEither as TE,
-  console as Console,
 } from "fp-ts";
 import {
   constVoid,
@@ -26,10 +26,9 @@ import {
 } from "fp-ts/lib/function";
 import * as lens from "monocle-ts/Lens";
 import { Arbitrary } from "./arbitrary";
+import { Gen, GenState } from "./gen";
 import * as ST from "./StateTask";
 import { tailRecM } from "./utils";
-import * as gen from "./gen";
-import { Gen, GenState } from "./gen";
 
 export interface LoopFailure {
   seed: Seed;
@@ -175,3 +174,9 @@ export function quickCheck<A extends readonly unknown[]>(
       T.chain(T.fromIOK(Console.log))
     );
 }
+
+// when an error happens we should advise what cooked up.
+
+// show them the first. if they want more, require "verbose" flag in options
+// that will show more than just the first test failed.
+// if they want it looged in a file,
