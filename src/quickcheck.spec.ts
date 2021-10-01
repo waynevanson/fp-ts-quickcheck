@@ -1,20 +1,12 @@
-import { pipe } from "fp-ts/lib/function";
-import { quickCheck } from "./quickcheck";
-import * as a from "./arbitrary";
-import * as assert from "assert";
+import * as qc from "./quickcheck"
+import * as A from "./arbitrary"
+import { pipe } from "fp-ts/lib/function"
 
-describe("runs", () => {
-  it(
-    "runs at least a little",
+describe("qc", () => {
+  it("shoudl work baby", () => {
     pipe(
-      a.tuple(a.string),
-      quickCheck({
-        count: 100,
-        initialSeed: 283723,
-        property: (string) => async () => {
-          assert.strictEqual(string, string);
-        },
-      })
+      A.struct({ name: A.string, age: A.number }),
+      qc.assert(({ name, age }) => true, { count: 10, initialSeed: 434 }),
     )
-  );
-});
+  })
+})

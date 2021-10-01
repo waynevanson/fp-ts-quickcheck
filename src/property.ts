@@ -1,13 +1,17 @@
-import { readerTask as RT } from "fp-ts";
+import { either as E } from "fp-ts"
+import { Monoid } from "fp-ts/lib/Monoid"
+import { Reader } from "fp-ts/lib/Reader"
+import { Arbitrary } from "./arbitrary"
 
 /**
  * @summary
- * A `Property` is an asynchronous thunk.
- * By using this signature, these can be composed with test runners
- * and testing frameworks like jest.
+ * A property is a function that tests whether something worked or not.
+ *
+ * Properties should have an assertion that **THROWS**,
+ * as the thrown assertion indicates that the test will fail.
+ *
+ * Or it can return a boolean. this way we know it's all good.
  */
-export type Property<R extends readonly unknown[], A> = RT.ReaderTask<R, A>;
-
-// what else to put in this file, lifters?
-
-// from io,
+export interface Property<A> {
+  (r: A): boolean | void
+}

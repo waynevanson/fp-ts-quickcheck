@@ -3,176 +3,101 @@
  * Runs a list of generators, with the option to configure size and the seed number if that's what your heart desires.
  *
  * @description
- *
+ *@todo this file should be in quickcheck folder,
+ * and all the side effectual stuff for the terminal should be something else.
  */
 
-import { mkSeed, Seed } from "@no-day/fp-ts-lcg";
+import { mkSeed } from "@no-day/fp-ts-lcg"
 import {
   boolean as BL,
-  console as Console,
   either as E,
   readonlyArray as A,
-  task as T,
-  taskEither as TE,
-} from "fp-ts";
-import {
-  constVoid,
-  flow,
-  identity,
-  increment,
-  pipe,
-  tupled,
-  unsafeCoerce,
-} from "fp-ts/lib/function";
-import * as lens from "monocle-ts/Lens";
-import { Arbitrary } from "./arbitrary";
-import { Gen, GenState } from "./gen";
-import * as ST from "./StateTask";
-import { tailRecM } from "./utils";
+  state as S,
+} from "fp-ts"
+import { constVoid, flow, identity, pipe } from "fp-ts/lib/function"
+import { Arbitrary } from "./arbitrary"
+import * as gen from "./generators"
+import { Property } from "./property"
+import * as loop from "./quickcheck/loop-state"
+import { tailRecM } from "./utils"
 
-export interface LoopFailure {
-  seed: Seed;
-  index: number;
-  data: unknown;
-}
-
-export interface LoopState {
-  seed: Seed;
-  index: number;
-  successes: number;
-  failures: ReadonlyArray<LoopFailure>;
-}
-
-/**
- * @summary
- * A property is a function that tests whether something worked or not.
- *
- * Properties should have an assertion that **THROWS**,
- * as the thrown assertion indicates that the test will fail.
- */
-export interface Property<R extends readonly unknown[]> {
-  (...args: R): T.Task<void>;
-}
-
-export const incrementIndex = pipe(
-  lens.id<LoopState>(),
-  lens.prop("index"),
-  lens.modify(increment),
-  ST.modify
-);
-
-export const withSeed = (seed: Seed) =>
-  pipe(
-    lens.id<LoopState>(),
-    lens.prop("seed"),
-    lens.modify(() => seed),
-    ST.modify
-  );
-
-export const incrementSuccess = pipe(
-  lens.id<LoopState>(),
-  lens.prop("successes"),
-  lens.modify(increment),
-  ST.modify
-);
-
-export function appendFailure(failure: LoopFailure) {
+// threw as new value,
+// runs the arbitrary and figures out if we got an error or not
+// check if the error was a thrown error or a normal error
+export function runProperty<A>(
+  arbitrary: Arbitrary<A>,
+  property: Property<A>,
+): gen.Gen<E.Either<unknown, void>> {
   return pipe(
-    lens.id<LoopState>(),
-    lens.prop("failures"),
-    lens.modify(flow(A.append(failure), (a) => unsafeCoerce(a))),
-    ST.modify
-  );
-}
-
-export function makeFailure(
-  data: unknown
-): ST.StateTask<LoopState, LoopFailure> {
-  return pipe(
-    ST.gets(pipe(lens.id<LoopState>(), lens.props("seed", "index")).get),
-    ST.map((most): LoopFailure => ({ ...most, data }))
-  );
-}
-
-export const onFailure = (data: unknown) =>
-  pipe(
-    ST.of<void, LoopState>(constVoid()),
-    ST.chain(() => makeFailure(data)),
-    ST.chain(appendFailure)
-  );
-
-export const onSuccess = pipe(
-  ST.of<void, LoopState>(constVoid()),
-  ST.chainFirst(() => incrementSuccess)
-);
-
-export function runProperty<A extends readonly unknown[]>(
-  gen: Gen<A>,
-  property: Property<A>
-) {
-  return pipe(
-    gen,
-    ST.fromState,
-    ST.chainTask(
-      flow(tupled(property), (property) => TE.tryCatch(property, identity))
-    )
-  );
+    arbitrary.arbitrary,
+    S.map(
+      flow(
+        E.tryCatchK(property, identity),
+        E.chain(
+          E.fromPredicate(
+            (a) => a !== false,
+            (e) => e as unknown,
+          ),
+        ),
+        E.map(constVoid),
+      ),
+    ),
+  )
 }
 
 // call when we need to loop again
-export const onRepeat = <A extends readonly unknown[]>(
-  { property }: QuickCheckOptions<A>,
-  { arbitrary: gen }: Arbitrary<A>
-) =>
+export const onRepeat = <A>(property: Property<A>, arbitrary: Arbitrary<A>) =>
   pipe(
-    ST.gets((state: LoopState): GenState => ({ seed: state.seed, size: 10 })),
-    ST.chainTask(runProperty(gen, property)),
-    ST.map(([value, { seed }]) => ({ seed, value })),
-    // use the new seed from the generator
-    ST.chainFirst(({ seed }) => withSeed(seed)),
-    ST.chainFirst(() => incrementIndex),
-    ST.chain(({ value }) =>
+    S.gets(
+      (state: loop.LoopState): gen.GenState => ({
+        newSeed: state.seed,
+        size: 10,
+      }),
+    ),
+    S.map(runProperty(arbitrary, property)),
+    S.map(([value, { newSeed }]) => ({ newSeed, value })),
+    // use the new seed from the just ran generator
+    S.chainFirst(({ newSeed }) => loop.withSeed(newSeed)),
+    S.chainFirst(() => loop.incrementIndex),
+    S.chain(({ value }) =>
       pipe(
         value,
-        E.match(onFailure, () => onSuccess)
-      )
-    )
-  );
+        E.match(loop.onFailure, () => loop.onSuccess),
+      ),
+    ),
+  )
 
-export interface QuickCheckOptions<A extends readonly unknown[]> {
-  initialSeed: number;
-  count: number;
-  property: Property<A>;
+export interface QuickCheckOptions {
+  initialSeed: number
+  count: number
 }
 
-export function quickCheck<A extends readonly unknown[]>(
-  options: QuickCheckOptions<A>
-) {
-  return (Arbitrary: Arbitrary<A>): T.Task<void> =>
+// throw when things go bad or something
+export function assert<A>(property: Property<A>, options: QuickCheckOptions) {
+  return (Arbitrary: Arbitrary<A>) =>
     pipe(
-      ST.of<void, LoopState>(constVoid()),
+      S.of<loop.LoopState, void>(constVoid()),
       // this is where the work happens
-      tailRecM(ST.Monad)(() =>
+      tailRecM(S.Monad)(() =>
         pipe(
-          ST.gets((a: LoopState) => a.index >= options.count),
+          S.gets((a: loop.LoopState) => a.index >= options.count),
 
-          ST.chain(
+          S.chain(
             BL.matchW(
-              () => pipe(onRepeat(options, Arbitrary), ST.map(E.left)),
-              () => ST.of(E.right<void, void>(constVoid()))
-            )
-          )
-        )
+              () => pipe(onRepeat(property, Arbitrary), S.map(E.left)),
+              () => S.of(E.right<void, void>(constVoid())),
+            ),
+          ),
+        ),
       ),
       // initial state - seed should be random af on some other functions
-      ST.executeTask<LoopState>({
-        failures: A.zero<LoopFailure>(),
+      S.execute<loop.LoopState>({
+        failures: A.zero<loop.LoopFailure>(),
         index: 0,
         successes: 0,
         seed: mkSeed(options.initialSeed),
       }),
-      T.chain(T.fromIOK(Console.log))
-    );
+    )
 }
 
 // when an error happens we should advise what cooked up.
