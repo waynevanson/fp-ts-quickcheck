@@ -11,7 +11,9 @@ import { mkSeed } from "@no-day/fp-ts-lcg"
 import {
   boolean as BL,
   either as E,
+  io as IO,
   reader as R,
+  readonlyArray as A,
   readonlyTuple as TP,
 } from "fp-ts"
 import { constVoid, flow, identity, pipe } from "fp-ts/lib/function"
@@ -123,6 +125,54 @@ export function run<A>(
       }),
     )
 }
+
+/** @throws */
+export function handle(fa: loopState.LoopState): IO.IO<void> {
+  return pipe(
+    fa.failures,
+    E.fromPredicate(A.isNonEmpty, (a) => a as []),
+    E.map(
+      A.map(({ data, index, seed }) => JSON.stringify({ seed, index, data })),
+    ),
+    E.map((xs) => xs.join("\n")),
+    E.map(
+      (message) =>
+        new Error(`Error occured, here is some information: \n${message}`),
+    ),
+    E.swap,
+    E.map(() => IO.of(constVoid())),
+    E.getOrElseW((error) => () => {
+      throw error
+    }),
+  )
+}
+
+export function assert<A>(
+  property: Property<A>,
+  options?: Partial<QuickCheckOptions>,
+) {
+  return flow(
+    run(
+      property,
+      Object.assign({ count: 10, initialSeed: 0, size: 10 }, options),
+    ),
+    handle,
+  )
+}
+// on error, return some sort of error.
+// on success, no dramas. log that lots of tests were ran.
+
+// export function runIO<A>(
+//   property: Property<IO.IO<A>>,
+//   { count, initialSeed, size }: QuickCheckOptions,
+// ): IO.IO<void> {
+
+// }
+
+// export function runTask<A>(
+//   property: Property<T.Task<A>>,
+//   { count, initialSeed, size }: QuickCheckOptions,
+// ): T.Task<void> {}
 
 // when an error happens we should advise what cooked up.
 
