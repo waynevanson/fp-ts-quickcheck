@@ -1,16 +1,34 @@
 import * as qc from "./quickcheck"
 import * as A from "./arbitrary"
-import { pipe } from "fp-ts/lib/function"
+import { constVoid, pipe } from "fp-ts/lib/function"
 
-describe("qc", () => {
-  it("shoudl work baby", () => {
-    pipe(
-      A.struct({ name: A.string, age: A.number }),
-      qc.run(({ name, age }) => true, {
-        count: 10,
-        initialSeed: 434,
-        size: 10,
-      }),
-    )
+describe("quickcheck", () => {
+  it("should not throw when the property returns true", () => {
+    expect(
+      pipe(
+        A.of(constVoid()),
+        qc.assert(() => true),
+      ),
+    ).not.toThrow()
+  })
+
+  it("should throw when the property returns false", () => {
+    expect(
+      pipe(
+        A.of(constVoid()),
+        qc.assert(() => false),
+      ),
+    ).toThrow()
+  })
+
+  it("should throw when the property throws", () => {
+    expect(
+      pipe(
+        A.of(constVoid()),
+        qc.assert(() => {
+          throw ""
+        }),
+      ),
+    ).toThrow()
   })
 })
