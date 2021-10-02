@@ -9,7 +9,7 @@ import {
 import { flow, pipe, unsafeCoerce } from "fp-ts/lib/function"
 import * as lens from "monocle-ts/Lens"
 import { MonoidSeed } from "../modules/lcg"
-import { LoopState } from "./common"
+import { LoopState } from "./loop-state"
 
 export interface LoopFailure {
   seed: lcg.Seed

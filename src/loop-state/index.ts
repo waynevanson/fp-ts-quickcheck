@@ -1,2 +1,2 @@
 export * as failure from "./failure"
-export * as loopState from "./common"
+export * as loopState from "./loop-state"
