@@ -37,7 +37,6 @@ export function runProperty<A>({
 }) {
   return pipe(
     arbitrary.arbitrary,
-
     S.map(
       flow(
         // get errors if the property throws
