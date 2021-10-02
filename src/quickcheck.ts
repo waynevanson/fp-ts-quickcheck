@@ -11,10 +11,12 @@ import { mkSeed } from "@no-day/fp-ts-lcg"
 import { boolean as BL, either as E, readonlyArray as A } from "fp-ts"
 import { constVoid, flow, identity, pipe } from "fp-ts/lib/function"
 import { Arbitrary } from "./arbitrary"
-import * as gen from "./generators"
+import * as gen from "./modules/generators"
 import { Property } from "./property"
-import * as loop from "./quickcheck/loop-state"
-import * as S from "./state"
+import { loopState, failure } from "./loop-state"
+import * as S from "./modules/fp-ts/state"
+
+export interface Loop<A> extends S.State<loopState.LoopState, A> {}
 
 // threw as new value,
 // runs the arbitrary and figures out if we got an error or not
@@ -25,7 +27,7 @@ export function propertyResult<A>({
 }: {
   arbitrary: Arbitrary<A>
   property: Property<A>
-}): gen.Gen<E.Either<unknown, void>> {
+}) {
   return pipe(
     arbitrary.arbitrary,
     S.map(
@@ -40,6 +42,8 @@ export function propertyResult<A>({
         E.map(constVoid),
       ),
     ),
+    S.bindTo("value"),
+    S.bind("newSeed", () => S.gets((genState) => genState.newSeed)),
   )
 }
 
@@ -51,26 +55,28 @@ export interface OnRepeatParameters<A> {
 }
 
 // call when we need to loop again
-export const onRepeat = <A>({
+export const loop = <A>({
   property,
   arbitrary,
-}: OnRepeatParameters<A>): loop.Loop<void> =>
+}: OnRepeatParameters<A>): Loop<void> =>
   pipe(
     S.gets(
-      (state: loop.LoopState): gen.GenState => ({
+      (state: loopState.LoopState): gen.GenState => ({
         newSeed: state.seed,
         size: 10,
       }),
     ),
     S.map(propertyResult({ arbitrary, property })),
-    S.map(([value, { newSeed }]) => ({ newSeed, value })),
+    S.map(([results]) => results),
     // use the new seed from the just ran generator
-    S.chainFirst(({ newSeed }) => loop.seedPut(newSeed)),
-    S.chainFirst(() => loop.incrementIndex),
+    S.chainFirst(({ newSeed }) => S.modify(loopState.seedPut(newSeed))),
+    // next index please
+    S.chainFirst(() => S.modify(loopState.incrementIndex)),
     S.chain(({ value }) =>
       pipe(
         value,
-        E.match(loop.onFailure, () => loop.onSuccess),
+        E.map(() => S.modify(loopState.incrementSuccess)),
+        E.getOrElse(flow(failure.make, S.chain(failure.append))),
       ),
     ),
   )
@@ -82,32 +88,29 @@ export interface QuickCheckOptions {
 }
 
 // throw when things go bad or something
-export function assert<A>(
+export function run<A>(
   property: Property<A>,
   { count, initialSeed, size }: QuickCheckOptions,
 ) {
-  return (arbitrary: Arbitrary<A>): loop.LoopState =>
+  return (arbitrary: Arbitrary<A>): loopState.LoopState =>
     pipe(
       constVoid(),
       // this is where the work happens
       S.chainRec(() =>
         pipe(
           // if greater than count, stop
-          S.gets((loopState: loop.LoopState) => loopState.index >= count),
+          S.gets((loopState: loopState.LoopState) => loopState.index >= count),
           S.chain(
             BL.matchW(
-              () =>
-                pipe(onRepeat({ property, arbitrary, size }), S.map(E.left)),
+              () => pipe(loop({ property, arbitrary, size }), S.map(E.left)),
               () => S.of(E.right<void, void>(constVoid())),
             ),
           ),
         ),
       ),
       // initial state - seed should be random af on some other functions
-      S.execute<loop.LoopState>({
-        failures: A.zero<loop.LoopFailure>(),
-        index: 0,
-        successes: 0,
+      S.execute<loopState.LoopState>({
+        ...loopState.Monoid.empty,
         seed: mkSeed(initialSeed),
       }),
     )

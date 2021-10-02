@@ -165,6 +165,15 @@ export const number: Arbitrary<number> = {
 }
 
 /**
+ * @category Primitives
+ */
+export function int(
+  options: Partial<Record<"min" | "max", number>>,
+): Arbitrary<number> {
+  return { arbitrary: gen.int(options) }
+}
+
+/**
  * @summary
  * Generate a single character string.
  *

@@ -1,10 +1,7 @@
 import * as _ from "./arbitrary"
-import * as laws from "fp-ts-laws"
-import * as fc from "fast-check"
 import * as lcg from "@no-day/fp-ts-lcg"
-import { GenState } from "./generators"
+import { GenState } from "./modules/generators"
 import { pipe } from "fp-ts/lib/function"
-import { task } from "fp-ts"
 
 const run =
   <A>(fa: _.Arbitrary<A>) =>

@@ -2,13 +2,13 @@
  * Basically the module creates a deterministic seed given by type `<A>`,
  * which can then be used to create
  */
-import { either as E, option as O, state as S } from "fp-ts"
+import { either as E, option as O } from "fp-ts"
 import { Contravariant1 } from "fp-ts/lib/Contravariant"
 import { flow, pipe } from "fp-ts/lib/function"
 import { Ordering } from "fp-ts/lib/Ordering"
 import { Reader } from "fp-ts/lib/Reader"
 import { Arbitrary } from "./arbitrary"
-import * as gen from "./generators"
+import * as gen from "./modules/generators"
 
 /**
  * @category Model
