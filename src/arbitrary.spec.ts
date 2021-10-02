@@ -1,5 +1,5 @@
 import * as _ from "./arbitrary"
-import * as lcg from "@no-day/fp-ts-lcg"
+import * as lcg from "./modules/lcg"
 import { GenState } from "./modules/generators"
 import { pipe } from "fp-ts/lib/function"
 
