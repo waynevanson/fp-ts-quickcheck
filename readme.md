@@ -13,7 +13,7 @@ Purescript did the same, so this should be enough to get you started.
 This library does not exist on NPM yet, so use the built versions in this repo instead.
 
 ```sh
-yarn add fp-ts && yarn add -D fp-ts-test@git+ssh://git@github.com:waynevanson/fp-ts-test
+yarn add fp-ts && yarn add -D fp-ts-test
 ```
 
 ## Quick Start
