@@ -1,4 +1,5 @@
 import { mkSeed } from "@no-day/fp-ts-lcg"
+import { AssertionError } from "assert"
 import {
   boolean as BL,
   either as E,
@@ -7,12 +8,11 @@ import {
   readonlyArray as A,
   readonlyTuple as TP,
 } from "fp-ts"
-import { constVoid, flow, identity, pipe } from "fp-ts/lib/function"
+import { constVoid, flow, pipe } from "fp-ts/lib/function"
 import { Arbitrary } from "./arbitrary"
-import { failure, state } from "./quickcheck/loop-state"
 import * as S from "./modules/fp-ts/state"
 import * as gen from "./modules/generators"
-import { AssertionError } from "assert/strict"
+import { failure, state } from "./quickcheck/loop-state"
 
 export interface Property<A> {
   (value: A): boolean | void
