@@ -1,7 +1,7 @@
 import { monoid as M, number as Number, readonlyArray as A } from "fp-ts"
 import { increment, pipe } from "fp-ts/lib/function"
 import * as lens from "monocle-ts/Lens"
-import * as lcg from "../modules/lcg"
+import * as lcg from "../../modules/lcg"
 import * as failure from "./failure"
 
 export interface LoopState {

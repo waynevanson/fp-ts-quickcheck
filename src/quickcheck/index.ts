@@ -17,13 +17,13 @@ import {
   readonlyTuple as TP,
 } from "fp-ts"
 import { constVoid, flow, identity, pipe } from "fp-ts/lib/function"
-import { Arbitrary } from "./arbitrary"
-import { failure, loopState } from "./loop-state"
-import * as S from "./modules/fp-ts/state"
-import * as gen from "./modules/generators"
-import { Property } from "./property"
+import { Arbitrary } from "../arbitrary"
+import { failure, state } from "./loop-state"
+import * as S from "../modules/fp-ts/state"
+import * as gen from "../modules/generators"
+import { Property } from "../property"
 
-export interface Loop<A> extends S.State<loopState.LoopState, A> {}
+export interface Loop<A> extends S.State<state.LoopState, A> {}
 
 // threw as new value,
 // runs the arbitrary and figures out if we got an error or not
@@ -70,21 +70,21 @@ export const loop = <A>({
 }: OnRepeatParameters<A>): Loop<void> =>
   pipe(
     S.gets(
-      (state: loopState.LoopState): gen.GenState => ({
+      (state: state.LoopState): gen.GenState => ({
         newSeed: state.seed,
         size: 10,
       }),
     ),
     S.map(runProperty({ arbitrary, property })),
     // use the new seed from the just ran generator
-    S.chainFirst(({ newSeed }) => S.modify(loopState.seedPut(newSeed))),
+    S.chainFirst(({ newSeed }) => S.modify(state.seedPut(newSeed))),
     // next index please
-    S.chainFirst(() => S.modify(loopState.incrementIndex)),
+    S.chainFirst(() => S.modify(state.incrementIndex)),
     S.chain(({ value }) =>
       pipe(
         value,
         // if successful, increment number of successful calls
-        E.map(() => S.modify(loopState.incrementSuccess)),
+        E.map(() => S.modify(state.incrementSuccess)),
         // add a failure to the list of failures
         E.getOrElse(flow(failure.make, S.chain(failure.append))),
       ),
@@ -101,13 +101,13 @@ export function run<A>(
   property: Property<A>,
   { count, initialSeed, size }: QuickCheckOptions,
 ) {
-  return (arbitrary: Arbitrary<A>): loopState.LoopState =>
+  return (arbitrary: Arbitrary<A>): state.LoopState =>
     pipe(
       constVoid(),
       S.chainRec(() =>
         pipe(
           // should we stop test? only when we've reached the specified amount
-          S.gets((loopState: loopState.LoopState) => loopState.index >= count),
+          S.gets((loopState: state.LoopState) => loopState.index >= count),
           S.chain(
             BL.matchW(
               // test can run, call the loop and return `left` to try again
@@ -118,15 +118,15 @@ export function run<A>(
           ),
         ),
       ),
-      S.execute<loopState.LoopState>({
-        ...loopState.Monoid.empty,
+      S.execute<state.LoopState>({
+        ...state.Monoid.empty,
         seed: mkSeed(initialSeed),
       }),
     )
 }
 
 /** @throws */
-export function handle(fa: loopState.LoopState): IO.IO<void> {
+export function handle(fa: state.LoopState): IO.IO<void> {
   return pipe(
     fa.failures,
     E.fromPredicate(A.isNonEmpty, (a) => a as []),
