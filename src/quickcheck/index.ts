@@ -25,9 +25,20 @@ import { Property } from "../property"
 
 export interface Loop<A> extends S.State<state.LoopState, A> {}
 
-// threw as new value,
-// runs the arbitrary and figures out if we got an error or not
-// check if the error was a thrown error or a normal error
+/**
+ * @summary
+ * Applies a `Property` to an `Arbitrary`, handling the following `Property`'s
+ * return cases:
+ *
+ * - Failures
+ *   - `False`
+ *   - Throw `*`
+ *   - Throw `Error`
+ * - Successes
+ *   - Not Throwing
+ *   - `True`
+ *   - `void`
+ */
 export function runProperty<A>({
   arbitrary,
   property,
