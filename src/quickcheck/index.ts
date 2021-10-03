@@ -160,6 +160,15 @@ export function handle(fa: state.LoopState): IO.IO<void> {
   )
 }
 
+/**
+ * @summary
+ * Asserts that a property passes when generating pseudorandom values,
+ * otherwise it **throws**.
+ *
+ * Use this in a test runner which can handle exceptions.
+ *
+ * @throws
+ */
 export function assert<A>(
   property: Property<A>,
   options?: Partial<QuickCheckOptions>,
