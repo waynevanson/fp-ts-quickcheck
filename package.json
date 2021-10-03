@@ -7,7 +7,9 @@
   "version": "0.1.0",
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.es6.json & tsc -p tsconfig.cjs.json",
-    "test": "jest"
+    "test": "jest",
+    "docs": "docs-ts",
+    "prepublish": "yarn build && yarn test && yarn docs"
   },
   "files": [
     "dist"
