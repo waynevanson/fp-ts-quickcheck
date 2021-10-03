@@ -1,6 +1,7 @@
 import * as qc from "./quickcheck"
 import * as A from "./arbitrary"
 import { constVoid, pipe } from "fp-ts/lib/function"
+import { AssertionError } from "assert"
 
 describe("quickcheck", () => {
   it("should not throw when the property returns true", () => {
@@ -30,5 +31,14 @@ describe("quickcheck", () => {
         }),
       ),
     ).toThrow()
+  })
+  it("should be a dummy", () => {
+    try {
+      expect(2).toBe(1)
+    } catch (e) {
+      console.log(e instanceof AssertionError)
+      console.log(e)
+      console.log(JSON.stringify(e))
+    }
   })
 })

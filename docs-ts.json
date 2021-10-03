@@ -1,0 +1,7 @@
+{
+  "enableSearch": true,
+  "enforceDescriptions": false,
+  "enforceExamples": false,
+  "enforceVersion": false,
+  "exclude": ["src/modules/**/*","src/**/*.spec.*"]
+}

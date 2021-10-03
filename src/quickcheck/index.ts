@@ -1,12 +1,3 @@
-/**
- * @summary
- * Runs a list of generators, with the option to configure size and the seed number if that's what your heart desires.
- *
- * @description
- *@todo this file should be in quickcheck folder,
- * and all the side effectual stuff for the terminal should be something else.
- */
-
 import { mkSeed } from "@no-day/fp-ts-lcg"
 import {
   boolean as BL,
@@ -21,9 +12,26 @@ import { Arbitrary } from "../arbitrary"
 import { failure, state } from "./loop-state"
 import * as S from "../modules/fp-ts/state"
 import * as gen from "../modules/generators"
-import { Property } from "../property"
+import { AssertionError } from "assert/strict"
+
+export interface Property<A> {
+  (value: A): boolean | void
+}
 
 export interface Loop<A> extends S.State<state.LoopState, A> {}
+
+// /**
+//  * @todo `AssertionError` for `false` should have custom name
+//  */
+// export const onPropertyFailure = (fa: PropertyFailure) =>
+//   pipe(
+//     fa,
+//     match.match({
+//       ThrownError: ({ error }) => error,
+//       false: () =>
+//       _: () => new Error(),
+//     }),
+//   )
 
 /**
  * @summary
@@ -38,6 +46,8 @@ export interface Loop<A> extends S.State<state.LoopState, A> {}
  *   - Not Throwing
  *   - `True`
  *   - `void`
+ *
+ * @todo lift async arbs to top, using perhaps the FromIO or MonadThrow
  */
 export function runProperty<A>({
   arbitrary,
@@ -51,12 +61,24 @@ export function runProperty<A>({
     S.map(
       flow(
         // get errors if the property throws
-        E.tryCatchK(property, identity),
+        E.tryCatchK(
+          property,
+          (thrown): Error =>
+            thrown instanceof Error
+              ? thrown
+              : new Error(JSON.stringify(thrown)),
+        ),
         // if boolean, false is an error
-        E.chain(
+        E.chainW(
           E.fromPredicate(
-            (a) => a !== false,
-            (e) => e as unknown,
+            (a): a is true | void => a !== false,
+            () =>
+              new AssertionError({
+                actual: false,
+                expected: true,
+                operator: "assert",
+                message: `Received false from property instead of true`,
+              }),
           ),
         ),
         E.map(constVoid),
@@ -80,6 +102,7 @@ export const loop = <A>({
   arbitrary,
 }: LoopParameters<A>): Loop<void> =>
   pipe(
+    // get genState from loopState
     S.gets(
       (state: state.LoopState): gen.GenState => ({
         newSeed: state.seed,
@@ -108,7 +131,19 @@ export interface QuickCheckOptions {
   size: number
 }
 
-export function run<A>(property: Property<A>, options: QuickCheckOptions) {
+export interface QuickcheckParameters {}
+
+/**
+ * @summary
+ * The brains of the beast. Calls the property `options.count` amount of
+ * times, and stopping whenever the property fails.
+ *
+ * @todo Provide option to get all failures, instead of stopping at the first.
+ */
+export function quickcheck<A>(
+  property: Property<A>,
+  options: QuickCheckOptions,
+) {
   return (arbitrary: Arbitrary<A>): state.LoopState =>
     pipe(
       constVoid(),
@@ -139,13 +174,18 @@ export function run<A>(property: Property<A>, options: QuickCheckOptions) {
     )
 }
 
-/** @throws */
-export function handle(fa: state.LoopState): IO.IO<void> {
+/**
+ * @summary
+ *
+ */
+export function assertErrors(fa: state.LoopState): IO.IO<void> {
   return pipe(
     fa.failures,
     E.fromPredicate(A.isNonEmpty, (a) => a as []),
     E.map(
-      A.map(({ data, index, seed }) => JSON.stringify({ seed, index, data })),
+      A.map(({ data, index, seed }) =>
+        JSON.stringify({ seed, index, data }, null, 2),
+      ),
     ),
     E.map((xs) => xs.join("\n")),
     E.map(
@@ -174,10 +214,10 @@ export function assert<A>(
   options?: Partial<QuickCheckOptions>,
 ) {
   return flow(
-    run(
+    quickcheck(
       property,
       Object.assign({ count: 10, initialSeed: 0, size: 10 }, options),
     ),
-    handle,
+    assertErrors,
   )
 }
