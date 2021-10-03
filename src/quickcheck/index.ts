@@ -172,23 +172,3 @@ export function assert<A>(
     handle,
   )
 }
-// on error, return some sort of error.
-// on success, no dramas. log that lots of tests were ran.
-
-// export function runIO<A>(
-//   property: Property<IO.IO<A>>,
-//   { count, initialSeed, size }: QuickCheckOptions,
-// ): IO.IO<void> {
-
-// }
-
-// export function runTask<A>(
-//   property: Property<T.Task<A>>,
-//   { count, initialSeed, size }: QuickCheckOptions,
-// ): T.Task<void> {}
-
-// when an error happens we should advise what cooked up.
-
-// show them the first. if they want more, require "verbose" flag in options
-// that will show more than just the first test failed.
-// if they want it looged in a file,
