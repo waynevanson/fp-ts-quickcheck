@@ -8,10 +8,10 @@ import {
   readonlyTuple as TP,
 } from "fp-ts"
 import { constVoid, flow, identity, pipe } from "fp-ts/lib/function"
-import { Arbitrary } from "../arbitrary"
-import { failure, state } from "./loop-state"
-import * as S from "../modules/fp-ts/state"
-import * as gen from "../modules/generators"
+import { Arbitrary } from "./arbitrary"
+import { failure, state } from "./quickcheck/loop-state"
+import * as S from "./modules/fp-ts/state"
+import * as gen from "./modules/generators"
 import { AssertionError } from "assert/strict"
 
 export interface Property<A> {

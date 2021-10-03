@@ -1,10 +1,10 @@
 ---
-title: quickcheck/index.ts
-nav_order: 5
+title: quickcheck.ts
+nav_order: 4
 parent: Modules
 ---
 
-## index overview
+## quickcheck overview
 
 ---
 
@@ -13,6 +13,7 @@ parent: Modules
 - [utils](#utils)
   - [Loop (interface)](#loop-interface)
   - [LoopParameters (interface)](#loopparameters-interface)
+  - [Property (interface)](#property-interface)
   - [QuickCheckOptions (interface)](#quickcheckoptions-interface)
   - [QuickcheckParameters (interface)](#quickcheckparameters-interface)
   - [assert](#assert)
@@ -43,6 +44,16 @@ export interface LoopParameters<A> {
   arbitrary: Arbitrary<A>
   // non-negative number
   size: number
+}
+```
+
+## Property (interface)
+
+**Signature**
+
+```ts
+export interface Property<A> {
+  (value: A): boolean | void
 }
 ```
 

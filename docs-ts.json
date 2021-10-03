@@ -3,5 +3,5 @@
   "enforceDescriptions": false,
   "enforceExamples": false,
   "enforceVersion": false,
-  "exclude": ["src/modules/**/*","src/**/*.spec.*"]
+  "exclude": ["src/modules/**/*", "src/**/*.spec.*", "quickcheck/**/*.ts"]
 }

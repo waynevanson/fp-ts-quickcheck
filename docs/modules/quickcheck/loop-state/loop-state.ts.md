@@ -1,6 +1,6 @@
 ---
 title: quickcheck/loop-state/loop-state.ts
-nav_order: 8
+nav_order: 7
 parent: Modules
 ---
 
