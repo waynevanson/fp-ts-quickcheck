@@ -108,21 +108,24 @@ export interface QuickCheckOptions {
   size: number
 }
 
-export function run<A>(
-  property: Property<A>,
-  { count, initialSeed, size }: QuickCheckOptions,
-) {
+export function run<A>(property: Property<A>, options: QuickCheckOptions) {
   return (arbitrary: Arbitrary<A>): state.LoopState =>
     pipe(
       constVoid(),
       S.chainRec(() =>
         pipe(
           // should we stop test? only when we've reached the specified amount
-          S.gets((loopState: state.LoopState) => loopState.index >= count),
+          S.gets(
+            (loopState: state.LoopState) => loopState.index >= options.count,
+          ),
           S.chain(
-            BL.matchW(
+            BL.match(
               // test can run, call the loop and return `left` to try again
-              () => pipe(loop({ property, arbitrary, size }), S.map(E.left)),
+              () =>
+                pipe(
+                  loop({ property, arbitrary, size: options.size }),
+                  S.map(E.left),
+                ),
               // test is done, so stop it.
               () => S.of(E.right<void, void>(constVoid())),
             ),
@@ -131,7 +134,7 @@ export function run<A>(
       ),
       S.execute<state.LoopState>({
         ...state.Monoid.empty,
-        seed: mkSeed(initialSeed),
+        seed: mkSeed(options.initialSeed),
       }),
     )
 }
