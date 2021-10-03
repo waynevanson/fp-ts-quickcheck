@@ -57,7 +57,7 @@ export function runProperty<A>({
   )
 }
 
-export interface OnRepeatParameters<A> {
+export interface LoopParameters<A> {
   property: Property<A>
   arbitrary: Arbitrary<A>
   // non-negative number
@@ -67,7 +67,7 @@ export interface OnRepeatParameters<A> {
 export const loop = <A>({
   property,
   arbitrary,
-}: OnRepeatParameters<A>): Loop<void> =>
+}: LoopParameters<A>): Loop<void> =>
   pipe(
     S.gets(
       (state: state.LoopState): gen.GenState => ({
