@@ -35,7 +35,7 @@ import { pipe } from "fp-ts/function"
 import { subtract } from "./main"
 
 describe(subtract, () => {
-  const arbitrary = qc.tuple(qc.number, qc.number)
+  const arbitrary = AT.tuple(AT.number, AT.number)
 
   it(
     "should always be smaller than the first argument",
