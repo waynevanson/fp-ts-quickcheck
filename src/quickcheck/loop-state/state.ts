@@ -1,4 +1,9 @@
-import { monoid as M, number as Number, readonlyArray as A } from "fp-ts"
+import {
+  monoid as M,
+  number as Number,
+  option as O,
+  readonlyArray as A,
+} from "fp-ts"
 import { increment, pipe } from "fp-ts/lib/function"
 import * as lens from "monocle-ts/Lens"
 import * as lcg from "../../modules/lcg"
@@ -8,14 +13,14 @@ export interface LoopState {
   seed: lcg.Seed
   index: number
   successes: number
-  failures: ReadonlyArray<failure.LoopFailure>
+  failure: O.Option<failure.LoopFailure>
 }
 
 export const Monoid: M.Monoid<LoopState> = M.struct({
   successes: Number.MonoidSum,
   index: Number.MonoidSum,
   seed: lcg.MonoidSeed,
-  failures: A.getMonoid(),
+  failure: O.getMonoid(failure.Monoid),
 })
 
 export const incrementIndex = pipe(

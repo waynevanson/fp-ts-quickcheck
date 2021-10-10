@@ -2,14 +2,14 @@ import * as lcg from "@no-day/fp-ts-lcg"
 import {
   monoid as M,
   number as Number,
-  readonlyArray as A,
+  option as O,
   state as S,
   void as Void,
 } from "fp-ts"
-import { flow, pipe, unsafeCoerce } from "fp-ts/lib/function"
+import { pipe } from "fp-ts/lib/function"
 import * as lens from "monocle-ts/Lens"
 import { MonoidSeed } from "../../modules/lcg"
-import { LoopState } from "./loop-state"
+import { LoopState } from "./state"
 
 export interface LoopFailure {
   seed: lcg.Seed
@@ -17,11 +17,11 @@ export interface LoopFailure {
   data: unknown
 }
 
-export function append(failure: LoopFailure) {
+export function failurePut(failure: LoopFailure) {
   return pipe(
     lens.id<LoopState>(),
-    lens.prop("failures"),
-    lens.modify(flow(A.append(failure), (a) => unsafeCoerce(a))),
+    lens.prop("failure"),
+    lens.modify(() => O.some(failure)),
     S.modify,
   )
 }
