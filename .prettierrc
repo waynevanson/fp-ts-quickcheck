@@ -1,0 +1,6 @@
+{
+  "semi": false,
+  "arrowParens": "always",
+  "tabWidth": 2,
+  "trailingComma": "all"
+}
