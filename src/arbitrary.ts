@@ -44,8 +44,11 @@ export const of: <A>(a: A) => Arbitrary<A> = (a) => ({ arbitrary: S.of(a) })
 /**
  * @category Functor
  */
-export const map: <A, B>(f: (a: A) => B) => (fa: Arbitrary<A>) => Arbitrary<B> =
-  (f) => (fa) => ({ arbitrary: pipe(fa.arbitrary, S.map(f)) })
+export const map: <A, B>(
+  f: (a: A) => B,
+) => (fa: Arbitrary<A>) => Arbitrary<B> = (f) => (fa) => ({
+  arbitrary: pipe(fa.arbitrary, S.map(f)),
+})
 
 /**
  * @category Apply
