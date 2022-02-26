@@ -1,6 +1,8 @@
 import { AssertionError } from "assert"
 import { either as E, option as O } from "fp-ts"
 import * as t from "./testable"
+import * as assert from "assert"
+import { constVoid } from "fp-ts/lib/function"
 
 describe("testable", () => {
   describe("boolean", () => {
@@ -23,6 +25,30 @@ describe("testable", () => {
           ),
         ),
       )
+    })
+  })
+
+  describe("assertion", () => {
+    it("should pass when there there is no value thrown", () => {
+      const result = t.assertion.test(constVoid())(() => {})
+      expect(result()).toEqual(O.none)
+    })
+
+    it("should catch the error that is thrown within", () => {
+      const error = new Error()
+      const result = t.assertion.test(constVoid())(() => {
+        throw error
+      })
+      expect(result).not.toThrow()
+    })
+
+    it("should fail when there there is a value thrown", () => {
+      const error = new Error()
+      const result = t.assertion.test(constVoid())(() => {
+        throw error
+      })
+
+      expect(result()).toEqual(O.some(E.left(error)))
     })
   })
 })

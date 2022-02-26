@@ -1,13 +1,13 @@
 import { AssertionError } from "assert"
 import {
   either as E,
-  option as O,
   identity as I,
   io as IO,
   ioEither as IOE,
+  option as O,
 } from "fp-ts"
-import { HKT, HKT2, Kind, URIS } from "fp-ts/HKT"
-import { identity, pipe } from "fp-ts/lib/function"
+import { HKT, Kind, URIS } from "fp-ts/HKT"
+import { pipe } from "fp-ts/lib/function"
 
 /**
  * @summary
