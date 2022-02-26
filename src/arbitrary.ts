@@ -1,6 +1,8 @@
 /**
  * @summary
- * The `Arbitrary` typeclass represents a value that can be generated.
+ * The `Arbitrary` typeclass represents a value that can be generated and shrunk.
+ *
+ * Please note that shrinking has not been implemented yet.
  */
 import * as gen from "@no-day/fp-ts-generators"
 import { state as S } from "fp-ts"
