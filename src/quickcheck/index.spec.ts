@@ -7,7 +7,7 @@ describe("assert", () => {
     "should assert something",
     pipe(
       A.tuple(A.number, A.number),
-      assertIO(([x, y]) => expect(x + y).toBe(y + x), { count: 1000000000 }),
+      assertIO(([x, y]) => expect(x + y).toBe(y + x)),
     ),
   )
 })
