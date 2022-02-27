@@ -28,13 +28,13 @@ describe("testable", () => {
 
   describe("assertion", () => {
     it("should pass when there there is no value thrown", () => {
-      const result = t.assertion.test(constVoid())(() => {})
+      const result = t.assertionSync.test(constVoid())(() => {})
       expect(result()).toEqual(O.none)
     })
 
     it("should catch the error that is thrown within", () => {
       const error = new Error()
-      const result = t.assertion.test(constVoid())(() => {
+      const result = t.assertionSync.test(constVoid())(() => {
         throw error
       })
       expect(result).not.toThrow()
@@ -42,7 +42,7 @@ describe("testable", () => {
 
     it("should fail when there there is a value thrown", () => {
       const error = new Error()
-      const result = t.assertion.test(constVoid())(() => {
+      const result = t.assertionSync.test(constVoid())(() => {
         throw error
       })
 

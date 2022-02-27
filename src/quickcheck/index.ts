@@ -1,5 +1,5 @@
 import * as as from "./make-assert"
-import { assertion } from "../testable"
+import { assertionSync } from "../testable"
 import { io as IO } from "fp-ts"
 
 export interface QuickCheckOptions {
@@ -15,7 +15,7 @@ const defaults: QuickCheckOptions = {
 }
 
 export const assertIO = as.makeAssert({
-  Testable: assertion,
+  Testable: assertionSync,
   MonadRecIO: { ...IO.ChainRec, ...IO.FromIO, ...IO.Pointed },
   defaults,
 })

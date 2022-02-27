@@ -35,18 +35,11 @@ export const boolean: Testable1<I.URI, boolean> = {
         ),
 }
 
-/**
- * @summary
- * A Testable instance that can catch when an assertion is made via jest.expect or assert.*
- */
-export const assertion: Testable1<IO.URI, void> = {
+export const assertionSync: Testable1<IO.URI, void> = {
   test: (value) => (property) =>
     pipe(
       value,
       IOE.tryCatchK(property, (e) => e),
-      IOE.match(
-        (error) => O.some(error),
-        () => O.none,
-      ),
+      IOE.match(O.some, O.zero),
     ),
 }

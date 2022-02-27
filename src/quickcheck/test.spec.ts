@@ -1,4 +1,4 @@
-import { assertion, boolean } from "../testable"
+import { assertionSync, boolean } from "../testable"
 import { test } from "./test"
 import * as A from "../arbitrary"
 import { pipe } from "fp-ts/lib/function"
@@ -20,7 +20,7 @@ describe(test, () => {
       const result = pipe(
         test({
           Arbitrary: A.number,
-          Testable: assertion,
+          Testable: assertionSync,
           property: () => true,
         }),
         S.evaluate({ size: 1, newSeed: mkSeed(1) }),
