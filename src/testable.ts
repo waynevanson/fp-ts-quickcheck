@@ -43,3 +43,12 @@ export const assertionSync: Testable1<IO.URI, void> = {
       IOE.match(O.some, O.zero),
     ),
 }
+
+export const assertionAsync: Testable1<T.URI, Promise<void>> = {
+  test: (value) => (property) =>
+    pipe(
+      value,
+      TE.tryCatchK(property, (e) => e),
+      TE.match(O.some, O.zero),
+    ),
+}
