@@ -16,37 +16,37 @@ export interface MonadRecIO1<F extends URIS>
     Pointed1<F>,
     FromIO1<F> {}
 
-export interface AssertDependencies<F, G, A> {
+export interface AssertDeps<F, G, A> {
   MonadRecIO: MonadRecIO<G>
   Testable: Testable<F, G, A>
   defaults: QuickCheckOptions
 }
 
-export interface AssertDependencies11<F extends URIS, G extends URIS, A> {
+export interface MakeAssertDeps11<F extends URIS, G extends URIS, A> {
   MonadRecIO: MonadRecIO1<G>
   Testable: Testable11<F, G, A>
   defaults: QuickCheckOptions
 }
 
-export function assert<F extends URIS, G extends URIS, A>(
-  depenencies: AssertDependencies11<F, G, A>,
+export function makeAssert<F extends URIS, G extends URIS, A>(
+  depenencies: MakeAssertDeps11<F, G, A>,
 ): <I>(
   property: (value: I) => Kind<F, A>,
   options?: Partial<QuickCheckOptions>,
 ) => (arbitrary: Arbitrary<I>) => Kind<G, void>
 
-export function assert<F, G, A>(
-  dependencies: AssertDependencies<F, G, A>,
+export function makeAssert<F, G, A>(
+  dependencies: AssertDeps<F, G, A>,
 ): <I>(
   property: (value: I) => HKT<F, A>,
   options?: Partial<QuickCheckOptions>,
 ) => (arbitrary: Arbitrary<I>) => HKT<G, void>
 
-export function assert<F, G, A>({
+export function makeAssert<F, G, A>({
   MonadRecIO: M,
   Testable,
   defaults,
-}: AssertDependencies<F, G, A>) {
+}: AssertDeps<F, G, A>) {
   return <I>(
       property: (value: I) => HKT<F, A>,
       options: Partial<QuickCheckOptions> = {},

@@ -1,4 +1,4 @@
-import { assert } from "./index"
+import { assertIO } from "./index"
 import * as A from "../arbitrary"
 import { pipe } from "fp-ts/lib/function"
 
@@ -7,7 +7,7 @@ describe("assert", () => {
     "should assert something",
     pipe(
       A.tuple(A.number, A.number),
-      assert(([x, y]) => expect(x + y).toBe(y + x), { count: 1000000000 }),
+      assertIO(([x, y]) => expect(x + y).toBe(y + x), { count: 1000000000 }),
     ),
   )
 })
