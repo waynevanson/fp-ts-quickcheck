@@ -15,14 +15,12 @@ describe("testable", () => {
       const result = t.boolean.test({})(() => false)
       expect(result).toEqual(
         O.some(
-          E.right(
-            new AssertionError({
-              operator: "boolean",
-              message: "Received false but expected true",
-              actual: false,
-              expected: true,
-            }),
-          ),
+          new AssertionError({
+            operator: "boolean",
+            message: "Received false but expected true",
+            actual: false,
+            expected: true,
+          }),
         ),
       )
     })
@@ -48,7 +46,7 @@ describe("testable", () => {
         throw error
       })
 
-      expect(result()).toEqual(O.some(E.left(error)))
+      expect(result()).toEqual(O.some(error))
     })
   })
 })

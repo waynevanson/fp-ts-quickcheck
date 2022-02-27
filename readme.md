@@ -1,12 +1,17 @@
 # fp-ts-test
 
-fp-ts port of Haskell's QuickCheck and (not implemented yet) Python's Hypothesis.
+fp-ts port of Haskell's QuickCheck.
 
-Please note that shrinking is not yet available.
-Purescript did the same, so this should be enough to get you started.
+> **NOTE**
+> Please note that shrinking is not yet available.
+> Purescript did the same, so this should be enough to get you started.
+> When shrinking is available, it will be transparently added as major release.
 
-> NOTE: Still in development.
-> It works, but the developer experience of the API surface needs some more additions.
+## Features
+
+- [x] Purely functional implementation - Only side effect is throwing into an error.
+- [x] Compatible - Easily integrates into existing testing frameworks.
+- [x] Polymorphic - Create custom assert functions using fp-ts typeclass instances.
 
 ## Installation
 

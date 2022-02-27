@@ -2,6 +2,7 @@ export * from "fp-ts/StateT"
 
 import { either as E, stateT as ST, chain as CH } from "fp-ts"
 import { URIS } from "fp-ts/HKT"
+import { Apply1 } from "fp-ts/lib/Apply"
 import { ChainRec, ChainRec1 } from "fp-ts/lib/ChainRec"
 import { Endomorphism } from "fp-ts/lib/Endomorphism"
 import { constVoid, identity, pipe } from "fp-ts/lib/function"
@@ -95,3 +96,19 @@ export function modify<F>(
 ): <S>(f: Endomorphism<S>) => ST.StateT<F, S, void> {
   return (f) => (s) => F.of([constVoid(), f(s)])
 }
+
+// export function apS<F extends URIS>(F: Apply1<F>) {
+//   return <N extends string, A, E, B>(
+//       name: Exclude<N, keyof A>,
+//       fb: ST.StateT1<F, E, B>,
+//     ) =>
+//     (
+//       fa: ST.StateT1<F, E, A>,
+//     ): ST.StateT1<
+//       F,
+//       E,
+//       { readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }
+//     > => {
+//       return
+//     }
+// }
