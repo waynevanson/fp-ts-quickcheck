@@ -7,30 +7,30 @@ import { Pointed, Pointed1 } from "fp-ts/lib/Pointed"
 import { QuickCheckOptions } from "."
 import * as ls from "../loopstate"
 import { stateT as ST } from "../modules/fp-ts"
-import { loop, LoopOptions, LoopOptions11 } from "./loop"
+import { loop, LoopOptions, LoopOptions1 } from "./loop"
 
-export interface TestsOptions<F, G, I, A>
-  extends LoopOptions<F, G, I, A>,
+export interface TestsOptions<F, I, A>
+  extends LoopOptions<F, I, A>,
     QuickCheckOptions {}
 
-export interface TestsOptions11<F extends URIS, G extends URIS, I, A>
-  extends LoopOptions11<F, G, I, A>,
+export interface TestsOptions11<F extends URIS, I, A>
+  extends LoopOptions1<F, I, A>,
     QuickCheckOptions {}
 
-export function tests<F extends URIS, G extends URIS>(
-  MonadRec: ChainRec1<G> & Pointed1<G>,
-): <I, A>(options: TestsOptions11<F, G, I, A>) => Kind<G, ls.LoopState>
+export function tests<F extends URIS>(
+  MonadRec: ChainRec1<F> & Pointed1<F>,
+): <I, A>(options: TestsOptions11<F, I, A>) => Kind<F, ls.LoopState>
 
-export function tests<F, G>(
-  MonadRec: ChainRec<G> & Pointed<G>,
-): <I, A>(options: TestsOptions<F, G, I, A>) => HKT<G, ls.LoopState>
+export function tests<F>(
+  MonadRec: ChainRec<F> & Pointed<F>,
+): <I, A>(options: TestsOptions<F, I, A>) => HKT<F, ls.LoopState>
 
-export function tests<F, G>(M: ChainRec<G> & Pointed<G>) {
+export function tests<F>(M: ChainRec<F> & Pointed<F>) {
   return <I, A>({
     count,
     initialSeed,
     ...loopOptions
-  }: TestsOptions<F, G, I, A>): HKT<G, ls.LoopState> =>
+  }: TestsOptions<F, I, A>): HKT<F, ls.LoopState> =>
     pipe(
       ST.chainRec(M)(constVoid(), () =>
         pipe(
@@ -38,15 +38,12 @@ export function tests<F, G>(M: ChainRec<G> & Pointed<G>) {
           ST.map(M)(E.fromPredicate((index) => index > count, identity)),
           ST.chain(M)(
             E.match(
-              () => pipe(loop<F, G>(M)(loopOptions), ST.map(M)(E.left)),
+              () => pipe(loop(M)(loopOptions), ST.map(M)(E.left)),
               () => ST.of(M)(E.right(constVoid())),
             ),
           ),
         ),
       ),
-      ST.execute(M)({
-        ...ls.Monoid.empty,
-        seed: lcg.mkSeed(initialSeed),
-      }),
+      ST.execute(M)({ ...ls.Monoid.empty, seed: lcg.mkSeed(initialSeed) }),
     )
 }

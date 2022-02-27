@@ -5,32 +5,30 @@ import { pipe } from "fp-ts/lib/function"
 import { Monad, Monad1 } from "fp-ts/lib/Monad"
 import * as ls from "../loopstate"
 import { state as S, stateT as ST } from "../modules/fp-ts"
-import { test, TestOptions, TestOptions11 } from "./test"
+import { test, TestOptions, TestOptions1 } from "./test"
 
-export interface LoopOptions<F, G, I, A> extends TestOptions<F, G, I, A> {
+export interface LoopOptions<F, I, A> extends TestOptions<F, I, A> {
   size: number
 }
 
-export interface LoopOptions11<F extends URIS, G extends URIS, I, A>
-  extends TestOptions11<F, G, I, A> {
+export interface LoopOptions1<F extends URIS, I, A>
+  extends TestOptions1<F, I, A> {
   size: number
 }
 
-export function loop<F extends URIS, G extends URIS>(
-  Monad: Monad1<G>,
-): <I, A>(
-  options: LoopOptions11<F, G, I, A>,
-) => ST.StateT1<G, ls.LoopState, void>
+export function loop<F extends URIS>(
+  Monad: Monad1<F>,
+): <I, A>(options: LoopOptions1<F, I, A>) => ST.StateT1<F, ls.LoopState, void>
 
-export function loop<F, G>(
-  Monad: Monad<G>,
-): <I, A>(options: LoopOptions<F, G, I, A>) => ST.StateT<G, ls.LoopState, void>
+export function loop<F>(
+  Monad: Monad<F>,
+): <I, A>(options: LoopOptions<F, I, A>) => ST.StateT<F, ls.LoopState, void>
 
-export function loop<F, G>(M: Monad<G>) {
+export function loop<F>(M: Monad<F>) {
   return <I, A>({
     size,
     ...testOptions
-  }: LoopOptions<F, G, I, A>): ST.StateT<G, ls.LoopState, void> =>
+  }: LoopOptions<F, I, A>): ST.StateT<F, ls.LoopState, void> =>
     pipe(
       S.gets(
         ({ seed: newSeed }: ls.LoopState): gen.GenState => ({ newSeed, size }),

@@ -3,43 +3,44 @@ import { Seed } from "@no-day/fp-ts-lcg"
 import { HKT, Kind, URIS } from "fp-ts/HKT"
 import { pipe } from "fp-ts/lib/function"
 import { Arbitrary } from "../arbitrary"
-import { Testable, Result, Testable11 } from "../testable"
+import { Testable, Result, Testable1 } from "../testable"
 import * as S from "../modules/fp-ts/state"
 
-export interface TestOptions<F, G, I, A> {
+export interface TestOptions<F, I, A> {
   Arbitrary: Arbitrary<I>
-  Testable: Testable<F, G, A>
-  property: (value: I) => HKT<F, A>
+  Testable: Testable<F, A>
+  property: (value: I) => A
 }
 
-export interface TestOptions11<F extends URIS, G extends URIS, I, A> {
+export interface TestOptions1<F extends URIS, I, A> {
   Arbitrary: Arbitrary<I>
-  Testable: Testable11<F, G, A>
-  property: (value: I) => Kind<F, A>
+  Testable: Testable1<F, A>
+  property: (value: I) => A
 }
 
-export interface TestResults<G> {
+export interface TestResults<F> {
   readonly newSeed: Seed
-  readonly resultM: HKT<G, Result>
+  readonly resultM: HKT<F, Result>
 }
-export interface TestResults11<G extends URIS> {
+
+export interface TestResults1<F extends URIS> {
   readonly newSeed: Seed
-  readonly resultM: Kind<G, Result>
+  readonly resultM: Kind<F, Result>
 }
 
-export function test<F extends URIS, G extends URIS, I, A>(
-  options: TestOptions11<F, G, I, A>,
-): Gen<TestResults11<G>>
+export function test<F extends URIS, I, A>(
+  options: TestOptions1<F, I, A>,
+): Gen<TestResults1<F>>
 
-export function test<F, G, I, A>(
-  options: TestOptions<F, G, I, A>,
-): Gen<TestResults<G>>
+export function test<F, I, A>(
+  options: TestOptions<F, I, A>,
+): Gen<TestResults<F>>
 
-export function test<F, G, I, A>({
+export function test<F, I, A>({
   Arbitrary,
   Testable,
   property,
-}: TestOptions<F, G, I, A>): Gen<TestResults<G>> {
+}: TestOptions<F, I, A>): Gen<TestResults<F>> {
   return pipe(
     Arbitrary.arbitrary,
     S.map(Testable.test),

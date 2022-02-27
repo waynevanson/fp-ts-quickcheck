@@ -11,7 +11,7 @@ describe(loop, () => {
   describe("boolean", () => {
     it("should increment index, seed and successes on successful test", () => {
       const result = pipe(
-        loop<I.URI, I.URI>(I.Monad)({
+        loop(I.Monad)({
           Arbitrary: A.number,
           property: () => true,
           size: 1,
@@ -35,7 +35,7 @@ describe(loop, () => {
 
     it("should increment index, seed and failure on unsuccessful test", () => {
       const result = pipe(
-        loop<I.URI, I.URI>(I.Monad)({
+        loop(I.Monad)({
           Arbitrary: A.number,
           property: () => false,
           size: 1,

@@ -13,19 +13,15 @@ import { pipe } from "fp-ts/lib/function"
 export type Result = O.Option<unknown>
 
 // eventually these functions will use the value from the arbitrary in the messages.
-export interface Testable<F, G, A> {
-  readonly test: <I>(
-    value: I,
-  ) => (property: (value: I) => HKT<F, A>) => HKT<G, Result>
+export interface Testable<F, A> {
+  readonly test: <I>(value: I) => (property: (value: I) => A) => HKT<F, Result>
 }
 
-export interface Testable11<F extends URIS, G extends URIS, A> {
-  readonly test: <I>(
-    value: I,
-  ) => (property: (value: I) => Kind<F, A>) => Kind<G, Result>
+export interface Testable1<F extends URIS, A> {
+  readonly test: <I>(value: I) => (property: (value: I) => A) => Kind<F, Result>
 }
 
-export const boolean: Testable11<I.URI, I.URI, boolean> = {
+export const boolean: Testable1<I.URI, boolean> = {
   test: (value) => (property) =>
     property(value)
       ? O.none
@@ -43,7 +39,7 @@ export const boolean: Testable11<I.URI, I.URI, boolean> = {
  * @summary
  * A Testable instance that can catch when an assertion is made via jest.expect or assert.*
  */
-export const assertion: Testable11<I.URI, IO.URI, void> = {
+export const assertion: Testable1<IO.URI, void> = {
   test: (value) => (property) =>
     pipe(
       value,
