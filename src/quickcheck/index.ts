@@ -11,7 +11,7 @@ export interface QuickCheckOptions {
 }
 
 const defaults: QuickCheckOptions = {
-  count: 10,
+  count: 100,
   initialSeed: 100,
   size: 10,
 }
