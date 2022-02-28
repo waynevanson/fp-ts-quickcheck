@@ -60,6 +60,7 @@ export type Thunkable<A> = A | Thunk<A>
 
 type Assertion = Thunkable<Promisable<boolean | void>>
 
+// todo - make functionally via composition
 const fromMain =
   <I>(property: (i: I) => Assertion) =>
   (i: I): TE.TaskEither<unknown, boolean | void> =>
