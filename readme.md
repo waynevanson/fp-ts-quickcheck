@@ -9,13 +9,12 @@ fp-ts port of Haskell's QuickCheck.
 
 ## Features
 
-- [x] Purely functional implementation - Only side effect is throwing into an error.
+- [x] Purely functional implementation.
 - [x] Compatible - Easily integrates into existing testing frameworks.
 - [x] Polymorphic - Create custom assert functions using fp-ts typeclass instances.
+- [x] Extensible - Simply add compatibilty assertions for data structures
 
 ## Installation
-
-This library does not exist on NPM yet, so use the built versions in this repo instead.
 
 ```sh
 yarn add fp-ts && yarn add -D fp-ts-test
@@ -23,7 +22,7 @@ yarn add fp-ts && yarn add -D fp-ts-test
 
 ## Quick Start
 
-Grab your favourite test runner like `jest`, put the assertion call of this library into the caller.
+Grab your favourite test library, in this case `jest`, and put the assertion call of this library into the test caller.
 
 ```ts
 // main.ts
