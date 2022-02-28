@@ -5,5 +5,5 @@ search_enabled: true
 
 # Aux links for the upper right navigation
 aux_links:
-  'fp-ts-test on GitHub':
-    - 'https://github.com/fp-ts-test'
+  'fp-ts-quickcheck on GitHub':
+    - 'https://github.com/fp-ts-quickcheck'
