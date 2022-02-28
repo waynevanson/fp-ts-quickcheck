@@ -58,10 +58,10 @@ export type Thunk<A> = () => A
 export type Promisable<A> = A | Promise<A>
 export type Thunkable<A> = A | Thunk<A>
 
-type Main = Thunkable<Promisable<boolean | void>>
+type Assertion = Thunkable<Promisable<boolean | void>>
 
 const fromMain =
-  <I>(property: (i: I) => Main) =>
+  <I>(property: (i: I) => Assertion) =>
   (i: I): TE.TaskEither<unknown, boolean | void> =>
   () => {
     const main = property(i)
@@ -78,7 +78,7 @@ const fromMain =
     }
   }
 
-export const assertion: Testable1<T.URI, Main> = {
+export const assertion: Testable1<T.URI, Assertion> = {
   test: (value) => (property) =>
     pipe(
       fromMain(property)(value),
