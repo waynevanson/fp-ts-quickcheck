@@ -7,6 +7,7 @@
     "src/modules/**/*",
     "src/**/*.spec.*",
     "src/quickcheck/**/*.ts",
-    "src/index.ts"
+    "src/index.ts",
+    "src/loopstate.ts"
   ]
 }
