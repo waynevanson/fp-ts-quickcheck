@@ -1,4 +1,4 @@
-import * as as from "./make-assert"
+import { makeAssert } from "./make-assert"
 import { assertionSync, assertion } from "../testable"
 import { io as IO, task as T } from "fp-ts"
 import { ChainRec1 } from "fp-ts/lib/ChainRec"
@@ -16,7 +16,7 @@ const defaults: QuickCheckOptions = {
   size: 10,
 }
 
-export const assertIO = as.makeAssert({
+export const assertIO = makeAssert({
   Testable: assertionSync,
   MonadRecIO: { ...IO.ChainRec, ...IO.FromIO, ...IO.Pointed },
   defaults,
@@ -27,7 +27,7 @@ export const ChainRecTask: ChainRec1<T.URI> = {
   chainRec: (fa, f) => tailRecM(T.Monad)(f)(T.of(fa)),
 }
 
-export const assert = as.makeAssert({
+export const assert = makeAssert({
   MonadRecIO: { ...ChainRecTask, ...T.FromIO, ...T.Pointed },
   Testable: assertion,
   defaults,
