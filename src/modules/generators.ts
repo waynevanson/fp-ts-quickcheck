@@ -18,3 +18,8 @@ export function variant(seed: number): gen.Gen<void> {
     ),
   )
 }
+
+export const nextSeed: gen.Gen<void> = S.modify(({ newSeed, size }) => ({
+  size,
+  newSeed: lcg.lcgNext(newSeed),
+}))
