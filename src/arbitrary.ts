@@ -4,13 +4,15 @@
  *
  * Please note that shrinking has not been implemented yet.
  */
-import * as gen from "@no-day/fp-ts-generators"
-import { state as S } from "fp-ts"
+import { option as O, state as S } from "fp-ts"
 import { Applicative1 } from "fp-ts/lib/Applicative"
 import { Apply1, sequenceS, sequenceT } from "fp-ts/lib/Apply"
 import { flow, pipe, unsafeCoerce } from "fp-ts/lib/function"
 import { Functor1 } from "fp-ts/lib/Functor"
 import { Pointed1 } from "fp-ts/lib/Pointed"
+import { Predicate } from "fp-ts/lib/Predicate"
+import { Refinement } from "fp-ts/lib/Refinement"
+import * as gen from "./modules/generators"
 import { EnforceNonEmptyRecord } from "./utils"
 
 /**
@@ -91,6 +93,26 @@ export const Apply: Apply1<URI> = { ...Functor, ap: (fab, fa) => ap(fa)(fab) }
  * @category Typeclasses
  */
 export const Applicative: Applicative1<URI> = { ...Pointed, ...Apply }
+
+export function filter<A, B extends A>(
+  refinement: Refinement<A, B>,
+): (fa: Arbitrary<A>) => Arbitrary<B>
+export function filter<A>(
+  predicate: Predicate<A>,
+): (fa: Arbitrary<A>) => Arbitrary<A>
+export function filter<A>(predicate: Predicate<A>) {
+  return (fa: Arbitrary<A>): Arbitrary<A> => ({
+    arbitrary: pipe(
+      fa.arbitrary,
+      gen.chain(
+        flow(
+          O.fromPredicate(predicate),
+          O.match(() => pipe(fa.arbitrary, S.apFirst(gen.nextSeed)), gen.of),
+        ),
+      ),
+    ),
+  })
+}
 
 // CONSTRUCTORS
 
