@@ -94,6 +94,27 @@ export const Apply: Apply1<URI> = { ...Functor, ap: (fab, fa) => ap(fa)(fab) }
  */
 export const Applicative: Applicative1<URI> = { ...Pointed, ...Apply }
 
+// CONSTRUCTORS
+
+/**
+ * @summary
+ * Lift a generator into the `Arbitrary` typeclass.
+ *
+ * @category Constructors
+ */
+export function fromGen<A>(gen: gen.Gen<A>): Arbitrary<A> {
+  return { arbitrary: gen }
+}
+
+// COMBINATORS
+
+/**
+ * Arbitrary cannot have a Compactable typeclass instance, as the state needs
+ * to be supplied and called before being able to seperate the output
+ * conditionally.
+ *
+ * @category Combinators
+ */
 export function filter<A, B extends A>(
   refinement: Refinement<A, B>,
 ): (fa: Arbitrary<A>) => Arbitrary<B>
@@ -114,20 +135,6 @@ export function filter<A>(predicate: Predicate<A>) {
   })
 }
 
-// CONSTRUCTORS
-
-/**
- * @summary
- * Lift a generator into the `Arbitrary` typeclass.
- *
- * @category Constructors
- */
-export function fromGen<A>(gen: gen.Gen<A>): Arbitrary<A> {
-  return { arbitrary: gen }
-}
-
-// COMBINATORS
-
 /**
  * @summary
  * Generates an array with a random size, then each has the random contents.
@@ -140,6 +147,10 @@ export function array<A>(arbitrary: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> {
   }
 }
 
+/**
+ * Generates an array with a fixed size, then each has the random contents.s
+ * @summary Combinators
+ */
 export function vector(size: number) {
   return <A>(fa: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> => ({
     arbitrary: gen.vectorOf(size)(fa.arbitrary),
@@ -147,6 +158,7 @@ export function vector(size: number) {
 }
 
 /**
+ * Adds the `Readonly` type constraint from the value within an `Arbitrary` instance.
  * @category Combinators
  */
 export const readonly: <A>(fa: Arbitrary<A>) => Arbitrary<Readonly<A>> =
@@ -154,7 +166,7 @@ export const readonly: <A>(fa: Arbitrary<A>) => Arbitrary<Readonly<A>> =
 
 /**
  * @summary
- * Removes the `Readonly` constraint from the value within an `Arbitrary` instance.
+ * Removes the `Readonly` type constraint from the value within an `Arbitrary` instance.
  *
  * @category Combinators
  */
