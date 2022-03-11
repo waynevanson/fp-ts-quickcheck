@@ -29,6 +29,7 @@
     "@no-day/fp-ts-generators": "^0.1.0-rc.4",
     "@no-day/fp-ts-lcg": "^1.0.0-rc.2",
     "fp-ts": "^2.11.4",
+    "fp-ts-std": "^0.13.1",
     "monocle-ts": "^2.3.11"
   }
 }
