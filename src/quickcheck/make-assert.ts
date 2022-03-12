@@ -4,7 +4,7 @@ import { ChainRec, ChainRec1 } from "fp-ts/lib/ChainRec"
 import { FromIO, FromIO1 } from "fp-ts/lib/FromIO"
 import { constVoid, pipe } from "fp-ts/lib/function"
 import { Pointed, Pointed1 } from "fp-ts/lib/Pointed"
-import { QuickCheckOptions } from "."
+import { InitialQuickCheckOptions, QuickCheckOptions } from "./index"
 import { Arbitrary } from "../arbitrary"
 import { Testable, Testable1 } from "../testable"
 import { tests } from "./tests"
@@ -32,7 +32,7 @@ export function makeAssert<F extends URIS, A>(
 ): <I>(
   arbitrary: Arbitrary<I>,
   property: (value: I) => A,
-  options?: Partial<QuickCheckOptions>,
+  options?: InitialQuickCheckOptions,
 ) => Kind<F, void>
 
 export function makeAssert<F, A>(
@@ -40,7 +40,7 @@ export function makeAssert<F, A>(
 ): <I>(
   arbitrary: Arbitrary<I>,
   property: (value: I) => A,
-  options?: Partial<QuickCheckOptions>,
+  options?: InitialQuickCheckOptions,
 ) => HKT<F, void>
 
 export function makeAssert<F, A>({
@@ -51,7 +51,7 @@ export function makeAssert<F, A>({
   return <I>(
     Arbitrary: Arbitrary<I>,
     property: (value: I) => A,
-    options: Partial<QuickCheckOptions> = {},
+    options?: InitialQuickCheckOptions,
   ): HKT<F, void> =>
     pipe(
       tests(M)({ Arbitrary, Testable, property, ...defaults, ...options }),

@@ -10,6 +10,8 @@ export interface QuickCheckOptions {
   size: number
 }
 
+export type InitialQuickCheckOptions = Partial<QuickCheckOptions>
+
 const defaults: QuickCheckOptions = {
   count: 100,
   initialSeed: 100,
