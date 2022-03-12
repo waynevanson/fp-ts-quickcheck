@@ -8,6 +8,8 @@ specifiers:
   docs-ts: ^0.6.10
   fast-check: ^2.17.0
   fp-ts: ^2.11.4
+  fp-ts-contrib: ^0.1.26
+  fp-ts-std: ^0.13.1
   jest: ^27.2.2
   monocle-ts: ^2.3.11
   prettier: ^2.4.1
@@ -19,6 +21,8 @@ dependencies:
   '@no-day/fp-ts-generators': 0.1.0-rc.4_fp-ts@2.11.8
   '@no-day/fp-ts-lcg': 1.0.0_fp-ts@2.11.8
   fp-ts: 2.11.8
+  fp-ts-contrib: 0.1.26_fp-ts@2.11.8
+  fp-ts-std: 0.13.1_fp-ts@2.11.8+monocle-ts@2.3.12
   monocle-ts: 2.3.12_fp-ts@2.11.8
 
 devDependencies:
@@ -1471,6 +1475,26 @@ packages:
       combined-stream: 1.0.8
       mime-types: 2.1.34
     dev: true
+
+  /fp-ts-contrib/0.1.26_fp-ts@2.11.8:
+    resolution: {integrity: sha512-gi0COTH1xmN0dS9Vc2rgAmotQy8ab4z7CEVRhXxRNMhiuEEMx/Mvd0eLqAiV+hQZjI8xQct00w4Ywwacak35dA==}
+    peerDependencies:
+      fp-ts: ^2.1.2
+    dependencies:
+      fp-ts: 2.11.8
+    dev: false
+
+  /fp-ts-std/0.13.1_fp-ts@2.11.8+monocle-ts@2.3.12:
+    resolution: {integrity: sha512-dy/hmRFz+CcT4ekceKsVLqebrEgYwQAeyJ+s8p+g9DdCv+YSd9tle0uMipARGZQFUuHEkFglDxBKirwEqmBxBA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      fp-ts: ^2.11.0
+      monocle-ts: ^2.3.0
+      newtype-ts: ^0.3.0
+    dependencies:
+      fp-ts: 2.11.8
+      monocle-ts: 2.3.12_fp-ts@2.11.8
+    dev: false
 
   /fp-ts/2.11.8:
     resolution: {integrity: sha512-WQT6rP6Jt3TxMdQB3IKzvfZKLuldumntgumLhIUhvPrukTHdWNI4JgEHY04Bd0LIOR9IQRpB+7RuxgUU0Vhmcg==}
