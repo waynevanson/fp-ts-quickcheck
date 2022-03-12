@@ -9,7 +9,7 @@
     "build": "rm -rf dist && tsc -p tsconfig.es6.json & tsc -p tsconfig.cjs.json",
     "test": "jest",
     "docs": "docs-ts",
-    "prepublish": "yarn build && yarn test && yarn docs"
+    "prepublishOnly": "yarn build && yarn test && yarn docs"
   },
   "files": [
     "dist"
@@ -29,6 +29,7 @@
     "@no-day/fp-ts-generators": "^0.1.0-rc.4",
     "@no-day/fp-ts-lcg": "^1.0.0-rc.2",
     "fp-ts": "^2.11.4",
+    "fp-ts-contrib": "^0.1.26",
     "fp-ts-std": "^0.13.1",
     "monocle-ts": "^2.3.11"
   }
