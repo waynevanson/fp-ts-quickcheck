@@ -17,7 +17,7 @@ fp-ts port of Haskell's QuickCheck.
 ## Installation
 
 ```sh
-yarn add fp-ts && yarn add -D fp-ts-test
+yarn add -D fp-ts-test
 ```
 
 ## Quick Start
