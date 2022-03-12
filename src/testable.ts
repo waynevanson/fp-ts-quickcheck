@@ -57,8 +57,8 @@ export const assertionAsync: Testable1<T.URI, Promise<void>> = {
 export type Thunk<A> = () => A
 export type Promisable<A> = A | Promise<A>
 export type Thunkable<A> = A | Thunk<A>
-
-type Assertion = Thunkable<Promisable<boolean | void>>
+export type PropertyValue = boolean | void
+export type Assertion = Thunkable<Promisable<PropertyValue>>
 
 // todo - make functionally via composition
 const fromMain =
