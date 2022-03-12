@@ -30,16 +30,18 @@ export interface MakeAssertDeps1<F extends URIS, A> {
 export function makeAssert<F extends URIS, A>(
   depenencies: MakeAssertDeps1<F, A>,
 ): <I>(
+  arbitrary: Arbitrary<I>,
   property: (value: I) => A,
   options?: Partial<QuickCheckOptions>,
-) => (arbitrary: Arbitrary<I>) => Kind<F, void>
+) => Kind<F, void>
 
 export function makeAssert<F, A>(
   dependencies: AssertDeps<F, A>,
 ): <I>(
+  arbitrary: Arbitrary<I>,
   property: (value: I) => A,
   options?: Partial<QuickCheckOptions>,
-) => (arbitrary: Arbitrary<I>) => HKT<F, void>
+) => HKT<F, void>
 
 export function makeAssert<F, A>({
   MonadRecIO: M,
@@ -47,24 +49,24 @@ export function makeAssert<F, A>({
   defaults,
 }: AssertDeps<F, A>) {
   return <I>(
-      property: (value: I) => A,
-      options: Partial<QuickCheckOptions> = {},
-    ) =>
-    (Arbitrary: Arbitrary<I>): HKT<F, void> =>
-      pipe(
-        tests(M)({ Arbitrary, Testable, property, ...defaults, ...options }),
-        (fa) =>
-          M.chain(fa, (a) =>
-            pipe(
-              a.failure,
-              O.match(
-                () => M.of(constVoid()),
-                (failure) =>
-                  M.fromIO(() => {
-                    throw failure
-                  }),
-              ),
+    Arbitrary: Arbitrary<I>,
+    property: (value: I) => A,
+    options: Partial<QuickCheckOptions> = {},
+  ): HKT<F, void> =>
+    pipe(
+      tests(M)({ Arbitrary, Testable, property, ...defaults, ...options }),
+      (fa) =>
+        M.chain(fa, (a) =>
+          pipe(
+            a.failure,
+            O.match(
+              () => M.of(constVoid()),
+              (failure) =>
+                M.fromIO(() => {
+                  throw failure
+                }),
             ),
           ),
-      )
+        ),
+    )
 }

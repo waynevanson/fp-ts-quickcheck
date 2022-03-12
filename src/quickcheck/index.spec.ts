@@ -1,23 +1,18 @@
 import { assertIO, assert } from "./index"
 import * as A from "../arbitrary"
-import { pipe } from "fp-ts/lib/function"
+
+const numnum = A.tuple(A.number, A.number)
 
 describe("assert", () => {
   it(
     "should assert something",
-    pipe(
-      A.tuple(A.number, A.number),
-      assertIO(([x, y]) => expect(x + y).toBe(y + x)),
-    ),
+    assertIO(numnum, ([x, y]) => expect(x + y).toBe(y + x)),
   )
 })
 
 describe("assert", () => {
   it(
     "should look functionalish",
-    pipe(
-      A.tuple(A.number, A.number),
-      assert(([x, y]) => Promise.resolve(true), { count: 10000 }),
-    ),
+    assert(numnum, ([x, y]) => Promise.resolve(true), { count: 10000 }),
   )
 })
