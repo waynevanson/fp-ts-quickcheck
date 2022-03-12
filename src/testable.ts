@@ -65,8 +65,8 @@ const fromMain =
   <I>(property: (i: I) => Assertion) =>
   (i: I): TE.TaskEither<unknown, boolean | void> =>
   () => {
-    const main = property(i)
     try {
+      const main = property(i)
       let promisable: Promisable<boolean | void>
 
       typeof main === "function" ? (promisable = main()) : (promisable = main)
