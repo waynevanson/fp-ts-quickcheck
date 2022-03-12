@@ -9,7 +9,7 @@ import {
   taskEither as TE,
 } from "fp-ts"
 import { HKT, Kind, URIS } from "fp-ts/HKT"
-import { pipe } from "fp-ts/lib/function"
+import { constant, flow, identity, pipe } from "fp-ts/lib/function"
 
 // todo - add the value in here somewhere.
 export type Result = O.Option<unknown>
@@ -60,24 +60,31 @@ export type Thunkable<A> = A | Thunk<A>
 export type PropertyValue = boolean | void
 export type Assertion = Thunkable<Promisable<PropertyValue>>
 
-// todo - make functionally via composition
 const fromMain =
   <I>(property: (i: I) => Assertion) =>
-  (i: I): TE.TaskEither<unknown, boolean | void> =>
-  () => {
-    try {
-      const main = property(i)
-      let promisable: Promisable<boolean | void>
-
-      typeof main === "function" ? (promisable = main()) : (promisable = main)
-
-      return promisable instanceof Promise
-        ? promisable.then(E.right).catch(E.left)
-        : Promise.resolve(E.right(promisable))
-    } catch (e) {
-      return Promise.resolve(E.left(e))
-    }
-  }
+  (i: I) =>
+    pipe(
+      IOE.tryCatchK(property, identity)(i),
+      IOE.chainIOK(
+        (assertion): Thunk<Promisable<PropertyValue>> =>
+          typeof assertion === "function" ? assertion : () => assertion,
+      ),
+      IOE.chainW(
+        flow(
+          E.fromPredicate(
+            (promisable): promisable is Promise<PropertyValue> =>
+              promisable instanceof Promise,
+            (e) => e as PropertyValue,
+          ),
+          E.map((promisable) => IOE.tryCatch(() => promisable, identity)),
+          E.getOrElseW((propertyValue) =>
+            IOE.rightIO(() => Promise.resolve(propertyValue)),
+          ),
+        ),
+      ),
+      TE.fromIOEither,
+      TE.chainTaskK(constant),
+    )
 
 export const assertion: Testable1<T.URI, Assertion> = {
   test: (value) => (property) =>
