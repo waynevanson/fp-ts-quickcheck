@@ -21,5 +21,7 @@ jobs:
         with:
           version: 6.29.1
 
+      - run: pnpm install
+
       - name: "Run Unit Tests"
         run: pnpm exec jest
