@@ -23,8 +23,6 @@ export const assertIO = makeAssert({
   defaults,
 })
 
-export const ChainRecTask = T.ChainRec
-
 export const assert = makeAssert({
   MonadRecIO: { ...T.ChainRec, ...T.FromIO, ...T.Pointed },
   Testable: assertion,
