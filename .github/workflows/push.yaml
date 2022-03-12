@@ -20,8 +20,7 @@ jobs:
         uses: pnpm/action-setup@v2.2.1
         with:
           version: latest
-
-      - run: pnpm install
+          run_install: true
 
       - name: "Run Unit Tests"
         run: pnpm exec jest
