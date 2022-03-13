@@ -4,16 +4,17 @@
  *
  * Please note that shrinking has not been implemented yet.
  */
-import { option as O, state as S } from "fp-ts"
+import { either as E, option as O } from "fp-ts"
 import { Applicative1 } from "fp-ts/lib/Applicative"
 import { Apply1, sequenceS, sequenceT } from "fp-ts/lib/Apply"
-import { flow, pipe, unsafeCoerce } from "fp-ts/lib/function"
+import { flow, identity, pipe, unsafeCoerce } from "fp-ts/lib/function"
 import { Functor1 } from "fp-ts/lib/Functor"
 import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
 import { generator as gen } from "./modules"
 import { EnforceNonEmptyRecord } from "./utils"
+import { state as S } from "./modules/fp-ts"
 
 /**
  * @category Model
@@ -125,10 +126,19 @@ export function filter<A>(predicate: Predicate<A>) {
   return (fa: Arbitrary<A>): Arbitrary<A> => ({
     arbitrary: pipe(
       fa.arbitrary,
-      gen.chain(
-        flow(
-          O.fromPredicate(predicate),
-          O.match(() => pipe(fa.arbitrary, S.apFirst(gen.nextSeed)), gen.of),
+      S.chain(
+        S.chainRec(
+          flow(
+            E.fromPredicate(predicate, identity),
+            E.map((a): gen.Gen<E.Either<A, A>> => gen.of(E.right(a))),
+            E.getOrElse(() =>
+              pipe(
+                fa.arbitrary,
+                S.apFirst(gen.nextSeed),
+                gen.map((e) => E.left(e)),
+              ),
+            ),
+          ),
         ),
       ),
     ),
