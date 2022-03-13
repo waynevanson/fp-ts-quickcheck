@@ -24,6 +24,8 @@ export const assertIO = makeAssert({
   defaults,
 })
 
+export const unsafeAssertSync = flow(assertIO, (io) => io())
+
 export const assertTask = makeAssert({
   MonadRecIO: { ...T.ChainRec, ...T.FromIO, ...T.Pointed },
   Testable: assertion,
