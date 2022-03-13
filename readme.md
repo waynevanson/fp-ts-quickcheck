@@ -39,24 +39,18 @@ import { pipe } from "fp-ts/function"
 import { subtract } from "./main"
 
 describe(subtract, () => {
-  const arbitrary = AT.tuple(AT.number, AT.number)
+  const numnum = AT.tuple(AT.number, AT.number)
 
   it(
     "should always be smaller than the first argument",
-    pipe(
-      arbitrary,
-      // returns a thunk by default, because `qc.assert` throws
-      qc.assert(([x, y]) => x > subract(x, y)),
-    ),
+    // returns a thunk by default, because `qc.assert` throws
+    qc.assertIO(numnum, ([x, y]) => x > subract(x, y)),
   )
 
   it(
     "should matter which order the arguments are passed",
-    pipe(
-      arbitrary,
-      // returns a thunk by default, because `qc.assert` throws
-      qc.assert(([x, y]) => subtract(y, x) !== subract(x, y)),
-    ),
+    // returns a thunk by default, because `qc.assert` throws
+    qc.assertIO(numnum, ([x, y]) => subtract(y, x) !== subract(x, y)),
   )
 })
 ```
