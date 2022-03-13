@@ -4,7 +4,7 @@
  *
  * Please note that shrinking has not been implemented yet.
  */
-import { either as E, option as O } from "fp-ts"
+import { either as E, nonEmptyArray as NEA } from "fp-ts"
 import { Applicative1 } from "fp-ts/lib/Applicative"
 import { Apply1, sequenceS, sequenceT } from "fp-ts/lib/Apply"
 import { flow, identity, pipe, unsafeCoerce } from "fp-ts/lib/function"
@@ -13,8 +13,8 @@ import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
 import { generator as gen } from "./modules"
-import { EnforceNonEmptyRecord } from "./utils"
 import { state as S } from "./modules/fp-ts"
+import { EnforceNonEmptyRecord } from "./utils"
 
 /**
  * @category Model
@@ -199,6 +199,22 @@ export function struct<R extends Record<string, unknown>>(
   struct: EnforceNonEmptyRecord<{ [P in keyof R]: Arbitrary<R[P]> }>,
 ) {
   return sequenceS(Apply)(struct) as Arbitrary<R>
+}
+
+/**
+ * @category Combinators
+ */
+export function union<T extends readonly [unknown, ...unknown[]]>(
+  ...arbitraries: { [P in keyof T]: Arbitrary<T[P]> }
+): Arbitrary<T[number]> {
+  return {
+    arbitrary: gen.oneOf(
+      pipe(
+        arbitraries as unknown as NEA.NonEmptyArray<Arbitrary<T[number]>>,
+        NEA.map((arbitrary) => arbitrary.arbitrary),
+      ),
+    ),
+  }
 }
 
 //PRIMITIVES
