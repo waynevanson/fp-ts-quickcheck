@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/waynevanson/fp-ts-test/compare/v0.3.0...v0.3.1) (2022-03-13)
+
+
+### Features
+
+* add union combinator ([4da2d2b](https://github.com/waynevanson/fp-ts-test/commit/4da2d2b41c750842de2b754c3de8eb6a66a5ed48))
+
 ## 0.3.0 (2022-03-13)
 
 
