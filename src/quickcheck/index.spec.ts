@@ -1,4 +1,4 @@
-import { assertIO, assert } from "./index"
+import { assertIO, assertTask } from "./index"
 import * as A from "../arbitrary"
 
 const numnum = A.tuple(A.number, A.number)
@@ -13,6 +13,6 @@ describe("assert", () => {
 describe("assert", () => {
   it(
     "should look functionalish",
-    assert(numnum, ([x, y]) => Promise.resolve(true), { count: 10000 }),
+    assertTask(numnum, ([x, y]) => Promise.resolve(true), { count: 10000 }),
   )
 })
