@@ -16,6 +16,7 @@ parent: Modules
   - [chain](#chain)
 - [Combinators](#combinators)
   - [array](#array)
+  - [filter](#filter)
   - [mutable](#mutable)
   - [readonly](#readonly)
   - [struct](#struct)
@@ -76,6 +77,19 @@ export declare const chain: <A, B>(f: (a: A) => Arbitrary<B>) => (fa: Arbitrary<
 export declare function array<A>(arbitrary: Arbitrary<A>): Arbitrary<ReadonlyArray<A>>
 ```
 
+## filter
+
+Arbitrary cannot have a Compactable typeclass instance, as the state needs
+to be supplied and called before being able to seperate the output
+conditionally.
+
+**Signature**
+
+```ts
+export declare function filter<A, B extends A>(refinement: Refinement<A, B>): (fa: Arbitrary<A>) => Arbitrary<B>
+export declare function filter<A>(predicate: Predicate<A>): (fa: Arbitrary<A>) => Arbitrary<A>
+```
+
 ## mutable
 
 **Signature**
@@ -85,6 +99,8 @@ export declare const mutable: <A>(fa: Arbitrary<Readonly<A>>) => Arbitrary<A>
 ```
 
 ## readonly
+
+Adds the `Readonly` type constraint from the value within an `Arbitrary` instance.
 
 **Signature**
 
@@ -247,6 +263,8 @@ export declare const Pointed: Pointed1<'Arbitrary'>
 # utils
 
 ## vector
+
+Generates an array with a fixed size, then each has the random contents.s
 
 **Signature**
 

@@ -11,7 +11,9 @@ parent: Modules
 <h2 class="text-delta">Table of contents</h2>
 
 - [utils](#utils)
+  - [Assertion (type alias)](#assertion-type-alias)
   - [Promisable (type alias)](#promisable-type-alias)
+  - [PropertyValue (type alias)](#propertyvalue-type-alias)
   - [Result (type alias)](#result-type-alias)
   - [Testable (interface)](#testable-interface)
   - [Testable1 (interface)](#testable1-interface)
@@ -26,12 +28,28 @@ parent: Modules
 
 # utils
 
+## Assertion (type alias)
+
+**Signature**
+
+```ts
+export type Assertion = Thunkable<Promisable<PropertyValue>>
+```
+
 ## Promisable (type alias)
 
 **Signature**
 
 ```ts
 export type Promisable<A> = A | Promise<A>
+```
+
+## PropertyValue (type alias)
+
+**Signature**
+
+```ts
+export type PropertyValue = boolean | void
 ```
 
 ## Result (type alias)
@@ -83,7 +101,7 @@ export type Thunkable<A> = A | Thunk<A>
 **Signature**
 
 ```ts
-export declare const assertion: Testable1<'Task', Thunkable<Promisable<boolean | void>>>
+export declare const assertion: Testable1<'Task', Thunkable<Promisable<PropertyValue>>>
 ```
 
 ## assertionAsync
