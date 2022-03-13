@@ -9,7 +9,7 @@
     "build": "rm -rf dist && tsc -p tsconfig.es6.json & tsc -p tsconfig.cjs.json",
     "test": "jest",
     "docs": "docs-ts",
-    "prepublishOnly": "yarn build && yarn test && yarn docs"
+    "prepublishOnly": "yarn build && yarn test && yarn docs && standard-version"
   },
   "files": [
     "dist"
