@@ -1,7 +1,8 @@
-import { makeAssert } from "./make-assert"
-import { assertionSync, assertion } from "../testable"
 import { io as IO } from "fp-ts"
+import { flow } from "fp-ts/lib/function"
 import { task as T } from "../modules/fp-ts"
+import { assertion, assertionSync } from "../testable"
+import { makeAssert } from "./make-assert"
 
 export interface QuickCheckOptions {
   initialSeed: number
@@ -28,3 +29,5 @@ export const assert = makeAssert({
   Testable: assertion,
   defaults,
 })
+
+export const unsafeAssertAsync = flow(assert, (a) => a())
