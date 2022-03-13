@@ -12,7 +12,7 @@ import { Functor1 } from "fp-ts/lib/Functor"
 import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
-import * as gen from "./modules/generators"
+import * as gen from "./modules/generator"
 import { EnforceNonEmptyRecord } from "./utils"
 
 /**
