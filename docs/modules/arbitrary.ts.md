@@ -21,6 +21,7 @@ parent: Modules
   - [readonly](#readonly)
   - [struct](#struct)
   - [tuple](#tuple)
+  - [union](#union)
 - [Constructors](#constructors)
   - [fromGen](#fromgen)
 - [Functor](#functor)
@@ -124,6 +125,16 @@ export declare function struct<R extends Record<string, unknown>>(
 
 ```ts
 export declare function tuple<R extends readonly [Arbitrary<unknown>, ...Arbitrary<unknown>[]]>(...arbitraries: R)
+```
+
+## union
+
+**Signature**
+
+```ts
+export declare function union<T extends readonly [unknown, ...unknown[]]>(
+  ...arbitraries: { [P in keyof T]: Arbitrary<T[P]> }
+): Arbitrary<T[number]>
 ```
 
 # Constructors
