@@ -1,4 +1,3 @@
-import { string } from "fp-ts"
 import { pipe } from "fp-ts/lib/function"
 import * as AR from "./arbitrary"
 import * as qc from "./quickcheck"
