@@ -11,16 +11,16 @@ import * as lcg from "./modules/lcg"
 import { MonoidSeed } from "./modules/lcg"
 
 export interface LoopState {
-  seed: lcg.Seed
-  index: number
-  successes: number
-  failure: O.Option<LoopFailure>
+  readonly seed: lcg.Seed
+  readonly index: number
+  readonly successes: number
+  readonly failure: O.Option<LoopFailure>
 }
 
 export interface LoopFailure {
-  seed: lcg.Seed
-  index: number
-  data: unknown
+  readonly seed: lcg.Seed
+  readonly index: number
+  readonly data: unknown
 }
 
 export const MonoidFailure: M.Monoid<LoopFailure> = M.struct({

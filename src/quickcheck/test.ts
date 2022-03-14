@@ -7,15 +7,15 @@ import { Testable, Result, Testable1 } from "../testable"
 import * as S from "../modules/fp-ts/state"
 
 export interface TestOptions<F, I, A> {
-  Arbitrary: Arbitrary<I>
-  Testable: Testable<F, A>
-  property: (value: I) => A
+  readonly Arbitrary: Arbitrary<I>
+  readonly Testable: Testable<F, A>
+  readonly property: (value: I) => A
 }
 
 export interface TestOptions1<F extends URIS, I, A> {
-  Arbitrary: Arbitrary<I>
-  Testable: Testable1<F, A>
-  property: (value: I) => A
+  readonly Arbitrary: Arbitrary<I>
+  readonly Testable: Testable1<F, A>
+  readonly property: (value: I) => A
 }
 
 export interface TestResults<F> {

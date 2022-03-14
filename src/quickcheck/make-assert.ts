@@ -16,15 +16,15 @@ export interface MonadRecIO1<F extends URIS>
     FromIO1<F> {}
 
 export interface AssertDeps<F, A> {
-  MonadRecIO: MonadRecIO<F>
-  Testable: Testable<F, A>
-  defaults: QuickCheckOptions
+  readonly MonadRecIO: MonadRecIO<F>
+  readonly Testable: Testable<F, A>
+  readonly defaults: QuickCheckOptions
 }
 
 export interface MakeAssertDeps1<F extends URIS, A> {
-  MonadRecIO: MonadRecIO1<F>
-  Testable: Testable1<F, A>
-  defaults: QuickCheckOptions
+  readonly MonadRecIO: MonadRecIO1<F>
+  readonly Testable: Testable1<F, A>
+  readonly defaults: QuickCheckOptions
 }
 
 export function makeAssert<F extends URIS, A>(

@@ -9,7 +9,7 @@ import { Pointed2 } from "fp-ts/lib/Pointed"
 export const URI = "StateTask"
 export type URI = typeof URI
 
-export interface StateTask<S, A> extends ST.StateT1<T.URI, S, A> {}
+export type StateTask<S, A> = ST.StateT1<T.URI, S, A>
 
 declare module "fp-ts/HKT" {
   export interface URItoKind2<E, A> {

@@ -8,12 +8,12 @@ import { state as S, stateT as ST } from "../modules/fp-ts"
 import { test, TestOptions, TestOptions1 } from "./test"
 
 export interface LoopOptions<F, I, A> extends TestOptions<F, I, A> {
-  size: number
+  readonly size: number
 }
 
 export interface LoopOptions1<F extends URIS, I, A>
   extends TestOptions1<F, I, A> {
-  size: number
+  readonly size: number
 }
 
 export function loop<F extends URIS>(

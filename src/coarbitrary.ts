@@ -24,7 +24,7 @@ export type URI = typeof URI
  * @category Model
  */
 export interface Coarbitrary<A> {
-  coarbitrary: (a: A) => <R>(fa: gen.Gen<R>) => gen.Gen<R>
+  readonly coarbitrary: (a: A) => <R>(fa: gen.Gen<R>) => gen.Gen<R>
 }
 
 declare module "fp-ts/HKT" {

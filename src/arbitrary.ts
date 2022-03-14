@@ -30,7 +30,7 @@ export type URI = typeof URI
  * @category Model
  */
 export interface Arbitrary<A> {
-  arbitrary: gen.Gen<A>
+  readonly arbitrary: gen.Gen<A>
 }
 
 declare module "fp-ts/HKT" {
@@ -187,7 +187,7 @@ export const mutable: <A>(fa: Arbitrary<Readonly<A>>) => Arbitrary<A> =
  * @category Combinators
  */
 export function tuple<
-  R extends readonly [Arbitrary<unknown>, ...Arbitrary<unknown>[]],
+  R extends readonly [Arbitrary<unknown>, ...readonly Arbitrary<unknown>[]],
 >(...arbitraries: R) {
   return sequenceT(Apply)(...arbitraries)
 }
@@ -196,7 +196,7 @@ export function tuple<
  * @category Combinators
  */
 export function struct<R extends Record<string, unknown>>(
-  struct: EnforceNonEmptyRecord<{ [P in keyof R]: Arbitrary<R[P]> }>,
+  struct: EnforceNonEmptyRecord<{ readonly [P in keyof R]: Arbitrary<R[P]> }>,
 ) {
   return sequenceS(Apply)(struct) as Arbitrary<R>
 }
@@ -204,8 +204,8 @@ export function struct<R extends Record<string, unknown>>(
 /**
  * @category Combinators
  */
-export function union<T extends readonly [unknown, ...unknown[]]>(
-  ...arbitraries: { [P in keyof T]: Arbitrary<T[P]> }
+export function union<T extends readonly [unknown, ...readonly unknown[]]>(
+  ...arbitraries: { readonly [P in keyof T]: Arbitrary<T[P]> }
 ): Arbitrary<T[number]> {
   return {
     arbitrary: gen.oneOf(

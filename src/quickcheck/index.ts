@@ -5,9 +5,9 @@ import { assertion, assertionSync } from "../testable"
 import { makeAssert } from "./make-assert"
 
 export interface QuickCheckOptions {
-  initialSeed: number
-  count: number
-  size: number
+  readonly initialSeed: number
+  readonly count: number
+  readonly size: number
 }
 
 export type InitialQuickCheckOptions = Partial<QuickCheckOptions>
