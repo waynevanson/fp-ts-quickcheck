@@ -12,9 +12,8 @@ describe("arbitrary", () => {
         ),
       )
 
-      qc.unsafeAssertSync(
-        arbitrary,
-        (nonemptystring) => nonemptystring.length > 0,
+      qc.unsafeAssertSync(arbitrary, (nonemptystring) =>
+        expect(nonemptystring.length).toBeGreaterThan(0),
       )
     })
   })
