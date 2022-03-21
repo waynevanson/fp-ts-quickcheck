@@ -21,7 +21,7 @@ module.exports = {
   overrides: [
     {
       ...main,
-      files: paths.tests.map((path) => `!${path}`),
+      files: ["src/**/*.ts"].concat(paths.tests.map((path) => `!${path}`)),
       plugins: ["functional"].concat(main.plugins),
       extends: [
         "plugin:functional/recommended",
