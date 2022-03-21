@@ -47,7 +47,7 @@ export declare const contramap: <B, A>(f: (b: B) => A) => (fa: Coarbitrary<A>) =
 
 ```ts
 export interface Coarbitrary<A> {
-  coarbitrary: (a: A) => <R>(fa: gen.Gen<R>) => gen.Gen<R>
+  readonly coarbitrary: (a: A) => <R>(fa: gen.Gen<R>) => gen.Gen<R>
 }
 ```
 

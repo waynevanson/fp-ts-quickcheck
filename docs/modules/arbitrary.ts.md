@@ -6,6 +6,10 @@ parent: Modules
 
 ## arbitrary overview
 
+The `Arbitrary` typeclass represents a value that can be generated and shrunk.
+
+Please note that shrinking has not been implemented yet.
+
 ---
 
 <h2 class="text-delta">Table of contents</h2>
@@ -22,8 +26,10 @@ parent: Modules
   - [struct](#struct)
   - [tuple](#tuple)
   - [union](#union)
+  - [vector](#vector)
 - [Constructors](#constructors)
   - [fromGen](#fromgen)
+  - [lazy](#lazy)
 - [Functor](#functor)
   - [map](#map)
 - [Model](#model)
@@ -41,10 +47,9 @@ parent: Modules
 - [Typeclasses](#typeclasses)
   - [Applicative](#applicative)
   - [Apply](#apply-1)
+  - [Chain](#chain-1)
   - [Functor](#functor-1)
   - [Pointed](#pointed-1)
-- [utils](#utils)
-  - [vector](#vector)
 
 ---
 
@@ -115,7 +120,7 @@ export declare const readonly: <A>(fa: Arbitrary<A>) => Arbitrary<Readonly<A>>
 
 ```ts
 export declare function struct<R extends Record<string, unknown>>(
-  struct: EnforceNonEmptyRecord<{ [P in keyof R]: Arbitrary<R[P]> }>
+  struct: EnforceNonEmptyRecord<{ readonly [P in keyof R]: Arbitrary<R[P]> }>
 )
 ```
 
@@ -124,7 +129,9 @@ export declare function struct<R extends Record<string, unknown>>(
 **Signature**
 
 ```ts
-export declare function tuple<R extends readonly [Arbitrary<unknown>, ...Arbitrary<unknown>[]]>(...arbitraries: R)
+export declare function tuple<R extends readonly [Arbitrary<unknown>, ...(readonly Arbitrary<unknown>[])]>(
+  ...arbitraries: R
+)
 ```
 
 ## union
@@ -132,9 +139,19 @@ export declare function tuple<R extends readonly [Arbitrary<unknown>, ...Arbitra
 **Signature**
 
 ```ts
-export declare function union<T extends readonly [unknown, ...unknown[]]>(
-  ...arbitraries: { [P in keyof T]: Arbitrary<T[P]> }
+export declare function union<T extends readonly [unknown, ...(readonly unknown[])]>(
+  ...arbitraries: { readonly [P in keyof T]: Arbitrary<T[P]> }
 ): Arbitrary<T[number]>
+```
+
+## vector
+
+Generates an array with a fixed size, then each has the random contents.s
+
+**Signature**
+
+```ts
+export declare function vector(size: number)
 ```
 
 # Constructors
@@ -145,6 +162,14 @@ export declare function union<T extends readonly [unknown, ...unknown[]]>(
 
 ```ts
 export declare function fromGen<A>(gen: gen.Gen<A>): Arbitrary<A>
+```
+
+## lazy
+
+**Signature**
+
+```ts
+export declare function lazy<A>(lazy: Lazy<Arbitrary<A>>): Arbitrary<A>
 ```
 
 # Functor
@@ -165,7 +190,7 @@ export declare const map: <A, B>(f: (a: A) => B) => (fa: Arbitrary<A>) => Arbitr
 
 ```ts
 export interface Arbitrary<A> {
-  arbitrary: gen.Gen<A>
+  readonly arbitrary: gen.Gen<A>
 }
 ```
 
@@ -255,6 +280,14 @@ export declare const Applicative: Applicative1<'Arbitrary'>
 export declare const Apply: Apply1<'Arbitrary'>
 ```
 
+## Chain
+
+**Signature**
+
+```ts
+export declare const Chain: Chain1<'Arbitrary'>
+```
+
 ## Functor
 
 **Signature**
@@ -269,16 +302,4 @@ export declare const Functor: Functor1<'Arbitrary'>
 
 ```ts
 export declare const Pointed: Pointed1<'Arbitrary'>
-```
-
-# utils
-
-## vector
-
-Generates an array with a fixed size, then each has the random contents.s
-
-**Signature**
-
-```ts
-export declare function vector(size: number)
 ```
