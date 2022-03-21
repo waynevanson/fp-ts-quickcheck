@@ -7,7 +7,7 @@
 import { either as E, nonEmptyArray as NEA } from "fp-ts"
 import { Applicative1 } from "fp-ts/lib/Applicative"
 import { Apply1, sequenceS, sequenceT } from "fp-ts/lib/Apply"
-import { flow, identity, pipe, unsafeCoerce } from "fp-ts/lib/function"
+import { flow, identity, pipe, unsafeCoerce, Lazy } from "fp-ts/lib/function"
 import { Functor1 } from "fp-ts/lib/Functor"
 import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
@@ -108,6 +108,13 @@ export function fromGen<A>(gen: gen.Gen<A>): Arbitrary<A> {
 }
 
 // COMBINATORS
+
+/**
+ * @category Constructors
+ */
+export function lazy<A>(lazy: Lazy<Arbitrary<A>>): Arbitrary<A> {
+  return { arbitrary: (s) => lazy().arbitrary(s) }
+}
 
 /**
  * Arbitrary cannot have a Compactable typeclass instance, as the state needs

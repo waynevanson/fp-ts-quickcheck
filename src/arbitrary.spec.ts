@@ -1,4 +1,4 @@
-import { pipe } from "fp-ts/lib/function"
+import { constVoid, pipe } from "fp-ts/lib/function"
 import * as AR from "./arbitrary"
 import * as qc from "./quickcheck"
 
@@ -15,6 +15,14 @@ describe("arbitrary", () => {
       qc.unsafeAssertSync(arbitrary, (nonemptystring) =>
         expect(nonemptystring.length).toBeGreaterThan(0),
       )
+    })
+  })
+
+  describe("lazy", () => {
+    it("should be able to access an arbitrary before initialization", () => {
+      const y = AR.lazy(() => x)
+      const x = AR.of(constVoid())
+      expect(qc.assertIO(y, constVoid)).not.toThrow()
     })
   })
 })
