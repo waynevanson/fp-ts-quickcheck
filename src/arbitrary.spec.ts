@@ -19,7 +19,7 @@ describe("arbitrary", () => {
   })
 
   describe("lazy", () => {
-    it("should be able to access an arbitrary before initialization", () => {
+    it("should be able to access an arbitrary after initialization", () => {
       const y = AR.lazy(() => x)
       const x = AR.of(constVoid())
       expect(qc.assertIO(y, constVoid)).not.toThrow()
