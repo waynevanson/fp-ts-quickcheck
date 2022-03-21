@@ -6,6 +6,7 @@
 import { either as E, nonEmptyArray as NEA } from "fp-ts"
 import { Applicative1 } from "fp-ts/lib/Applicative"
 import { Apply1, sequenceS, sequenceT } from "fp-ts/lib/Apply"
+import { Chain1 } from "fp-ts/lib/Chain"
 import { flow, identity, pipe, unsafeCoerce, Lazy } from "fp-ts/lib/function"
 import { Functor1 } from "fp-ts/lib/Functor"
 import { Pointed1 } from "fp-ts/lib/Pointed"
@@ -93,6 +94,14 @@ export const Apply: Apply1<URI> = { ...Functor, ap: (fab, fa) => ap(fa)(fab) }
  * @category Typeclasses
  */
 export const Applicative: Applicative1<URI> = { ...Pointed, ...Apply }
+
+/**
+ * @category Typeclasses
+ */
+export const Chain: Chain1<URI> = {
+  ...Applicative,
+  chain: (fa, f) => chain(f)(fa),
+}
 
 // CONSTRUCTORS
 
