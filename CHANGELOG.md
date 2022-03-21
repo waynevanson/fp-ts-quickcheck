@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/waynevanson/fp-ts-test/compare/v0.3.1...v0.3.2) (2022-03-21)
+
+
+### Features
+
+* add Chain instance ([df31c73](https://github.com/waynevanson/fp-ts-test/commit/df31c732db766f0c3c312122eb2f31ea3d9d8c0d))
+* add lazy arbitrary ([b1fcd4b](https://github.com/waynevanson/fp-ts-test/commit/b1fcd4b15bcb67218ae6becb0157cf6cbb2ba33a))
+
 ### [0.3.1](https://github.com/waynevanson/fp-ts-test/compare/v0.3.0...v0.3.1) (2022-03-13)
 
 
