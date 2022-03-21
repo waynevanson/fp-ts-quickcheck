@@ -1,5 +1,4 @@
 /**
- * @summary
  * The `Arbitrary` typeclass represents a value that can be generated and shrunk.
  *
  * Please note that shrinking has not been implemented yet.
@@ -194,7 +193,7 @@ export const mutable: <A>(fa: Arbitrary<Readonly<A>>) => Arbitrary<A> =
  * @category Combinators
  */
 export function tuple<
-  R extends readonly [Arbitrary<unknown>, ...readonly Arbitrary<unknown>[]],
+  R extends readonly [Arbitrary<unknown>, ...(readonly Arbitrary<unknown>[])],
 >(...arbitraries: R) {
   return sequenceT(Apply)(...arbitraries)
 }
@@ -211,7 +210,7 @@ export function struct<R extends Record<string, unknown>>(
 /**
  * @category Combinators
  */
-export function union<T extends readonly [unknown, ...readonly unknown[]]>(
+export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
   ...arbitraries: { readonly [P in keyof T]: Arbitrary<T[P]> }
 ): Arbitrary<T[number]> {
   return {
