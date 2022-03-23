@@ -127,7 +127,7 @@ export function int(
 // COMBINATORS
 
 /**
- * @category Constructors
+ * @category Combinators
  */
 export function lazy<A>(lazy: Lazy<Arbitrary<A>>): Arbitrary<A> {
   return { arbitrary: (s) => lazy().arbitrary(s) }
