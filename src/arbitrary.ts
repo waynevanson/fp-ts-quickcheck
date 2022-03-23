@@ -3,7 +3,7 @@
  *
  * Please note that shrinking has not been implemented yet.
  */
-import { either as E, nonEmptyArray as NEA } from "fp-ts"
+import { either as E, nonEmptyArray as NEA, reader as R } from "fp-ts"
 import { Applicative1 } from "fp-ts/lib/Applicative"
 import { Apply1, sequenceS, sequenceT } from "fp-ts/lib/Apply"
 import { Chain1 } from "fp-ts/lib/Chain"
@@ -123,6 +123,23 @@ export function int(
 ): Arbitrary<number> {
   return { arbitrary: gen.int(options) }
 }
+
+/**
+ * @summary
+ * Generate a single character string.
+ *
+ * @category Constructors
+ */
+export const character: (
+  options?: Partial<Record<"from" | "to", string>>,
+) => Arbitrary<string> = flow(gen.char, fromGen)
+
+/**
+ * @category Constructors
+ */
+export const string: (
+  options?: Partial<Record<"from" | "to", string>>,
+) => Arbitrary<string> = flow(gen.string, fromGen)
 
 // COMBINATORS
 
@@ -260,24 +277,6 @@ export const number: Arbitrary<number> = {
     min: Number.MAX_SAFE_INTEGER,
     max: Number.MAX_SAFE_INTEGER,
   }),
-}
-
-/**
- * @summary
- * Generate a single character string.
- *
- * @category Primitives
- * @todo Would you prefer stricter typing with the `Char` type?
- */
-export const character: Arbitrary<string> = {
-  arbitrary: gen.char(),
-}
-
-/**
- * @category Primitives
- */
-export const string: Arbitrary<string> = {
-  arbitrary: gen.string(),
 }
 
 /**

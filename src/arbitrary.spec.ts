@@ -6,7 +6,7 @@ describe("arbitrary", () => {
   describe("filter", () => {
     it("should filter out bad values", () => {
       const arbitrary = pipe(
-        AR.string,
+        AR.string(),
         AR.filter(
           (string): string is `${string}${string}` => string.length > 0,
         ),
