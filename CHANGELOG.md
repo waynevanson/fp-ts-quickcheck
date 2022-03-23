@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/waynevanson/fp-ts-test/compare/v0.3.2...v0.4.0) (2022-03-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* These now take options for extensiblity and performance
+
+### Features
+
+* add toGen ([26ca34e](https://github.com/waynevanson/fp-ts-test/commit/26ca34eeaf49420f8258dad14d36f99b36729a9e))
+* use options for character and string ([cd350a7](https://github.com/waynevanson/fp-ts-test/commit/cd350a77bdb3f921da3851c5e3ac44de99487f05))
+
 ### [0.3.2](https://github.com/waynevanson/fp-ts-test/compare/v0.3.1...v0.3.2) (2022-03-21)
 
 
