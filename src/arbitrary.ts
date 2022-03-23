@@ -115,6 +115,15 @@ export function fromGen<A>(gen: gen.Gen<A>): Arbitrary<A> {
   return { arbitrary: gen }
 }
 
+/**
+ * @category Constructors
+ */
+export function int(
+  options: Partial<Record<"min" | "max", number>>,
+): Arbitrary<number> {
+  return { arbitrary: gen.int(options) }
+}
+
 // COMBINATORS
 
 /**
@@ -251,15 +260,6 @@ export const number: Arbitrary<number> = {
     min: Number.MAX_SAFE_INTEGER,
     max: Number.MAX_SAFE_INTEGER,
   }),
-}
-
-/**
- * @category Primitives
- */
-export function int(
-  options: Partial<Record<"min" | "max", number>>,
-): Arbitrary<number> {
-  return { arbitrary: gen.int(options) }
 }
 
 /**
