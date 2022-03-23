@@ -232,6 +232,15 @@ export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
   }
 }
 
+// DESTRUCTORS
+
+/**
+ * @category Destructors
+ */
+export function toGen<A>(fa: Arbitrary<A>) {
+  return fa.arbitrary
+}
+
 //PRIMITIVES
 
 /**
