@@ -21,6 +21,7 @@ Please note that shrinking has not been implemented yet.
 - [Combinators](#combinators)
   - [array](#array)
   - [filter](#filter)
+  - [lazy](#lazy)
   - [mutable](#mutable)
   - [readonly](#readonly)
   - [struct](#struct)
@@ -28,8 +29,12 @@ Please note that shrinking has not been implemented yet.
   - [union](#union)
   - [vector](#vector)
 - [Constructors](#constructors)
+  - [character](#character)
   - [fromGen](#fromgen)
-  - [lazy](#lazy)
+  - [int](#int)
+  - [string](#string)
+- [Destructors](#destructors)
+  - [toGen](#togen)
 - [Functor](#functor)
   - [map](#map)
 - [Model](#model)
@@ -40,10 +45,7 @@ Please note that shrinking has not been implemented yet.
   - [of](#of)
 - [Primitives](#primitives)
   - [boolean](#boolean)
-  - [character](#character)
-  - [int](#int)
   - [number](#number)
-  - [string](#string)
 - [Typeclasses](#typeclasses)
   - [Applicative](#applicative)
   - [Apply](#apply-1)
@@ -94,6 +96,14 @@ conditionally.
 ```ts
 export declare function filter<A, B extends A>(refinement: Refinement<A, B>): (fa: Arbitrary<A>) => Arbitrary<B>
 export declare function filter<A>(predicate: Predicate<A>): (fa: Arbitrary<A>) => Arbitrary<A>
+```
+
+## lazy
+
+**Signature**
+
+```ts
+export declare function lazy<A>(lazy: Lazy<Arbitrary<A>>): Arbitrary<A>
 ```
 
 ## mutable
@@ -156,6 +166,14 @@ export declare function vector(size: number)
 
 # Constructors
 
+## character
+
+**Signature**
+
+```ts
+export declare const character: (options?: Partial<Record<'from' | 'to', string>> | undefined) => Arbitrary<string>
+```
+
 ## fromGen
 
 **Signature**
@@ -164,12 +182,30 @@ export declare function vector(size: number)
 export declare function fromGen<A>(gen: gen.Gen<A>): Arbitrary<A>
 ```
 
-## lazy
+## int
 
 **Signature**
 
 ```ts
-export declare function lazy<A>(lazy: Lazy<Arbitrary<A>>): Arbitrary<A>
+export declare function int(options: Partial<Record<'min' | 'max', number>>): Arbitrary<number>
+```
+
+## string
+
+**Signature**
+
+```ts
+export declare const string: (options?: Partial<Record<'from' | 'to', string>> | undefined) => Arbitrary<string>
+```
+
+# Destructors
+
+## toGen
+
+**Signature**
+
+```ts
+export declare function toGen<A>(fa: Arbitrary<A>)
 ```
 
 # Functor
@@ -230,36 +266,12 @@ export declare const of: <A>(a: A) => Arbitrary<A>
 export declare const boolean: Arbitrary<boolean>
 ```
 
-## character
-
-**Signature**
-
-```ts
-export declare const character: Arbitrary<string>
-```
-
-## int
-
-**Signature**
-
-```ts
-export declare function int(options: Partial<Record<'min' | 'max', number>>): Arbitrary<number>
-```
-
 ## number
 
 **Signature**
 
 ```ts
 export declare const number: Arbitrary<number>
-```
-
-## string
-
-**Signature**
-
-```ts
-export declare const string: Arbitrary<string>
 ```
 
 # Typeclasses
