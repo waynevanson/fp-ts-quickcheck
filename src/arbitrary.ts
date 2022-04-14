@@ -119,7 +119,7 @@ export function fromGen<A>(gen: gen.Gen<A>): Arbitrary<A> {
  * @category Constructors
  */
 export function int(
-  options: Partial<Record<"min" | "max", number>>,
+  options?: Partial<Record<"min" | "max", number>>,
 ): Arbitrary<number> {
   return { arbitrary: gen.int(options) }
 }
