@@ -1,5 +1,5 @@
 import { option as O } from "fp-ts"
-import { HKT, Kind, URIS } from "fp-ts/HKT"
+import { HKT, Kind, URIS, URIS2 } from "fp-ts/HKT"
 import { ChainRec, ChainRec1 } from "fp-ts/lib/ChainRec"
 import { FromIO, FromIO1 } from "fp-ts/lib/FromIO"
 import { constVoid, pipe } from "fp-ts/lib/function"
@@ -27,27 +27,33 @@ export interface MakeAssertDeps1<F extends URIS, A> {
   readonly defaults: QuickCheckOptions
 }
 
+export interface Assert<F, A> {
+  <I>(
+    arbitrary: Arbitrary<I>,
+    property: (value: I) => A,
+    options?: InitialQuickCheckOptions,
+  ): HKT<F, void>
+}
+
+export interface Assert1<F extends URIS, A> {
+  <I>(
+    arbitrary: Arbitrary<I>,
+    property: (value: I) => A,
+    options?: InitialQuickCheckOptions,
+  ): Kind<F, void>
+}
+
 export function makeAssert<F extends URIS, A>(
   depenencies: MakeAssertDeps1<F, A>,
-): <I>(
-  arbitrary: Arbitrary<I>,
-  property: (value: I) => A,
-  options?: InitialQuickCheckOptions,
-) => Kind<F, void>
+): Assert1<F, A>
 
-export function makeAssert<F, A>(
-  dependencies: AssertDeps<F, A>,
-): <I>(
-  arbitrary: Arbitrary<I>,
-  property: (value: I) => A,
-  options?: InitialQuickCheckOptions,
-) => HKT<F, void>
+export function makeAssert<F, A>(dependencies: AssertDeps<F, A>): Assert<F, A>
 
 export function makeAssert<F, A>({
   MonadRecIO: M,
   Testable,
   defaults,
-}: AssertDeps<F, A>) {
+}: AssertDeps<F, A>): Assert<F, A> {
   return <I>(
     Arbitrary: Arbitrary<I>,
     property: (value: I) => A,
