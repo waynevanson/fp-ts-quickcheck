@@ -253,7 +253,7 @@ export function array<A>(arbitrary: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> {
 }
 
 /**
- * Generates an array with a fixed size, then each has the random contents.s
+ * Generates an array with a fixed size, then each has the random contents.
  * @category Combinators
  */
 export function vector(size: number) {
