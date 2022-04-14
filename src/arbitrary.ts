@@ -153,6 +153,15 @@ export const string: (
 // COMBINATORS
 
 /**
+ * Allow generating arbitraries of `T` or `null`.
+ *
+ * @category Combinators
+ */
+export const nullable: <T>(arbitrary: Arbitrary<T>) => Arbitrary<T | null> = (
+  arbitrary,
+) => union(arbitrary, of(null))
+
+/**
  * @category Combinators
  */
 export function lazy<A>(lazy: Lazy<Arbitrary<A>>): Arbitrary<A> {
