@@ -327,10 +327,7 @@ export function toGen<A>(fa: Arbitrary<A>) {
  * @category Primitives
  */
 export const number: Arbitrary<number> = {
-  arbitrary: gen.int({
-    min: Number.MAX_SAFE_INTEGER,
-    max: Number.MAX_SAFE_INTEGER,
-  }),
+  arbitrary: gen.int(),
 }
 
 /**
