@@ -125,6 +125,15 @@ export function int(
 }
 
 /**
+ * @category Constructors
+ */
+export function float(
+  options?: Partial<Record<"min" | "max", number>>,
+): Arbitrary<number> {
+  return { arbitrary: gen.float(options) }
+}
+
+/**
  * @summary
  * Generate a single character string.
  *
