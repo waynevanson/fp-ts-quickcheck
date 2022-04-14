@@ -3,11 +3,16 @@
  *
  * Please note that shrinking has not been implemented yet.
  */
-import { either as E, nonEmptyArray as NEA, reader as R } from "fp-ts"
+import {
+  either as E,
+  nonEmptyArray as NEA,
+  option as O,
+  readonlyRecord as RC,
+} from "fp-ts"
 import { Applicative1 } from "fp-ts/lib/Applicative"
 import { Apply1, sequenceS, sequenceT } from "fp-ts/lib/Apply"
 import { Chain1 } from "fp-ts/lib/Chain"
-import { flow, identity, pipe, unsafeCoerce, Lazy } from "fp-ts/lib/function"
+import { flow, identity, Lazy, pipe, unsafeCoerce } from "fp-ts/lib/function"
 import { Functor1 } from "fp-ts/lib/Functor"
 import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
@@ -162,8 +167,29 @@ export const nullable: <T>(arbitrary: Arbitrary<T>) => Arbitrary<T | null> = (
 ) => union(arbitrary, of(null))
 
 /**
+ * Creates an arbitrary as a struct that optionally defines properties.
+ *
  * @category Combinators
  */
+export function partial<T extends Record<string, unknown>>(arbitraries: {
+  [P in keyof T]: Arbitrary<T[P]>
+}): Arbitrary<Partial<T>> {
+  return {
+    arbitrary: pipe(
+      S.get<gen.GenState>(),
+      S.map((s) =>
+        pipe(
+          arbitraries,
+          RC.fromRecord,
+          RC.map(flow(nullable, toGen, S.evaluate(s))),
+          RC.filterMap(O.fromNullable),
+          (a) => unsafeCoerce(a),
+        ),
+      ),
+    ),
+  }
+}
+
 /**
  * Allows use of an arbitrary that is used after the current arbitrary is defined.
  * Useful for recursive patterns.
