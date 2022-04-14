@@ -164,6 +164,16 @@ export const nullable: <T>(arbitrary: Arbitrary<T>) => Arbitrary<T | null> = (
 /**
  * @category Combinators
  */
+/**
+ * Allows use of an arbitrary that is used after the current arbitrary is defined.
+ * Useful for recursive patterns.
+ *
+ * @category Combinators
+ * @example
+ * const y = AR.lazy(() => x)
+ * const x = AR.of(constVoid())
+ * // now y can use x without it being unreachable code
+ */
 export function lazy<A>(lazy: Lazy<Arbitrary<A>>): Arbitrary<A> {
   return { arbitrary: (s) => lazy().arbitrary(s) }
 }
