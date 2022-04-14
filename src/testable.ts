@@ -8,7 +8,7 @@ import {
   task as T,
   taskEither as TE,
 } from "fp-ts"
-import { HKT, Kind, URIS } from "fp-ts/HKT"
+import { HKT, Kind, Kind2, URIS, URIS2 } from "fp-ts/HKT"
 import { constant, flow, identity, pipe } from "fp-ts/lib/function"
 
 // todo - add the value in here somewhere.
@@ -18,9 +18,13 @@ export type Result = O.Option<unknown>
 export interface Testable<F, A> {
   readonly test: <I>(value: I) => (property: (value: I) => A) => HKT<F, Result>
 }
-
 export interface Testable1<F extends URIS, A> {
   readonly test: <I>(value: I) => (property: (value: I) => A) => Kind<F, Result>
+}
+export interface Testable2<F extends URIS2, E, A> {
+  readonly test: <I>(
+    value: I,
+  ) => (property: (value: I) => A) => Kind2<F, E, Result>
 }
 
 export const boolean: Testable1<I.URI, boolean> = {
