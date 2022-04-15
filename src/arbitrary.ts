@@ -138,22 +138,26 @@ export function float(
   return { arbitrary: gen.float(options) }
 }
 
+export type StringParams = Partial<Record<"from" | "to", string>>
+
 /**
  * @summary
  * Generate a single character string.
  *
  * @category Constructors
  */
-export const character: (
-  options?: Partial<Record<"from" | "to", string>>,
-) => Arbitrary<string> = flow(gen.char, fromGen)
+export const character: (options?: StringParams) => Arbitrary<string> = flow(
+  gen.char,
+  fromGen,
+)
 
 /**
  * @category Constructors
  */
-export const string: (
-  options?: Partial<Record<"from" | "to", string>>,
-) => Arbitrary<string> = flow(gen.string, fromGen)
+export const string: (options?: StringParams) => Arbitrary<string> = flow(
+  gen.string,
+  fromGen,
+)
 
 // COMBINATORS
 
