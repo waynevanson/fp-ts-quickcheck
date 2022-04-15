@@ -2,8 +2,12 @@
  * @since 0.12.0
  */
 import { either as E, eq as EQ, option as O, readonlyArray as A } from "fp-ts"
+import { HKT } from "fp-ts/HKT"
 import { Alt1 } from "fp-ts/lib/Alt"
-import { Applicative1 } from "fp-ts/lib/Applicative"
+import {
+  Applicative as Applicative_,
+  Applicative1,
+} from "fp-ts/lib/Applicative"
 import { Apply1 } from "fp-ts/lib/Apply"
 import { Chain1 } from "fp-ts/lib/Chain"
 import { Compactable1 } from "fp-ts/lib/Compactable"
@@ -19,7 +23,11 @@ import { Monad1 } from "fp-ts/lib/Monad"
 import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
+import { PipeableTraverse1 } from "fp-ts/lib/Traversable"
+import { PipeableTraverseWithIndex1 } from "fp-ts/lib/TraversableWithIndex"
+import { TraversableWithIndex1 } from "fp-ts/lib/TraversableWithIndex"
 import { Zero1 } from "fp-ts/lib/Zero"
+import { iterable } from "."
 
 /**
  * @category Model
@@ -369,6 +377,40 @@ export const FoldableWithIndex: FoldableWithIndex1<URI, number> = {
   reduceRightWithIndex: (fa, b, f) =>
     pipe(fa, toReadonlyArray, A.reduceRightWithIndex(b, f)),
 }
+
+const _traverseWithIndex: TraversableWithIndex1<
+  URI,
+  number
+>["traverseWithIndex"] =
+  <F>(F: Applicative_<F>) =>
+  <A, B>(ta: Iterable<A>, f: (i: number, a: A) => HKT<F, B>) =>
+    pipe(ta, iterable.toReadonlyArray, A.traverseWithIndex(F)(f))
+
+export const TraversableWithIndex: TraversableWithIndex1<URI, number> = {
+  ...FunctorWithIndex,
+  ...FoldableWithIndex,
+  traverseWithIndex: _traverseWithIndex,
+  traverse:
+    <F>(F: Applicative_<F>) =>
+    <A, B>(ta: Iterable<A>, f: (a: A) => HKT<F, B>) =>
+      _traverseWithIndex(F)(ta, (i, a) => f(a)),
+  sequence:
+    <F>(F: Applicative_<F>) =>
+    <A>(ta: Iterable<HKT<F, A>>): HKT<F, Iterable<A>> =>
+      _traverseWithIndex(F)(ta, (i, fa) => fa),
+}
+
+export const traverseWithIndex: PipeableTraverseWithIndex1<URI, number> =
+  <F>(F: Applicative_<F>) =>
+  <A, B>(f: (i: number, a: A) => HKT<F, B>) =>
+  (ta: Iterable<A>): HKT<F, Iterable<B>> =>
+    _traverseWithIndex(F)(ta, f)
+
+export const traverse: PipeableTraverse1<URI> =
+  <F>(F: Applicative_<F>) =>
+  <A, B>(f: (a: A) => HKT<F, B>) =>
+  (ta: Iterable<A>): HKT<F, Iterable<B>> =>
+    _traverseWithIndex(F)(ta, (i, a) => f(a))
 
 /**
  * Takes a function returning an `Option` and keeps it until it contains `None`.
