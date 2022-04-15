@@ -18,6 +18,18 @@ describe("arbitrary", () => {
     })
   })
 
+  describe("array", () => {
+    it("should be an array containing the arbitraries", () => {
+      const arbitrary = AR.array(AR.string())
+      qc.sync(arbitrary, (strings) => {
+        expect(strings).toBeInstanceOf(Array)
+        strings.forEach((string) => {
+          expect(typeof string).toBe("string")
+        })
+      })
+    })
+  })
+
   describe("lazy", () => {
     it("should be able to access an arbitrary after initialization", () => {
       const y = AR.lazy(() => x)
