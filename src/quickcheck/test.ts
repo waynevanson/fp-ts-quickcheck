@@ -5,6 +5,7 @@ import { pipe } from "fp-ts/lib/function"
 import { Arbitrary } from "../arbitrary"
 import { Testable, Result, Testable1 } from "../testable"
 import * as S from "../modules/fp-ts/state"
+import { generator } from "../modules"
 
 export interface TestOptions<F, I, A> {
   readonly Arbitrary: Arbitrary<I>
@@ -43,8 +44,12 @@ export function test<F, I, A>({
 }: TestOptions<F, I, A>): Gen<TestResults<F>> {
   return pipe(
     Arbitrary.arbitrary,
-    S.map(Testable.test),
-    S.ap(S.of(property)),
+    S.chain((value) =>
+      pipe(
+        S.get<generator.GenState>(),
+        S.map((seedState) => Testable.test({ property, value, seedState })),
+      ),
+    ),
     S.bindTo("resultM"),
     S.apS(
       "newSeed",
