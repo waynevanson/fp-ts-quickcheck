@@ -333,3 +333,10 @@ export function toGen<A>(fa: Arbitrary<A>) {
 export const boolean: Arbitrary<boolean> = {
   arbitrary: gen.boolean,
 }
+
+export function stringNonempty(options?: StringParams): Arbitrary<string> {
+  return pipe(
+    string(options),
+    filter((string) => string.length > 0),
+  )
+}
