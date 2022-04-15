@@ -9,7 +9,7 @@ describe(test, () => {
   describe("boolean", () =>
     it("should increment the newSeed and return no errors when the property returns true", () => {
       const result = pipe(
-        test({ Arbitrary: A.number, Testable: boolean, property: () => true }),
+        test({ Arbitrary: A.int(), Testable: boolean, property: () => true }),
         S.evaluate({ size: 1, newSeed: mkSeed(1) }),
       )
       expect(result).toEqual({ resultM: O.none, newSeed: lcgNext(mkSeed(1)) })
@@ -19,7 +19,7 @@ describe(test, () => {
     it("should increment the newSeed and return no errors when the property returns true", () => {
       const result = pipe(
         test({
-          Arbitrary: A.number,
+          Arbitrary: A.int(),
           Testable: assertionSync,
           property: () => true,
         }),
