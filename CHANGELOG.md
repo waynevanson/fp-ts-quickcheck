@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/waynevanson/fp-ts-test/compare/v0.4.0...v0.5.0) (2022-04-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* Removed number, use `int()` instead.
+
+### Features
+
+* add `stringNonempty` ([236678e](https://github.com/waynevanson/fp-ts-test/commit/236678e209805dfa7df718c144a637c9c93579e7))
+* add float ([a775dc9](https://github.com/waynevanson/fp-ts-test/commit/a775dc9f8a11fdb0da10cfe5e9b1f4c94ce7958b))
+* add nullable ([e9b1adc](https://github.com/waynevanson/fp-ts-test/commit/e9b1adc380e73ee16797443613a4025c7e917e82))
+* add partial ([30aaf26](https://github.com/waynevanson/fp-ts-test/commit/30aaf2626ee648e8f616b615564f4328c219b0e0))
+* add Testable2 interface ([0189139](https://github.com/waynevanson/fp-ts-test/commit/01891394779b04533df37bb8ab1b714d96925835))
+* lots of great stuff ([cdb85f1](https://github.com/waynevanson/fp-ts-test/commit/cdb85f105ef45a5ab6f3af705f5fa1c4d010b905))
+* make into options optional ([02511b0](https://github.com/waynevanson/fp-ts-test/commit/02511b0de716143d76f46bb4e38f0b87042c9e18))
+* remove number primitive ([bc90a95](https://github.com/waynevanson/fp-ts-test/commit/bc90a95ca7b9295ef7bfe21bd602e1d5de352403))
+* rename make-assert to assert ([28f5ad6](https://github.com/waynevanson/fp-ts-test/commit/28f5ad6dde5bdb92366e72daba1ee0a86ed5b11c))
+
 ## [0.4.0](https://github.com/waynevanson/fp-ts-test/compare/v0.3.2...v0.4.0) (2022-03-23)
 
 
