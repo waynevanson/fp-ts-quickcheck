@@ -1,6 +1,5 @@
 import { either as E } from "fp-ts"
 import { URIS2, Kind2, Kind, URIS, HKT } from "fp-ts/HKT"
-import { Chain } from "fp-ts/lib/Chain"
 import { pipe } from "fp-ts/lib/function"
 import { Monad, Monad1, Monad2 } from "fp-ts/lib/Monad"
 

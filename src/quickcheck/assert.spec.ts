@@ -1,11 +1,11 @@
-import { makeAssert } from "./assert"
+import { mk } from "./assert"
 import { io, io as IO } from "fp-ts"
 import * as testable from "../testable"
 import * as A from "../arbitrary"
 
-describe(makeAssert, () => {
+describe(mk, () => {
   it("should apply a simple signature", () => {
-    makeAssert({
+    mk({
       MonadRecIO: { ...IO.MonadIO, ...IO.ChainRec },
       Testable: testable.assertionSync,
       defaults: {

@@ -1,22 +1,36 @@
 import { option as O } from "fp-ts"
 import { HKT, Kind, URIS } from "fp-ts/HKT"
-import { constVoid, pipe } from "fp-ts/lib/function"
+import { constVoid, flow, pipe } from "fp-ts/lib/function"
 import { Arbitrary } from "../arbitrary"
+import { task as T, io as IO } from "../modules/fp-ts"
 import { MonadRecIO, MonadRecIO1 } from "../modules/monad-rec-io"
-import { Testable, Testable1 } from "../testable"
-import { InitialQuickCheckOptions, QuickCheckOptions } from "./index"
+import { assertion, assertionSync, Testable, Testable1 } from "../testable"
 import { tests } from "./tests"
+
+export interface QuickCheckOptions {
+  readonly initialSeed: number
+  readonly count: number
+  readonly size: number
+}
+
+export type InitialQuickCheckOptions = Partial<QuickCheckOptions>
+
+export const quickcheckOptionsDefault: QuickCheckOptions = {
+  count: 100,
+  initialSeed: 100,
+  size: 10,
+}
 
 export interface AssertDeps<F, A> {
   readonly MonadRecIO: MonadRecIO<F>
   readonly Testable: Testable<F, A>
-  readonly defaults: QuickCheckOptions
+  readonly defaults?: QuickCheckOptions
 }
 
 export interface MakeAssertDeps1<F extends URIS, A> {
   readonly MonadRecIO: MonadRecIO1<F>
   readonly Testable: Testable1<F, A>
-  readonly defaults: QuickCheckOptions
+  readonly defaults?: QuickCheckOptions
 }
 
 export interface Assert<F, A> {
@@ -35,16 +49,16 @@ export interface Assert1<F extends URIS, A> {
   ): Kind<F, void>
 }
 
-export function makeAssert<F extends URIS, A>(
+export function mk<F extends URIS, A>(
   depenencies: MakeAssertDeps1<F, A>,
 ): Assert1<F, A>
 
-export function makeAssert<F, A>(dependencies: AssertDeps<F, A>): Assert<F, A>
+export function mk<F, A>(dependencies: AssertDeps<F, A>): Assert<F, A>
 
-export function makeAssert<F, A>({
+export function mk<F, A>({
   MonadRecIO: M,
   Testable,
-  defaults,
+  defaults = quickcheckOptionsDefault,
 }: AssertDeps<F, A>): Assert<F, A> {
   return <I>(
     Arbitrary: Arbitrary<I>,
@@ -68,3 +82,16 @@ export function makeAssert<F, A>({
         ),
     )
 }
+
+export const io = mk({
+  Testable: assertionSync,
+  MonadRecIO: IO.MonadRecIO,
+})
+
+export const task = mk({
+  MonadRecIO: T.MonadRecIO,
+  Testable: assertion,
+})
+
+export const sync = flow(io, (io) => io())
+export const async = flow(task, (a) => a())

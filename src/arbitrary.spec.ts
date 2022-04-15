@@ -12,7 +12,7 @@ describe("arbitrary", () => {
         ),
       )
 
-      qc.unsafeAssertSync(arbitrary, (nonemptystring) =>
+      qc.sync(arbitrary, (nonemptystring) =>
         expect(nonemptystring.length).toBeGreaterThan(0),
       )
     })
@@ -22,7 +22,7 @@ describe("arbitrary", () => {
     it("should be able to access an arbitrary after initialization", () => {
       const y = AR.lazy(() => x)
       const x = AR.of(constVoid())
-      expect(qc.assertIO(y, constVoid)).not.toThrow()
+      expect(qc.io(y, constVoid)).not.toThrow()
     })
   })
 })

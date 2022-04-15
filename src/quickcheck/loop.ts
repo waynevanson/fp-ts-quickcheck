@@ -3,7 +3,7 @@ import { option as O } from "fp-ts"
 import { URIS } from "fp-ts/HKT"
 import { pipe } from "fp-ts/lib/function"
 import { Monad, Monad1 } from "fp-ts/lib/Monad"
-import * as ls from "../loopstate"
+import * as ls from "./loopstate"
 import { state as S, stateT as ST } from "../modules/fp-ts"
 import { test, TestOptions, TestOptions1 } from "./test"
 
