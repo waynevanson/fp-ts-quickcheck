@@ -1,19 +1,11 @@
 import { option as O } from "fp-ts"
-import { HKT, Kind, URIS, URIS2 } from "fp-ts/HKT"
-import { ChainRec, ChainRec1 } from "fp-ts/lib/ChainRec"
-import { FromIO, FromIO1 } from "fp-ts/lib/FromIO"
+import { HKT, Kind, URIS } from "fp-ts/HKT"
 import { constVoid, pipe } from "fp-ts/lib/function"
-import { Pointed, Pointed1 } from "fp-ts/lib/Pointed"
-import { InitialQuickCheckOptions, QuickCheckOptions } from "./index"
 import { Arbitrary } from "../arbitrary"
+import { MonadRecIO, MonadRecIO1 } from "../modules/monad-rec-io"
 import { Testable, Testable1 } from "../testable"
+import { InitialQuickCheckOptions, QuickCheckOptions } from "./index"
 import { tests } from "./tests"
-
-export interface MonadRecIO<F> extends ChainRec<F>, Pointed<F>, FromIO<F> {}
-export interface MonadRecIO1<F extends URIS>
-  extends ChainRec1<F>,
-    Pointed1<F>,
-    FromIO1<F> {}
 
 export interface AssertDeps<F, A> {
   readonly MonadRecIO: MonadRecIO<F>
