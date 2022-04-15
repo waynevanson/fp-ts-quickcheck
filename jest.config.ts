@@ -13,8 +13,9 @@ export default {
     },
     {
       runner: "jest-runner-eslint",
-      displayName: "eslint",
-      testMatch: paths.tests,
+      displayName: "lint",
+      roots: ["src"],
+      testMatch: ["**/*.ts"],
     },
   ],
 } as Config.InitialOptions

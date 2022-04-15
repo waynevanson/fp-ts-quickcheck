@@ -75,6 +75,7 @@ export function mk<F, A>({
               () => M.of(constVoid()),
               (failure) =>
                 M.fromIO(() => {
+                  // eslint-disable-next-line functional/no-throw-statement
                   throw failure
                 }),
             ),
@@ -93,5 +94,6 @@ export const task = mk({
   Testable: assertion,
 })
 
+// eslint-disable-next-line functional/no-return-void
 export const sync = flow(io, (io) => io())
 export const async = flow(task, (a) => a())

@@ -37,6 +37,7 @@ module.exports = {
       plugins: ["functional"],
       rules: {
         "functional/functional-parameters": 0,
+        "functional/no-mixed-type": 0,
       },
       extends: ["plugin:functional/recommended"],
     },
