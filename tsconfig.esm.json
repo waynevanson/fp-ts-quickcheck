@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "es6",
     "module": "es6",
-    "outDir": "dist/es6"
+    "outDir": "dist/esm"
   },
   "include": ["src"],
   "exclude": ["**/*.spec.ts"]
