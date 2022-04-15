@@ -52,7 +52,7 @@ export const chainFirstW: <R, A, B>(
   f: (a: A) => StateTask<R, B>,
 ) => <S>(fa: StateTask<S, A>) => StateTask<S & R, A> = CH.chainFirst(
   Chain,
-) as any
+) as never
 
 export const bind = CH.bind(Chain)
 export const Do = of({})
