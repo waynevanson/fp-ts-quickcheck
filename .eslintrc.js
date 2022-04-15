@@ -9,17 +9,24 @@ module.exports = {
   parserOptions: {
     project: "./tsconfig.json",
   },
-  plugins: ["@typescript-eslint", "prettier"],
+  plugins: ["@typescript-eslint", "prettier", "unused-imports"],
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
   ],
+  rules: {
+    "no-unused-vars": 0,
+    "unused-imports/no-unused-imports": 1,
+  },
   overrides: [
     {
       files: paths.tests,
       env: {
         jest: true,
+      },
+      rules: {
+        "jest/valid-title": 0,
       },
       plugins: ["jest"],
       extends: ["plugin:jest/recommended"],

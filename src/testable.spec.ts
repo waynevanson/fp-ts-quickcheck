@@ -1,7 +1,6 @@
 import { AssertionError } from "assert"
-import { either as E, option as O } from "fp-ts"
+import { option as O } from "fp-ts"
 import * as t from "./testable"
-import * as assert from "assert"
 import { constVoid } from "fp-ts/lib/function"
 
 describe("testable", () => {
@@ -28,7 +27,7 @@ describe("testable", () => {
 
   describe("assertion", () => {
     it("should pass when there there is no value thrown", () => {
-      const result = t.assertionSync.test(constVoid())(() => {})
+      const result = t.assertionSync.test(constVoid())(constVoid)
       expect(result()).toEqual(O.none)
     })
 
