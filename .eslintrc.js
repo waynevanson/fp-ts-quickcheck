@@ -2,7 +2,8 @@ const tsnode = require("ts-node")
 tsnode.register()
 
 const paths = require("./.config/paths")
-const main = {
+
+module.exports = {
   root: true,
   parser: "@typescript-eslint/parser",
   parserOptions: {
@@ -14,30 +15,23 @@ const main = {
     "plugin:@typescript-eslint/recommended",
     "prettier",
   ],
-}
-
-module.exports = {
-  ...main,
   overrides: [
     {
-      ...main,
-      files: ["src/**/*.ts"].concat(paths.tests.map((path) => `!${path}`)),
-      plugins: ["functional"].concat(main.plugins),
-      extends: [
-        "plugin:functional/recommended",
-        "plugin:functional/stylistic",
-      ].concat(main.extends),
-    },
-    {
-      ...main,
       files: paths.tests,
       env: {
         jest: true,
       },
-      plugins: ["jest"].concat(main.plugins),
-      extends: ["plugin:jest/recommended"].concat(main.extends),
+      plugins: ["jest"],
+      extends: ["plugin:jest/recommended"],
+    },
+    {
+      files: ["src/**/*.ts"],
+      excludedFiles: paths.tests,
+      plugins: ["functional"],
+      rules: {
+        "functional/functional-parameters": 0,
+      },
+      extends: ["plugin:functional/recommended"],
     },
   ],
 }
-
-console.log(module.exports)
