@@ -2,11 +2,9 @@ export * from "fp-ts/StateT"
 
 import { either as E, stateT as ST, chain as CH } from "fp-ts"
 import { URIS } from "fp-ts/HKT"
-import { Apply1 } from "fp-ts/lib/Apply"
 import { ChainRec, ChainRec1 } from "fp-ts/lib/ChainRec"
 import { Endomorphism } from "fp-ts/lib/Endomorphism"
 import { constVoid, identity, pipe } from "fp-ts/lib/function"
-import { Functor, Functor1 } from "fp-ts/lib/Functor"
 import { Pointed, Pointed1 } from "fp-ts/lib/Pointed"
 
 export function gets<F extends URIS>(

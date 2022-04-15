@@ -175,7 +175,7 @@ export const nullable: <T>(arbitrary: Arbitrary<T>) => Arbitrary<T | null> = (
  *
  * @category Combinators
  */
-export function partial<T extends Record<string, unknown>>(arbitraries: {
+export function partial<T extends Record<string, unknown>>(arbitraries: { readonly
   [P in keyof T]: Arbitrary<T[P]>
 }): Arbitrary<Partial<T>> {
   return {

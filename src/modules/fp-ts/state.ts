@@ -7,11 +7,15 @@ export * from "fp-ts/State"
 export const ChainRec: ChainRec2<URI> = {
   ...Chain,
   chainRec: (a, f) => (s) => {
+    // eslint-disable-next-line functional/no-let
     let [_ea, _state] = f(a)(s)
 
+    // eslint-disable-next-line functional/no-loop-statement
     while (E.isLeft(_ea)) {
       const result = f(_ea.left)(_state)
+      // eslint-disable-next-line functional/no-expression-statement
       _ea = result[0]
+      // eslint-disable-next-line functional/no-expression-statement
       _state = result[1]
     }
 

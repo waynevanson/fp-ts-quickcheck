@@ -34,7 +34,6 @@ export const URI = "Iterable"
 export type URI = typeof URI
 
 declare module "fp-ts/HKT" {
-  // eslint-disable-next-line functional/prefer-type-literal
   export interface URItoKind<A> {
     readonly [URI]: Iterable<A>
   }
