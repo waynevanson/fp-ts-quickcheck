@@ -8,8 +8,9 @@
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.es6.json & tsc -p tsconfig.cjs.json",
     "test": "jest",
-    "docs": "docs-ts",
-    "prepublishOnly": "yarn build && yarn test && yarn docs && standard-version"
+    "docs": "typedoc --out docs src/index.ts",
+    "version": "standard-version",
+    "prepublishOnly": "run-s build test docs version"
   },
   "files": [
     "dist"
@@ -28,6 +29,7 @@
     "fast-check": "^2.17.0",
     "jest": "^27.2.2",
     "jest-runner-eslint": "^1.0.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.5.1",
     "standard-version": "^9.3.2",
     "ts-jest": "^27.0.5",
