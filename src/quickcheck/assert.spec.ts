@@ -1,4 +1,4 @@
-import { makeAssert } from "./make-assert"
+import { makeAssert } from "./assert"
 import { io, io as IO } from "fp-ts"
 import * as testable from "../testable"
 import * as A from "../arbitrary"
@@ -13,6 +13,6 @@ describe(makeAssert, () => {
         initialSeed: 1,
         size: 10,
       },
-    })(A.number, () => true, {})
+    })(A.int(), () => true, {})
   })
 })

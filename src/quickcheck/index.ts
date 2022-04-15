@@ -11,7 +11,7 @@ import { io as IO } from "fp-ts"
 import { flow } from "fp-ts/lib/function"
 import { task as T } from "../modules/fp-ts"
 import { assertion, assertionSync } from "../testable"
-import { makeAssert } from "./make-assert"
+import { makeAssert } from "./assert"
 
 export interface QuickCheckOptions {
   readonly initialSeed: number

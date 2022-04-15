@@ -1,7 +1,7 @@
 import { assertIO, assertTask } from "./index"
 import * as A from "../arbitrary"
 
-const numnum = A.tuple(A.number, A.number)
+const numnum = A.tuple(A.int(), A.int())
 
 describe("assert", () => {
   it(
