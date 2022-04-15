@@ -326,13 +326,6 @@ export function toGen<A>(fa: Arbitrary<A>) {
 /**
  * @category Primitives
  */
-export const number: Arbitrary<number> = {
-  arbitrary: gen.int(),
-}
-
-/**
- * @category Primitives
- */
 export const boolean: Arbitrary<boolean> = {
   arbitrary: gen.boolean,
 }
