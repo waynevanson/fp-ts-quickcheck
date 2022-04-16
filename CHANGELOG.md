@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/waynevanson/fp-ts-test/compare/v0.5.0...v0.6.0) (2022-04-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* Added in the type signature for `shrink`. It's an empty implementation at the moment and shrinking is currently not used.
+
+### Features
+
+* add impl for boolean ([509eb23](https://github.com/waynevanson/fp-ts-test/commit/509eb23d3fdb00dcb5c743b4da36af44534018f2))
+* add impl for boolean ([4f2cbca](https://github.com/waynevanson/fp-ts-test/commit/4f2cbca9748bfb5c965eafe049be95d8d9e2c7be))
+* add shrink to arbitrary ([1b35997](https://github.com/waynevanson/fp-ts-test/commit/1b35997cb0c9b38bd7cece2836ebbe431a46f45a))
+* add shrinkable in some implementations ([25c1d2a](https://github.com/waynevanson/fp-ts-test/commit/25c1d2ab4ac899c3502826509117ea4fc9a2b00f))
+* **arbitrary:** add shrink to int ([880e8f9](https://github.com/waynevanson/fp-ts-test/commit/880e8f93afe7c9e15f795c1e4cc38dcf678e9984))
+* **iterable:** add every ([a14c792](https://github.com/waynevanson/fp-ts-test/commit/a14c792a7b9b5d9fd738091b087cc7df2894fa47))
+* **iterable:** add iterate ([7f9f759](https://github.com/waynevanson/fp-ts-test/commit/7f9f759f921cd7f9e7bbf84d81a94c2fdffd9b19))
+* **shrinkable:** add `Shrinkable` to entry point ([a87f854](https://github.com/waynevanson/fp-ts-test/commit/a87f854d08da7e1c5aef12ad11637472c1a6d2e0))
+* **util:** add quot ([51fa02f](https://github.com/waynevanson/fp-ts-test/commit/51fa02f27178445bb003d11ccfc3a1bfc78c3f81))
+* **util:** add rightDichotomy ([862d439](https://github.com/waynevanson/fp-ts-test/commit/862d43962a713d3b3476ece14449f24cbd2b4eca))
+
+
+### Bug Fixes
+
+* add perf improvement to partial.shrink ([e0a97dd](https://github.com/waynevanson/fp-ts-test/commit/e0a97dd8dca975667dc8f2039dbb3f8ef5ea86c5))
+* iterable.skip counts indicies correctly ([a1f4292](https://github.com/waynevanson/fp-ts-test/commit/a1f429248f0e25da2f4d2372d95454a9e1c11a80))
+
 ## [0.5.0](https://github.com/waynevanson/fp-ts-test/compare/v0.4.0...v0.5.0) (2022-04-15)
 
 
