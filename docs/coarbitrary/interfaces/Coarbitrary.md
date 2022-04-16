@@ -60,4 +60,4 @@ nav_order: 2
 
 #### Defined in
 
-[src/coarbitrary.ts:27](https://github.com/waynevanson/fp-ts-test/blob/e9f384e/src/coarbitrary.ts#L27)
+[src/coarbitrary.ts:27](https://github.com/waynevanson/fp-ts-test/blob/8383dd0/src/coarbitrary.ts#L27)
