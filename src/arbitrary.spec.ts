@@ -1,8 +1,9 @@
 import { constVoid, pipe } from "fp-ts/lib/function"
 import * as AR from "./arbitrary"
-import { generator, iterable } from "./modules"
+import { iterable } from "./modules"
 import { state } from "./modules/fp-ts"
 import * as qc from "./quickcheck"
+import * as gen from "./gen"
 
 describe("arbitrary", () => {
   describe("filter", () => {
@@ -45,7 +46,7 @@ describe("arbitrary", () => {
       it("should contain positive numbers only when given positive numbers", () => {
         const number = AR.int({ min: 0 })
         const size = AR.int()
-        const newSeed = pipe(AR.int(), AR.map(generator.mkSeed))
+        const newSeed = pipe(AR.int(), AR.map(gen.mkSeed))
 
         const genState = AR.struct({
           newSeed,

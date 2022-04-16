@@ -2,10 +2,10 @@ import { AssertionError } from "assert"
 import { option as O } from "fp-ts"
 import * as t from "./testable"
 import { constFalse, constTrue, constVoid } from "fp-ts/lib/function"
-import { generator } from "./modules"
+import * as gen from "./gen"
 
-const seedState: generator.GenState = {
-  newSeed: generator.mkSeed(1),
+const seedState: gen.GenState = {
+  newSeed: gen.mkSeed(1),
   size: 10,
 }
 

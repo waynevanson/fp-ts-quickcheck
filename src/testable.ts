@@ -11,7 +11,7 @@ import {
 } from "fp-ts"
 import { HKT, Kind, Kind2, URIS, URIS2 } from "fp-ts/HKT"
 import { constant, flow, identity, pipe } from "fp-ts/lib/function"
-import { generator as gen } from "./modules"
+import * as gen from "./gen"
 
 export interface TestableOptions<I, A> {
   readonly property: reader.Reader<I, A>
