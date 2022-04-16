@@ -536,7 +536,7 @@ export function skipWhile<A>(
  * @since 0.12.0
  */
 export function skip(count: number): <A>(fa: Iterable<A>) => Iterable<A> {
-  return skipWhileWithIndex((i) => i < count)
+  return skipWhileWithIndex((i) => i < count - 1)
 }
 
 export function some<A, B extends A>(f: Predicate<A> | Refinement<A, B>) {
