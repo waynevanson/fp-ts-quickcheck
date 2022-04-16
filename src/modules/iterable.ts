@@ -11,6 +11,7 @@ import {
 import { Apply1 } from "fp-ts/lib/Apply"
 import { Chain1 } from "fp-ts/lib/Chain"
 import { Compactable1 } from "fp-ts/lib/Compactable"
+import { Endomorphism } from "fp-ts/lib/Endomorphism"
 import {
   FilterableWithIndex1,
   PredicateWithIndex,
@@ -561,3 +562,18 @@ export function every<A, B extends A>(f: Predicate<A> | Refinement<A, B>) {
   }
 }
 
+export function iterate<A>(f: Endomorphism<A>) {
+  return (a: A): Iterable<A> => ({
+    *[Symbol.iterator]() {
+      // eslint-disable-next-line functional/no-let
+      let a_ = a
+      // eslint-disable-next-line functional/no-loop-statement
+      while (true) {
+        // eslint-disable-next-line functional/no-expression-statement
+        yield a_
+        // eslint-disable-next-line functional/no-expression-statement
+        a_ = f(a_)
+      }
+    },
+  })
+}
