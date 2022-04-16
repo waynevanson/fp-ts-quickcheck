@@ -211,7 +211,11 @@ export function partial<T extends Record<string, unknown>>(arbitraries: {
           arbitraries,
           RC.fromRecord,
           RC.map(flow(nullable, toShrink, S.evaluate(s))),
-          RC.filterMap(iterable.traverse(O.Applicative)(O.fromNullable)),
+          RC.filterMap(
+            O.fromPredicate(
+              iterable.some((a): a is NonNullable<typeof a> => a != null),
+            ),
+          ),
           (a) => unsafeCoerce(a),
         ),
       ),
