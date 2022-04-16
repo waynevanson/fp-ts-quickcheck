@@ -32,8 +32,6 @@ specifiers:
   ts-node: ^10.2.1
   tsutils: ^3.21.0
   typedoc: ^0.22.15
-  typedoc-just-the-docs-theme: ^0.0.1
-  typedoc-plugin-markdown: ^3.12.0
   typescript: ^4.5.5
 
 dependencies:
@@ -70,8 +68,6 @@ devDependencies:
   ts-node: 10.5.0_f94da96e4d78a751cdd66b59796b8fdd
   tsutils: 3.21.0_typescript@4.5.5
   typedoc: 0.22.15_typescript@4.5.5
-  typedoc-just-the-docs-theme: 0.0.1_ddd1ae58c87c5acf057dd7b2dd6957e9
-  typedoc-plugin-markdown: 3.12.0_typedoc@0.22.15
   typescript: 4.5.5
 
 packages:
@@ -5106,25 +5102,6 @@ packages:
 
   /typedarray/0.0.6:
     resolution: {integrity: sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=}
-    dev: true
-
-  /typedoc-just-the-docs-theme/0.0.1_ddd1ae58c87c5acf057dd7b2dd6957e9:
-    resolution: {integrity: sha512-EetAAT5XwVifc26eldY1SLv9Ey7wQQa1GV9wkNeVlZMPjPuGQIoIy4z7bT6u4ZOZANDeF5J0fdjxKQeJN1ejOg==}
-    peerDependencies:
-      typedoc: '>=0.22.9'
-      typedoc-plugin-markdown: '>=3.11.10'
-    dependencies:
-      typedoc: 0.22.15_typescript@4.5.5
-      typedoc-plugin-markdown: 3.12.0_typedoc@0.22.15
-    dev: true
-
-  /typedoc-plugin-markdown/3.12.0_typedoc@0.22.15:
-    resolution: {integrity: sha512-yKl7/KWD8nP6Ot6OzMLLc8wBzN3CmkBoI/YQzxT62a9xmDgxyeTxGbHbkUoSzhKFqMI3SR0AqV6prAhVKbYnxw==}
-    peerDependencies:
-      typedoc: '>=0.22.0'
-    dependencies:
-      handlebars: 4.7.7
-      typedoc: 0.22.15_typescript@4.5.5
     dev: true
 
   /typedoc/0.22.15_typescript@4.5.5:
