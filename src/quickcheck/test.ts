@@ -43,7 +43,7 @@ export function test<F, I, A>({
   property,
 }: TestOptions<F, I, A>): Gen<TestResults<F>> {
   return pipe(
-    Arbitrary.arbitrary,
+    Arbitrary.generate,
     S.chain((value) =>
       pipe(
         S.get<generator.GenState>(),

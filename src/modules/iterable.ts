@@ -20,6 +20,7 @@ import { FoldableWithIndex1 } from "fp-ts/lib/FoldableWithIndex"
 import { pipe } from "fp-ts/lib/function"
 import { FunctorWithIndex1 } from "fp-ts/lib/FunctorWithIndex"
 import { Monad1 } from "fp-ts/lib/Monad"
+import { pipeable } from "fp-ts/lib/pipeable"
 import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
@@ -27,7 +28,6 @@ import { PipeableTraverse1 } from "fp-ts/lib/Traversable"
 import { PipeableTraverseWithIndex1 } from "fp-ts/lib/TraversableWithIndex"
 import { TraversableWithIndex1 } from "fp-ts/lib/TraversableWithIndex"
 import { Zero1 } from "fp-ts/lib/Zero"
-import { iterable } from "."
 
 /**
  * @category Model
@@ -246,6 +246,8 @@ export const Zero: Zero1<URI> = {
   zero: () => ({ *[Symbol.iterator]() {} }),
 }
 
+export const zero = Zero.zero
+
 const _filterMapWithIndex: FilterableWithIndex1<
   URI,
   number
@@ -282,6 +284,8 @@ export const Compactable: Compactable1<URI> = {
   compact: (fa) => _filterMapWithIndex(fa, (i, a) => a),
   separate: (fa) => _partitionMapWithIndex(fa, (i, a) => a),
 }
+
+export const { flatten, ap, apFirst, apSecond } = pipeable(Chain)
 
 /**
  * @category instances
@@ -384,7 +388,7 @@ const _traverseWithIndex: TraversableWithIndex1<
 >["traverseWithIndex"] =
   <F>(F: Applicative_<F>) =>
   <A, B>(ta: Iterable<A>, f: (i: number, a: A) => HKT<F, B>) =>
-    pipe(ta, iterable.toReadonlyArray, A.traverseWithIndex(F)(f))
+    pipe(ta, toReadonlyArray, A.traverseWithIndex(F)(f))
 
 export const TraversableWithIndex: TraversableWithIndex1<URI, number> = {
   ...FunctorWithIndex,
@@ -531,4 +535,15 @@ export function skipWhile<A>(
  */
 export function skip(count: number): <A>(fa: Iterable<A>) => Iterable<A> {
   return skipWhileWithIndex((i) => i < count)
+}
+
+export function some<A, B extends A>(f: Predicate<A> | Refinement<A, B>) {
+  return (fa: Iterable<A>): fa is Iterable<B> => {
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const a of fa) {
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (f(a)) return true
+    }
+    return false
+  }
 }

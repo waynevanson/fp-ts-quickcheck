@@ -17,8 +17,9 @@ import { Functor1 } from "fp-ts/lib/Functor"
 import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
-import { generator as gen, iterable } from "./modules"
+import { generator as gen, iterable, shrinkable } from "./modules"
 import { state as S } from "./modules/fp-ts"
+import { Shrinkable } from "./modules/shrinkable"
 import { EnforceNonEmptyRecord } from "./utils"
 
 /**
@@ -35,8 +36,9 @@ export type URI = typeof URI
  * @category Model
  */
 export interface Arbitrary<A> {
-  readonly arbitrary: gen.Gen<A>
-  readonly shrink: () => Iterable<A>
+  readonly generate: gen.Gen<A>
+  // shrink is contextual to arbitrary.
+  readonly shrink: shrinkable.Shrinkable<A>
 }
 
 declare module "fp-ts/HKT" {
@@ -45,16 +47,15 @@ declare module "fp-ts/HKT" {
   }
 }
 
-const shrink: <A>() => Iterable<A> = iterable.Zero.zero
-
+const shrink = shrinkable.zero
 // PIPEABLES
 
 /**
  * @category Pointed
  */
 export const of: <A>(a: A) => Arbitrary<A> = (a) => ({
-  arbitrary: S.of(a),
-  shrink,
+  generate: S.of(a),
+  shrink: shrink(),
 })
 
 /**
@@ -63,8 +64,8 @@ export const of: <A>(a: A) => Arbitrary<A> = (a) => ({
 export const map: <A, B>(
   f: (a: A) => B,
 ) => (fa: Arbitrary<A>) => Arbitrary<B> = (f) => (fa) => ({
-  arbitrary: pipe(fa.arbitrary, S.map(f)),
-  shrink,
+  generate: pipe(fa.generate, gen.map(f)),
+  shrink: pipe(fa.shrink, shrinkable.map(f)),
 })
 
 /**
@@ -73,8 +74,8 @@ export const map: <A, B>(
 export const ap: <A>(
   fa: Arbitrary<A>,
 ) => <B>(fab: Arbitrary<(a: A) => B>) => Arbitrary<B> = (fa) => (fab) => ({
-  arbitrary: pipe(fab.arbitrary, S.ap(fa.arbitrary)),
-  shrink,
+  generate: pipe(fab.generate, S.ap(fa.generate)),
+  shrink: pipe(fab.shrink, shrinkable.ap(fa.shrink)),
 })
 
 /**
@@ -83,8 +84,8 @@ export const ap: <A>(
 export const chain: <A, B>(
   f: (a: A) => Arbitrary<B>,
 ) => (fa: Arbitrary<A>) => Arbitrary<B> = (f) => (fa) => ({
-  arbitrary: pipe(fa.arbitrary, S.chain(flow(f, (b) => b.arbitrary))),
-  shrink,
+  generate: pipe(fa.generate, S.chain(flow(f, (b) => b.generate))),
+  shrink: pipe(fa.shrink, shrinkable.chain(flow(f, (b) => b.shrink))),
 })
 
 // INSTANCES
@@ -125,8 +126,11 @@ export const Chain: Chain1<URI> = {
  *
  * @category Constructors
  */
-export function fromGen<A>(gen: gen.Gen<A>): Arbitrary<A> {
-  return { arbitrary: gen, shrink }
+export function fromGen<A>(
+  gen: gen.Gen<A>,
+  shrink: Shrinkable<A> = shrinkable.zero(),
+): Arbitrary<A> {
+  return { generate: gen, shrink }
 }
 
 /**
@@ -135,7 +139,7 @@ export function fromGen<A>(gen: gen.Gen<A>): Arbitrary<A> {
 export function int(
   options?: Partial<Record<"min" | "max", number>>,
 ): Arbitrary<number> {
-  return { arbitrary: gen.int(options), shrink }
+  return { generate: gen.int(options), shrink: shrink() }
 }
 
 /**
@@ -144,7 +148,7 @@ export function int(
 export function float(
   options?: Partial<Record<"min" | "max", number>>,
 ): Arbitrary<number> {
-  return { arbitrary: gen.float(options), shrink }
+  return { generate: gen.float(options), shrink: shrink() }
 }
 
 export type StringParams = Partial<Record<"from" | "to", string>>
@@ -188,7 +192,7 @@ export function partial<T extends Record<string, unknown>>(arbitraries: {
   readonly [P in keyof T]: Arbitrary<T[P]>
 }): Arbitrary<Partial<T>> {
   return {
-    arbitrary: pipe(
+    generate: pipe(
       S.get<gen.GenState>(),
       S.map((s) =>
         pipe(
@@ -200,7 +204,18 @@ export function partial<T extends Record<string, unknown>>(arbitraries: {
         ),
       ),
     ),
-    shrink,
+    shrink: pipe(
+      S.get<gen.GenState>(),
+      S.map((s) =>
+        pipe(
+          arbitraries,
+          RC.fromRecord,
+          RC.map(flow(nullable, toShrink, S.evaluate(s))),
+          RC.filterMap(iterable.traverse(O.Applicative)(O.fromNullable)),
+          (a) => unsafeCoerce(a),
+        ),
+      ),
+    ),
   }
 }
 
@@ -215,7 +230,10 @@ export function partial<T extends Record<string, unknown>>(arbitraries: {
  * // now y can use x without it being unreachable code
  */
 export function lazy<A>(lazy: Lazy<Arbitrary<A>>): Arbitrary<A> {
-  return { arbitrary: (s) => lazy().arbitrary(s), shrink }
+  return {
+    generate: (s) => lazy().generate(s),
+    shrink: (s) => lazy().shrink(s),
+  }
 }
 
 /**
@@ -233,8 +251,8 @@ export function filter<A>(
 ): (fa: Arbitrary<A>) => Arbitrary<A>
 export function filter<A>(predicate: Predicate<A>) {
   return (fa: Arbitrary<A>): Arbitrary<A> => ({
-    arbitrary: pipe(
-      fa.arbitrary,
+    generate: pipe(
+      fa.generate,
       S.chain(
         S.chainRec(
           flow(
@@ -242,7 +260,7 @@ export function filter<A>(predicate: Predicate<A>) {
             E.map((a): gen.Gen<E.Either<A, A>> => gen.of(E.right(a))),
             E.getOrElse(() =>
               pipe(
-                fa.arbitrary,
+                fa.generate,
                 S.apFirst(gen.nextSeed),
                 gen.map((e) => E.left(e)),
               ),
@@ -251,7 +269,7 @@ export function filter<A>(predicate: Predicate<A>) {
         ),
       ),
     ),
-    shrink,
+    shrink: shrink(),
   })
 }
 
@@ -263,8 +281,8 @@ export function filter<A>(predicate: Predicate<A>) {
  */
 export function array<A>(arbitrary: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> {
   return {
-    arbitrary: gen.arrayOf(arbitrary.arbitrary),
-    shrink,
+    generate: gen.arrayOf(arbitrary.generate),
+    shrink: shrink(),
   }
 }
 
@@ -274,8 +292,8 @@ export function array<A>(arbitrary: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> {
  */
 export function vector(size: number) {
   return <A>(fa: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> => ({
-    arbitrary: gen.vectorOf(size)(fa.arbitrary),
-    shrink,
+    generate: gen.vectorOf(size)(fa.generate),
+    shrink: shrink(),
   })
 }
 
@@ -320,13 +338,13 @@ export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
   ...arbitraries: { readonly [P in keyof T]: Arbitrary<T[P]> }
 ): Arbitrary<T[number]> {
   return {
-    arbitrary: gen.oneOf(
+    generate: gen.oneOf(
       pipe(
         arbitraries as unknown as NEA.NonEmptyArray<Arbitrary<T[number]>>,
-        NEA.map((arbitrary) => arbitrary.arbitrary),
+        NEA.map((arbitrary) => arbitrary.generate),
       ),
     ),
-    shrink,
+    shrink: shrink(),
   }
 }
 
@@ -336,7 +354,14 @@ export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
  * @category Destructors
  */
 export function toGen<A>(fa: Arbitrary<A>) {
-  return fa.arbitrary
+  return fa.generate
+}
+
+/**
+ * @category Destructors
+ */
+export function toShrink<A>(fa: Arbitrary<A>) {
+  return fa.shrink
 }
 
 //PRIMITIVES
@@ -345,8 +370,8 @@ export function toGen<A>(fa: Arbitrary<A>) {
  * @category Primitives
  */
 export const boolean: Arbitrary<boolean> = {
-  arbitrary: gen.boolean,
-  shrink,
+  generate: gen.boolean,
+  shrink: shrink(),
 }
 
 export function stringNonempty(options?: StringParams): Arbitrary<string> {
