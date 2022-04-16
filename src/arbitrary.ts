@@ -39,6 +39,9 @@ export type URI = typeof URI
 export interface Arbitrary<A> {
   readonly generate: gen.Gen<A>
   // shrink is contextual to arbitrary.
+  // using it
+  // find the first (and smallest) shrink value
+  // use that value on the shrinker recursively until it all passes or and empty iterable
   readonly shrink: shrinkable.Shrinkable<A>
 }
 
@@ -205,6 +208,7 @@ export function partial<T extends Record<string, unknown>>(arbitraries: {
         ),
       ),
     ),
+    //
     shrink: pipe(
       S.get<gen.GenState>(),
       S.map((s) =>
@@ -346,11 +350,11 @@ export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
     I.Do,
     I.bind("generate", () =>
       gen.oneOf(
-      pipe(
-        arbitraries as unknown as NEA.NonEmptyArray<Arbitrary<T[number]>>,
-        NEA.map((arbitrary) => arbitrary.generate),
+        pipe(
+          arbitraries as unknown as NEA.NonEmptyArray<Arbitrary<T[number]>>,
+          NEA.map((arbitrary) => arbitrary.generate),
+        ),
       ),
-    ),
     ),
     I.bind("shrink", ({ generate }) =>
       pipe(
