@@ -25,6 +25,7 @@ specifiers:
   monocle-ts: ^2.3.11
   newtype-ts: ^0.3.5
   npm-run-all: ^4.1.5
+  pnpm: ^6.32.8
   prettier: ^2.5.1
   standard-version: ^9.3.2
   ts-jest: ^27.0.5
@@ -60,6 +61,7 @@ devDependencies:
   jest: 27.5.1_ts-node@10.5.0
   jest-runner-eslint: 1.0.0_eslint@8.11.0+jest@27.5.1
   npm-run-all: 4.1.5
+  pnpm: 6.32.8
   prettier: 2.5.1
   standard-version: 9.3.2
   ts-jest: 27.1.3_8fa130d172bf7d71653f05507c50c5a3
@@ -4271,6 +4273,12 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       find-up: 4.1.0
+    dev: true
+
+  /pnpm/6.32.8:
+    resolution: {integrity: sha512-pZroJtqqZDevFpJI/PsOMLLfGeA6en6cvyI/HC7boGmT7TJy9eFInNYwMGW2enKv2Al/aamV2Zomv05TtBe7qw==}
+    engines: {node: '>=12.17'}
+    hasBin: true
     dev: true
 
   /prelude-ls/1.1.2:
