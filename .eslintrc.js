@@ -16,7 +16,6 @@ module.exports = {
     "prettier",
   ],
   rules: {
-    "@typescript-eslint/no-unused-vars": 0,
     "unused-imports/no-unused-imports": 1,
   },
   overrides: [
