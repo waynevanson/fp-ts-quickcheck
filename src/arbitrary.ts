@@ -18,10 +18,10 @@ import { Functor1 } from "fp-ts/lib/Functor"
 import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
-import { iterable, shrinkable } from "./modules"
+import { iterable } from "./modules"
 import * as gen from "./gen"
 import { state as S } from "./modules/fp-ts"
-import { Shrink } from "./modules/shrinkable"
+import * as shrinkable from "./shrink"
 import { EnforceNonEmptyRecord, rightDichotomy } from "./utils"
 
 /**
@@ -52,7 +52,7 @@ declare module "fp-ts/HKT" {
   }
 }
 
-const shrink = shrinkable.zero
+const shrink_ = shrinkable.zero
 // PIPEABLES
 
 /**
@@ -60,7 +60,7 @@ const shrink = shrinkable.zero
  */
 export const of: <A>(a: A) => Arbitrary<A> = (a) => ({
   generate: S.of(a),
-  shrink: shrink(),
+  shrink: shrink_(),
 })
 
 /**
@@ -133,7 +133,7 @@ export const Chain: Chain1<URI> = {
  */
 export function fromGen<A>(
   gen: gen.Gen<A>,
-  shrink: Shrink<A> = shrinkable.zero(),
+  shrink: shrinkable.Shrink<A> = shrinkable.zero(),
 ): Arbitrary<A> {
   return { generate: gen, shrink }
 }
@@ -170,7 +170,7 @@ export function int(
 export function float(
   options?: Partial<Record<"min" | "max", number>>,
 ): Arbitrary<number> {
-  return { generate: gen.float(options), shrink: shrink() }
+  return { generate: gen.float(options), shrink: shrink_() }
 }
 
 export type StringParams = Partial<Record<"from" | "to", string>>
@@ -296,7 +296,7 @@ export function filter<A>(predicate: Predicate<A>) {
         ),
       ),
     ),
-    shrink: shrink(),
+    shrink: shrink_(),
   })
 }
 
@@ -309,7 +309,7 @@ export function filter<A>(predicate: Predicate<A>) {
 export function array<A>(arbitrary: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> {
   return {
     generate: gen.arrayOf(arbitrary.generate),
-    shrink: shrink(),
+    shrink: shrink_(),
   }
 }
 
@@ -320,7 +320,7 @@ export function array<A>(arbitrary: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> {
 export function vector(size: number) {
   return <A>(fa: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> => ({
     generate: gen.vectorOf(size)(fa.generate),
-    shrink: shrink(),
+    shrink: shrink_(),
   })
 }
 

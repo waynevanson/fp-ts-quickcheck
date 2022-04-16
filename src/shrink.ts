@@ -1,6 +1,6 @@
 import { flow, pipe } from "fp-ts/lib/function"
-import * as gen from "../gen"
-import * as iterable from "./iterable"
+import * as gen from "./gen"
+import * as iterable from "./modules/iterable"
 
 export const URI = "Shrinkable"
 export type URI = typeof URI
