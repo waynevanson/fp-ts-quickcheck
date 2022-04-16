@@ -549,3 +549,15 @@ export function some<A, B extends A>(f: Predicate<A> | Refinement<A, B>) {
     return false
   }
 }
+
+export function every<A, B extends A>(f: Predicate<A> | Refinement<A, B>) {
+  return (fa: Iterable<A>): fa is Iterable<B> => {
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const a of fa) {
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (!f(a)) return false
+    }
+    return true
+  }
+}
+
