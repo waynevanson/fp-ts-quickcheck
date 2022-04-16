@@ -39,3 +39,5 @@ export function tailRecM<M extends URIS2>(M: Monad2<M>) {
         ),
       )
 }
+
+export const quot = (x: number, y: number) => Math.floor(x / y)
