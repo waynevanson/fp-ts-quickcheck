@@ -21,7 +21,7 @@ import { Refinement } from "fp-ts/lib/Refinement"
 import { iterable, shrinkable } from "./modules"
 import * as gen from "./gen"
 import { state as S } from "./modules/fp-ts"
-import { Shrinkable } from "./modules/shrinkable"
+import { Shrink } from "./modules/shrinkable"
 import { EnforceNonEmptyRecord, rightDichotomy } from "./utils"
 
 /**
@@ -43,7 +43,7 @@ export interface Arbitrary<A> {
   // using it
   // find the first (and smallest) shrink value
   // use that value on the shrinker recursively until it all passes or and empty iterable
-  readonly shrink: shrinkable.Shrinkable<A>
+  readonly shrink: shrinkable.Shrink<A>
 }
 
 declare module "fp-ts/HKT" {
@@ -133,7 +133,7 @@ export const Chain: Chain1<URI> = {
  */
 export function fromGen<A>(
   gen: gen.Gen<A>,
-  shrink: Shrinkable<A> = shrinkable.zero(),
+  shrink: Shrink<A> = shrinkable.zero(),
 ): Arbitrary<A> {
   return { generate: gen, shrink }
 }

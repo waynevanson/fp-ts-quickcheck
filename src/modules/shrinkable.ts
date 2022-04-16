@@ -6,24 +6,23 @@ export const URI = "Shrinkable"
 export type URI = typeof URI
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Shrinkable<A> extends gen.Gen<Iterable<A>> {}
+export interface Shrink<A> extends gen.Gen<Iterable<A>> {}
 
 declare module "fp-ts/HKT" {
   export interface URItoKind<A> {
-    readonly [URI]: Shrinkable<A>
+    readonly [URI]: Shrink<A>
   }
 }
 
-export const of: <A>(a: A) => Shrinkable<A> = (a) => gen.of(iterable.of(a))
+export const of: <A>(a: A) => Shrink<A> = (a) => gen.of(iterable.of(a))
 
-export const map: <A, B>(
-  f: (a: A) => B,
-) => (fa: Shrinkable<A>) => Shrinkable<B> = (f) =>
-  flow(gen.map(iterable.map(f)))
+export const map: <A, B>(f: (a: A) => B) => (fa: Shrink<A>) => Shrink<B> = (
+  f,
+) => flow(gen.map(iterable.map(f)))
 
 export const ap: <A>(
-  fa: Shrinkable<A>,
-) => <B>(fab: Shrinkable<(a: A) => B>) => Shrinkable<B> = (fa) => (fab) =>
+  fa: Shrink<A>,
+) => <B>(fab: Shrink<(a: A) => B>) => Shrink<B> = (fa) => (fab) =>
   pipe(
     fab,
     gen.chain((iab) =>
@@ -35,11 +34,11 @@ export const ap: <A>(
   )
 
 export const chain: <A, B>(
-  f: (a: A) => Shrinkable<B>,
-) => (fa: Shrinkable<A>) => Shrinkable<B> = (f) =>
+  f: (a: A) => Shrink<B>,
+) => (fa: Shrink<A>) => Shrink<B> = (f) =>
   flow(
     gen.chain(iterable.traverse(gen.Applicative)(f)),
     gen.map(iterable.flatten),
   )
 
-export const zero: <A>() => Shrinkable<A> = () => gen.of(iterable.zero())
+export const zero: <A>() => Shrink<A> = () => gen.of(iterable.zero())
