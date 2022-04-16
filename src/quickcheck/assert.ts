@@ -21,13 +21,13 @@ export const quickcheckOptionsDefault: QuickCheckOptions = {
   size: 10,
 }
 
-export interface AssertDeps<F, A> {
+export interface AssertOptions<F, A> {
   readonly MonadRecIO: MonadRecIO<F>
   readonly Testable: Testable<F, A>
   readonly defaults?: QuickCheckOptions
 }
 
-export interface MakeAssertDeps1<F extends URIS, A> {
+export interface AssertOptions1<F extends URIS, A> {
   readonly MonadRecIO: MonadRecIO1<F>
   readonly Testable: Testable1<F, A>
   readonly defaults?: QuickCheckOptions
@@ -50,16 +50,16 @@ export interface Assert1<F extends URIS, A> {
 }
 
 export function mk<F extends URIS, A>(
-  depenencies: MakeAssertDeps1<F, A>,
+  options: AssertOptions1<F, A>,
 ): Assert1<F, A>
 
-export function mk<F, A>(dependencies: AssertDeps<F, A>): Assert<F, A>
+export function mk<F, A>(dependencies: AssertOptions<F, A>): Assert<F, A>
 
 export function mk<F, A>({
   MonadRecIO: M,
   Testable,
   defaults = quickcheckOptionsDefault,
-}: AssertDeps<F, A>): Assert<F, A> {
+}: AssertOptions<F, A>): Assert<F, A> {
   return <I>(
     Arbitrary: Arbitrary<I>,
     property: (value: I) => A,
