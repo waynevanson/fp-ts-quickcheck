@@ -12,7 +12,8 @@
     "test": "jest",
     "docs": "typedoc --out docs src/index.ts",
     "version": "standard-version",
-    "prepublishOnly": "run-s build test docs version"
+    "prepublishOnly": "run-s build test docs version",
+    "commit": "cz"
   },
   "files": [
     "dist"
