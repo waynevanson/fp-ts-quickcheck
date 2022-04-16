@@ -3,21 +3,20 @@
 fp-ts port of Haskell's QuickCheck.
 
 > **NOTE**
-> Please note that shrinking is not yet available.
-> Purescript did the same, so this should be enough to get you started.
-> When shrinking is available, it will be transparently added as major release.
+> Please note that shrinking is exposed, but not used in the assertions.
+> When used in the assertions, this library will be ready for production use.
 
 ## Features
 
-- [x] Purely functional implementation.
+- [x] Pure - Purely functional implementation.
 - [x] Compatible - Easily integrates into existing testing frameworks.
-- [x] Polymorphic - Create custom assert functions using fp-ts typeclass instances.
-- [x] Extensible - Simply add compatibilty assertions for data structures
+- [x] Extensible - Customize what testable property's are.
+- [ ] Shrinking (in progress) - Let the software decide what the minimum value that is causing an error.
 
 ## Installation
 
 ```sh
-yarn add -D fp-ts-test
+yarn add -D fp-ts-quickcheck
 ```
 
 ## Quick Start
@@ -25,32 +24,27 @@ yarn add -D fp-ts-test
 Grab your favourite test library, in this case `jest`, and put the assertion call of this library into the test caller.
 
 ```ts
-// main.ts
-export function subtract(x: number, y: number) {
-  return x - y
+export function add(x: number, y: number) {
+  return x + y
 }
 
-// main.spec.ts
-import { quickcheck as qc, arbitrary as AT } from "fp-ts-test"
+import { quickcheck, arbitrary } from "fp-ts-quickcheck"
 import { expect, it, describe } from "@jest/globals"
-
 import { pipe } from "fp-ts/function"
 
-import { subtract } from "./main"
+describe(add, () => {
+  const numnum = arbitrary.tuple(arbitraty.int(), arbitrary.int())
 
-describe(subtract, () => {
-  const numnum = AT.tuple(AT.number, AT.number)
+  it("should be an associative operation", () => {
+    // returning a boolean
+    quickcheck.sync(numnum, ([x, y]) => add(y, x) === add(x, y))
+  })
 
-  it(
-    "should always be smaller than the first argument",
-    // returns a thunk by default, because `qc.assert` throws
-    qc.assertIO(numnum, ([x, y]) => x > subract(x, y)),
-  )
-
-  it(
-    "should matter which order the arguments are passed",
-    // returns a thunk by default, because `qc.assert` throws
-    qc.assertIO(numnum, ([x, y]) => subtract(y, x) !== subract(x, y)),
-  )
+  it("should be an associative operation", () => {
+    // throwing an assertion error
+    quickcheck.sync(numnum, ([x, y]) => {
+      expect(add(x, y)).toBe(add(y, x))
+    })
+  })
 })
 ```
