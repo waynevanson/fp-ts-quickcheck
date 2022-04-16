@@ -8,7 +8,7 @@ import { flow, pipe } from "fp-ts/lib/function"
 import { Ordering } from "fp-ts/lib/Ordering"
 import { Reader } from "fp-ts/lib/Reader"
 import { Arbitrary } from "./arbitrary"
-import { generator as gen } from "./modules"
+import * as gen from "./gen"
 
 /**
  * @category Model
