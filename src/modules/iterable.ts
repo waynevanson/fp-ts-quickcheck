@@ -236,6 +236,8 @@ export const Alt: Alt1<URI> = {
   }),
 }
 
+export const { alt } = pipeable(Alt)
+
 /**
  * @category instances
  * @since 2.7.0
