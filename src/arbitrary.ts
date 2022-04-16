@@ -21,7 +21,7 @@ import { Refinement } from "fp-ts/lib/Refinement"
 import { generator as gen, iterable, shrinkable } from "./modules"
 import { state as S } from "./modules/fp-ts"
 import { Shrinkable } from "./modules/shrinkable"
-import { EnforceNonEmptyRecord } from "./utils"
+import { EnforceNonEmptyRecord, rightDichotomy } from "./utils"
 
 /**
  * @category Model
@@ -143,7 +143,24 @@ export function fromGen<A>(
 export function int(
   options?: Partial<Record<"min" | "max", number>>,
 ): Arbitrary<number> {
-  return { generate: gen.int(options), shrink: shrink() }
+  return pipe(
+    I.Do,
+    I.bind("generate", () => gen.int(options)),
+    I.bind("shrink", ({ generate }) =>
+      pipe(
+        generate,
+        S.map((int) =>
+          int === 0
+            ? iterable.zero()
+            : pipe(
+                int < 0 ? iterable.of(Math.abs(int)) : iterable.zero<number>(),
+                iterable.alt(() => iterable.of(0)),
+                iterable.alt(() => rightDichotomy(int)),
+              ),
+        ),
+      ),
+    ),
+  )
 }
 
 /**
