@@ -1,3 +1,4 @@
 {
-  "theme": "just-the-docs"
+  "theme": "just-the-docs",
+  "githubPages": false
 }
