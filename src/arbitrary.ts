@@ -8,6 +8,7 @@ import {
   nonEmptyArray as NEA,
   option as O,
   readonlyRecord as RC,
+  identity as I,
 } from "fp-ts"
 import { Applicative1 } from "fp-ts/lib/Applicative"
 import { Apply1, sequenceS, sequenceT } from "fp-ts/lib/Apply"
@@ -341,15 +342,24 @@ export function struct<R extends Record<string, unknown>>(
 export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
   ...arbitraries: { readonly [P in keyof T]: Arbitrary<T[P]> }
 ): Arbitrary<T[number]> {
-  return {
-    generate: gen.oneOf(
+  return pipe(
+    I.Do,
+    I.bind("generate", () =>
+      gen.oneOf(
       pipe(
         arbitraries as unknown as NEA.NonEmptyArray<Arbitrary<T[number]>>,
         NEA.map((arbitrary) => arbitrary.generate),
       ),
     ),
-    shrink: shrink(),
-  }
+    ),
+    I.bind("shrink", ({ generate }) =>
+      pipe(
+        generate,
+        // get smallest value
+        gen.map(() => iterable.zero()),
+      ),
+    ),
+  )
 }
 
 // DESTRUCTORS
