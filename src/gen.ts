@@ -31,3 +31,10 @@ export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
     gens as unknown as nonEmptyArray.NonEmptyArray<gen.Gen<T[number]>>,
   )
 }
+
+export const map: <A, B>(f: (a: A) => B) => (fa: gen.Gen<A>) => gen.Gen<B> =
+  gen.map
+
+export const ap: <A>(
+  fa: gen.Gen<A>,
+) => <B>(fab: gen.Gen<(a: A) => B>) => gen.Gen<B> = gen.ap
