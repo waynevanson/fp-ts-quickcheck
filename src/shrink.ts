@@ -1,3 +1,4 @@
+import { state } from "fp-ts"
 import { flow, pipe } from "fp-ts/lib/function"
 import * as gen from "./gen"
 import * as iterable from "./modules/iterable"
@@ -12,6 +13,10 @@ declare module "fp-ts/HKT" {
   export interface URItoKind<A> {
     readonly [URI]: Shrink<A>
   }
+}
+
+export function fromIterable<A>(fa: Iterable<A>): Shrink<A> {
+  return state.of(fa)
 }
 
 export function fromGen<A>(generator: gen.Gen<A>): Shrink<A> {
