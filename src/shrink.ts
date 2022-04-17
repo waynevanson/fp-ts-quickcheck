@@ -1,5 +1,6 @@
 import { flow, pipe } from "fp-ts/lib/function"
 import * as gen from "./gen"
+import { state } from "./modules/fp-ts"
 import * as iterable from "./modules/iterable"
 
 export const URI = "Shrinkable"
@@ -52,3 +53,9 @@ export const chain: <A, B>(
   )
 
 export const zero: <A>() => Shrink<A> = () => gen.of(iterable.zero())
+
+export const boolean = pipe(
+  gen.boolean,
+  fromGen,
+  chain((boolean) => (boolean ? of(false) : zero<boolean>())),
+)
