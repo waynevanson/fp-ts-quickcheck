@@ -2,6 +2,7 @@ import { state } from "fp-ts"
 import { flow, pipe } from "fp-ts/lib/function"
 import * as gen from "./gen"
 import * as iterable from "./modules/iterable"
+import { rightDichotomy } from "./utils"
 
 export const URI = "Shrinkable"
 export type URI = typeof URI
@@ -79,4 +80,19 @@ export const boolean = pipe(
   gen.boolean,
   fromGen,
   chain((boolean) => (boolean ? of(false) : zero<boolean>())),
+)
+
+export const int: (
+  options?: Partial<Record<"min" | "max", number>>,
+) => Shrink<number> = flow(
+  fromGenK(gen.int),
+  chain((int) =>
+    int === 0
+      ? zero()
+      : pipe(
+          int < 0 ? of(Math.abs(int)) : zero<number>(),
+          alt(() => of(0)),
+          alt(() => fromIterable(rightDichotomy(int))),
+        ),
+  ),
 )
