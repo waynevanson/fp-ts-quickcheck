@@ -58,6 +58,23 @@ export const chain: <A, B>(
 
 export const zero: <A>() => Shrink<A> = () => gen.of(iterable.zero())
 
+export const alt: <A>(that: () => Shrink<A>) => (fa: Shrink<A>) => Shrink<A> =
+  (that) => (fa) =>
+    pipe(
+      fa,
+      gen.chain((ia1) =>
+        pipe(
+          that(),
+          gen.map((ia2) =>
+            pipe(
+              ia1,
+              iterable.alt(() => ia2),
+            ),
+          ),
+        ),
+      ),
+    )
+
 export const boolean = pipe(
   gen.boolean,
   fromGen,
