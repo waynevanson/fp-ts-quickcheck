@@ -32,6 +32,8 @@ export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
   )
 }
 
+export const of: <A>(a: A) => gen.Gen<A> = gen.of
+
 export const map: <A, B>(f: (a: A) => B) => (fa: gen.Gen<A>) => gen.Gen<B> =
   gen.map
 
