@@ -22,7 +22,7 @@ import { iterable } from "./modules"
 import * as gen from "./gen"
 import { state as S } from "./modules/fp-ts"
 import * as shrinkable from "./shrink"
-import { EnforceNonEmptyRecord, rightDichotomy } from "./utils"
+import { EnforceNonEmptyRecord } from "./utils"
 
 /**
  * @category Model
@@ -155,28 +155,7 @@ export function fromGen<A>(
 /**
  * @category Constructors
  */
-export function int(
-  options?: Partial<Record<"min" | "max", number>>,
-): Arbitrary<number> {
-  return pipe(
-    I.Do,
-    I.bind("generate", () => gen.int(options)),
-    I.bind("shrink", ({ generate }) =>
-      pipe(
-        generate,
-        S.map((int) =>
-          int === 0
-            ? iterable.zero()
-            : pipe(
-                int < 0 ? iterable.of(Math.abs(int)) : iterable.zero<number>(),
-                iterable.alt(() => iterable.of(0)),
-                iterable.alt(() => rightDichotomy(int)),
-              ),
-        ),
-      ),
-    ),
-  )
-}
+export const int = fromK(gen.int, shrinkable.int)
 
 /**
  * @category Constructors
