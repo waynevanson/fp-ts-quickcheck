@@ -419,17 +419,7 @@ export function toShrink<A>(fa: Arbitrary<A>) {
 /**
  * @category Primitives
  */
-export const boolean: Arbitrary<boolean> = pipe(
-  I.Do,
-  I.bind("generate", () => gen.boolean),
-  // true, false
-  I.bind("shrink", ({ generate }) =>
-    pipe(
-      generate,
-      gen.map((boolean) => (boolean ? iterable.of(false) : iterable.zero())),
-    ),
-  ),
-)
+export const boolean: Arbitrary<boolean> = from(gen.boolean, shrinkable.boolean)
 
 export function stringNonempty(options?: StringParams): Arbitrary<string> {
   return pipe(
