@@ -14,6 +14,16 @@ declare module "fp-ts/HKT" {
   }
 }
 
+export function fromGen<A>(generator: gen.Gen<A>): Shrink<A> {
+  return pipe(generator, gen.map(iterable.of))
+}
+
+export function fromGenK<T extends readonly unknown[], A>(
+  f: (...args: T) => gen.Gen<A>,
+): (...args: T) => Shrink<A> {
+  return flow(f, fromGen)
+}
+
 export const of: <A>(a: A) => Shrink<A> = (a) => gen.of(iterable.of(a))
 
 export const map: <A, B>(f: (a: A) => B) => (fa: Shrink<A>) => Shrink<B> = (
