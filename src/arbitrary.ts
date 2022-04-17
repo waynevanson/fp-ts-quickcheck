@@ -52,6 +52,20 @@ declare module "fp-ts/HKT" {
   }
 }
 
+export function from<A>(
+  generate: gen.Gen<A>,
+  shrink: shrinkable.Shrink<A>,
+): Arbitrary<A> {
+  return { generate, shrink }
+}
+
+export function fromK<T extends readonly unknown[], A>(
+  generate: (...args: T) => gen.Gen<A>,
+  shrink: (...args: T) => shrinkable.Shrink<A>,
+): (...args: T) => Arbitrary<A> {
+  return (...args) => ({ generate: generate(...args), shrink: shrink(...args) })
+}
+
 const shrink_ = shrinkable.zero
 // PIPEABLES
 
