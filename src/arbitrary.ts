@@ -21,7 +21,7 @@ import { Refinement } from "fp-ts/lib/Refinement"
 import { iterable } from "./modules"
 import * as gen from "./gen"
 import { state as S } from "./modules/fp-ts"
-import * as shrinkable from "./shrink"
+import * as shrink from "./shrink"
 import { EnforceNonEmptyRecord } from "./utils"
 
 /**
@@ -43,7 +43,7 @@ export interface Arbitrary<A> {
   // using it
   // find the first (and smallest) shrink value
   // use that value on the shrinker recursively until it all passes or and empty iterable
-  readonly shrink: shrinkable.Shrink<A>
+  readonly shrink: shrink.Shrink<A>
 }
 
 declare module "fp-ts/HKT" {
@@ -54,19 +54,19 @@ declare module "fp-ts/HKT" {
 
 export function from<A>(
   _generate: gen.Gen<A>,
-  _shrink: shrinkable.Shrink<A>,
+  _shrink: shrink.Shrink<A>,
 ): Arbitrary<A> {
   return { generate: _generate, shrink: _shrink }
 }
 
 export function fromK<T extends readonly unknown[], A>(
   generate: (...args: T) => gen.Gen<A>,
-  shrink: (...args: T) => shrinkable.Shrink<A>,
+  shrink: (...args: T) => shrink.Shrink<A>,
 ): (...args: T) => Arbitrary<A> {
   return (...args) => ({ generate: generate(...args), shrink: shrink(...args) })
 }
 
-const shrink_ = shrinkable.zero
+const shrink_ = shrink.zero
 // PIPEABLES
 
 /**
@@ -84,7 +84,7 @@ export const map: <A, B>(
   f: (a: A) => B,
 ) => (fa: Arbitrary<A>) => Arbitrary<B> = (f) => (fa) => ({
   generate: pipe(fa.generate, gen.map(f)),
-  shrink: pipe(fa.shrink, shrinkable.map(f)),
+  shrink: pipe(fa.shrink, shrink.map(f)),
 })
 
 /**
@@ -94,7 +94,7 @@ export const ap: <A>(
   fa: Arbitrary<A>,
 ) => <B>(fab: Arbitrary<(a: A) => B>) => Arbitrary<B> = (fa) => (fab) => ({
   generate: pipe(fab.generate, S.ap(fa.generate)),
-  shrink: pipe(fab.shrink, shrinkable.ap(fa.shrink)),
+  shrink: pipe(fab.shrink, shrink.ap(fa.shrink)),
 })
 
 /**
@@ -104,7 +104,7 @@ export const chain: <A, B>(
   f: (a: A) => Arbitrary<B>,
 ) => (fa: Arbitrary<A>) => Arbitrary<B> = (f) => (fa) => ({
   generate: pipe(fa.generate, S.chain(flow(f, (b) => b.generate))),
-  shrink: pipe(fa.shrink, shrinkable.chain(flow(f, (b) => b.shrink))),
+  shrink: pipe(fa.shrink, shrink.chain(flow(f, (b) => b.shrink))),
 })
 
 // INSTANCES
@@ -147,7 +147,7 @@ export const Chain: Chain1<URI> = {
  */
 export function fromGen<A>(
   gen: gen.Gen<A>,
-  shrink: shrinkable.Shrink<A> = shrinkable.zero(),
+  shrink: shrink.Shrink<A> = shrink_(),
 ): Arbitrary<A> {
   return { generate: gen, shrink }
 }
@@ -155,7 +155,7 @@ export function fromGen<A>(
 /**
  * @category Constructors
  */
-export const int = fromK(gen.int, shrinkable.int)
+export const int = fromK(gen.int, shrink.int)
 
 /**
  * @category Constructors
@@ -398,7 +398,7 @@ export function toShrink<A>(fa: Arbitrary<A>) {
 /**
  * @category Primitives
  */
-export const boolean: Arbitrary<boolean> = from(gen.boolean, shrinkable.boolean)
+export const boolean: Arbitrary<boolean> = from(gen.boolean, shrink.boolean)
 
 export function stringNonempty(options?: StringParams): Arbitrary<string> {
   return pipe(
