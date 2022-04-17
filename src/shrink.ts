@@ -1,5 +1,5 @@
 import { state } from "fp-ts"
-import { flow, pipe } from "fp-ts/lib/function"
+import { flow, Lazy, pipe } from "fp-ts/lib/function"
 import * as gen from "./gen"
 import * as iterable from "./modules/iterable"
 import { rightDichotomy } from "./utils"
@@ -96,3 +96,7 @@ export const int: (
         ),
   ),
 )
+
+export function lazy<A>(lazy: Lazy<Shrink<A>>): Shrink<A> {
+  return (s) => lazy()(s)
+}
