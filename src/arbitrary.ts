@@ -53,10 +53,10 @@ declare module "fp-ts/HKT" {
 }
 
 export function from<A>(
-  generate: gen.Gen<A>,
-  shrink: shrinkable.Shrink<A>,
+  _generate: gen.Gen<A>,
+  _shrink: shrinkable.Shrink<A>,
 ): Arbitrary<A> {
-  return { generate, shrink }
+  return { generate: _generate, shrink: _shrink }
 }
 
 export function fromK<T extends readonly unknown[], A>(
