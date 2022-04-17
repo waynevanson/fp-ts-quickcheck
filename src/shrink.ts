@@ -1,6 +1,5 @@
 import { flow, pipe } from "fp-ts/lib/function"
 import * as gen from "./gen"
-import { state } from "./modules/fp-ts"
 import * as iterable from "./modules/iterable"
 
 export const URI = "Shrinkable"
