@@ -1,4 +1,4 @@
-import { reader, readonlyArray } from "fp-ts"
+import { option, reader, readonlyArray } from "fp-ts"
 import { pipe } from "fp-ts/lib/function"
 import { iterable } from "./modules"
 import { rightDichotomy } from "./utils"
@@ -23,15 +23,36 @@ export const imap: <A, B>(
 
 export const zero: <A>() => Shrink<A> = () => reader.of(iterable.zero())
 
-export const array: <A>(fa: Shrink<A>) => Shrink<ReadonlyArray<A>> =
-  (fa) => (fax) =>
+export const recursiveWhile: <A>(f: (a: A) => option.Option<A>) => Shrink<A> =
+  (f) => (a) =>
     pipe(
-      fax,
-      readonlyArray.traverse(iterable.Applicative)((a) => fa(a)),
-      iterable.chain((a) =>
-        readonlyArray.isEmpty(a) ? iterable.zero() : iterable.of(a),
-      ),
+      option.some(a),
+      iterable.iterate(option.chain(f)),
+      iterable.skip(1),
+      iterable.takeWhileMapWithIndex((i, a) => a),
     )
+
+//array size is the length of the array
+export const array: <A>(fa: Shrink<A>) => Shrink<ReadonlyArray<A>> = (shrink) =>
+  recursiveWhile((fa) =>
+    pipe(
+      fa,
+      readonlyArray.last,
+      option.chain((last) =>
+        pipe(
+          last,
+          shrink,
+          iterable.head,
+          option.map((shrunk) =>
+            pipe(fa, readonlyArray.updateAt(fa.length - 1, shrunk)),
+          ),
+          option.getOrElse(() =>
+            pipe(fa, readonlyArray.deleteAt(fa.length - 1)),
+          ),
+        ),
+      ),
+    ),
+  )
 
 export const boolean: Shrink<boolean> = (boolean) =>
   boolean ? iterable.of(false) : iterable.zero()

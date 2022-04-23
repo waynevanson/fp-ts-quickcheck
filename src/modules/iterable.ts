@@ -5,6 +5,7 @@ import {
   either as E,
   eq as EQ,
   option as O,
+  option,
   readonlyArray as A,
   readonlyArray,
 } from "fp-ts"
@@ -294,6 +295,8 @@ export const Compactable: Compactable1<URI> = {
   separate: (fa) => _partitionMapWithIndex(fa, (i, a) => a),
 }
 
+export const { compact, separate } = pipeable(Compactable)
+
 export const { flatten, ap, apFirst, apSecond, chain, chainFirst } =
   pipeable(Chain)
 
@@ -433,7 +436,7 @@ export const traverse: PipeableTraverse1<URI> =
  * @category Combinators
  * @since 0.12.0
  */
-export function takeWhileMapWithIndex<A, B extends A>(
+export function takeWhileMapWithIndex<A, B>(
   f: (i: number, a: A) => O.Option<B>,
 ) {
   return (fa: Iterable<A>): Iterable<B> => ({
@@ -591,4 +594,12 @@ export function isEmpty<A>(fa: Iterable<A>): fa is Iterable<never> {
 
 export function isNonempty<A>(fa: Iterable<A>) {
   return not(isEmpty)(fa)
+}
+
+export function head<A>(fa: Iterable<A>): option.Option<A> {
+  // eslint-disable-next-line functional/no-loop-statement
+  for (const a of fa) {
+    return option.some(a)
+  }
+  return option.none
 }

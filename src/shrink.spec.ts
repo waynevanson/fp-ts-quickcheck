@@ -14,13 +14,13 @@ describe("shrink", () => {
       expect(result([])).toEqual([])
     })
 
-    it.skip("should return an empty array when the inner is shrunk to nothing", () => {
+    it("should remove the last element of an array if it is at it's lowest", () => {
       const result = pipe(
-        shrink.zero(),
+        shrink.integer,
         shrink.array,
         reader.map(iterable.toReadonlyArray),
       )
-      expect(result([])).toEqual([[]])
+      expect(result([0, 0])).toEqual([[0], []])
     })
   })
 
