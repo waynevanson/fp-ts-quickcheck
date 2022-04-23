@@ -13,6 +13,15 @@ describe("shrink", () => {
       )
       expect(result([])).toEqual([])
     })
+
+    it.skip("should return an empty array when the inner is shrunk to nothing", () => {
+      const result = pipe(
+        shrink.zero(),
+        shrink.array,
+        reader.map(iterable.toReadonlyArray),
+      )
+      expect(result([])).toEqual([[]])
+    })
   })
 
   describe("boolean", () => {
