@@ -14,4 +14,11 @@ describe("shrink", () => {
       expect(result([])).toEqual([])
     })
   })
+
+  describe("boolean", () => {
+    it("should return false given true", () => {
+      const result = pipe(shrink.boolean, reader.map(iterable.toReadonlyArray))
+      expect(result(true)).toEqual([false])
+    })
+  })
 })

@@ -32,6 +32,9 @@ export const array: <A>(fa: Shrink<A>) => Shrink<ReadonlyArray<A>> =
       ),
     )
 
+export const boolean: Shrink<boolean> = (boolean) =>
+  boolean ? iterable.of(false) : iterable.zero()
+
 // export const partial: <T extends Record<string, unknown>>(fa: {
 //   readonly [P in keyof T]: Shrink<T[P]>
 // }) => Shrink<Partial<T>> = (fa) => {
