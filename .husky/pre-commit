@@ -2,3 +2,4 @@
 . "$(dirname "$0")/_/husky.sh"
 
 pnpm exec jest -o --ci
+pnpm exec lint-staged
