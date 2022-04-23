@@ -41,7 +41,7 @@ export function tailRecM<M extends URIS2>(M: Monad2<M>) {
       )
 }
 
-export const quot = (x: number, y: number) => Math.floor(x / y)
+export const quot = (x: number, y: number) => ~~(x / y)
 
 export const rightDichotomy = (n: number): Iterable<number> =>
   pipe(
