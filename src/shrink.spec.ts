@@ -22,6 +22,10 @@ describe("shrink", () => {
       )
       expect(result([0, 0])).toEqual([[0], []])
     })
+
+    it.todo("should return arrays that increase in size over time")
+    it.todo("should return array no bigger than it is given")
+    it.todo("should apply shrink at lower indexes first")
   })
 
   describe("boolean", () => {
