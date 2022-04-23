@@ -1,5 +1,5 @@
 import { option, reader, readonlyArray } from "fp-ts"
-import { flow, pipe } from "fp-ts/lib/function"
+import { pipe } from "fp-ts/lib/function"
 import { iterable } from "./modules"
 import { rightDichotomy } from "./utils"
 
@@ -33,25 +33,32 @@ export const recursive: <A>(f: (a: A) => option.Option<A>) => Shrink<A> =
     )
 
 //array size is the length of the array
-export const array: <A>(fa: Shrink<A>) => Shrink<ReadonlyArray<A>> = (shrink) =>
-  recursive((fa) =>
+// start empty
+// for each, apply get the max and
+export const array =
+  <A>(shrink: Shrink<A>): Shrink<ReadonlyArray<A>> =>
+  (fa) =>
     pipe(
-      fa,
-      readonlyArray.last,
-      option.chain(
-        flow(
-          shrink,
-          iterable.head,
-          option.map((shrunk) =>
-            pipe(fa, readonlyArray.updateAt(fa.length - 1, shrunk)),
-          ),
-          option.getOrElse(() =>
-            pipe(fa, readonlyArray.deleteAt(fa.length - 1)),
+      readonlyArray.makeBy(fa.length, (i) => fa.slice(0, i + 1)),
+      iterable.fromIterable,
+      iterable.chain(
+        readonlyArray.traverseWithIndex(iterable.Applicative)((i, a) =>
+          pipe(
+            shrink(a),
+            iterable.alt(() =>
+              i === fa.length - 1 ? iterable.zero() : iterable.of(a),
+            ),
           ),
         ),
       ),
-    ),
-  )
+      (a) =>
+        pipe(
+          fa.length === 0 ? iterable.zero<ReadonlyArray<A>>() : iterable.of([]),
+          iterable.alt(() => a),
+        ),
+    )
+// for each item in array,
+//
 
 export const boolean: Shrink<boolean> = (boolean) =>
   boolean ? iterable.of(false) : iterable.zero()

@@ -104,7 +104,7 @@ export function getEq<A>(eq: EQ.Eq<A>): EQ.Eq<Iterable<A>> {
  * @category Interop
  * @since 0.12.0
  */
-export function fromIterable<A, T extends Iterable<A>>(fa: T): Iterable<A> {
+export function fromIterable<A>(fa: Iterable<A>): Iterable<A> {
   return fa
 }
 
@@ -358,6 +358,9 @@ export const FilterableWithIndex: FilterableWithIndex1<URI, number> = {
       ),
     ),
 }
+
+export const { filter, filterMap, filterWithIndex, filterMapWithIndex } =
+  pipeable(FilterableWithIndex)
 
 const _reduceWithIndex: FoldableWithIndex1<URI, number>["reduceWithIndex"] = (
   fa,
