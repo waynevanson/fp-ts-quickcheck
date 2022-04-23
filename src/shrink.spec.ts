@@ -38,5 +38,11 @@ describe("shrink", () => {
       const integer = 854
       expect(result(-integer)[0]).toEqual(integer)
     })
+
+    it("should start with 0 when the input is not 0", () => {
+      const integer = 854
+      const result = pipe(shrink.integer, reader.map(iterable.toReadonlyArray))
+      expect(result(integer)[0]).toEqual(0)
+    })
   })
 })
