@@ -32,5 +32,11 @@ describe("shrink", () => {
       const result = pipe(shrink.integer, reader.map(iterable.toReadonlyArray))
       expect(result(0)).toEqual([])
     })
+
+    it.skip("should show a positive number at the start when the input is negative", () => {
+      const result = pipe(shrink.integer, reader.map(iterable.toReadonlyArray))
+      const integer = 854
+      expect(result(-integer)[0]).toEqual(integer)
+    })
   })
 })
