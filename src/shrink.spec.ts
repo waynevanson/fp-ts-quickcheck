@@ -26,4 +26,11 @@ describe("shrink", () => {
       expect(result(false)).toEqual([])
     })
   })
+
+  describe("number", () => {
+    it("should return an empty when given 0", () => {
+      const result = pipe(shrink.integer, reader.map(iterable.toReadonlyArray))
+      expect(result(0)).toEqual([])
+    })
+  })
 })

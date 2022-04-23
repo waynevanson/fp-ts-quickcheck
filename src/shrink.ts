@@ -1,6 +1,7 @@
 import { reader, readonlyArray } from "fp-ts"
 import { pipe } from "fp-ts/lib/function"
 import { iterable } from "./modules"
+import { rightDichotomy } from "./utils"
 
 export const URI = "Shrinkable"
 export type URI = typeof URI
@@ -40,3 +41,12 @@ export const boolean: Shrink<boolean> = (boolean) =>
 // }) => Shrink<Partial<T>> = (fa) => {
 //   const keys = Object.keys(fa) as ReadonlyArray<keyof T & string>
 // }
+
+export const integer: Shrink<number> = (int) =>
+  int === 0
+    ? iterable.zero<number>()
+    : pipe(
+        int < 0 ? iterable.of(Math.abs(int)) : iterable.zero<number>(),
+        iterable.alt(() => iterable.of(0)),
+        iterable.alt(() => rightDichotomy(int)),
+      )
