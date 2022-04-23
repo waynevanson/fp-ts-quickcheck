@@ -294,7 +294,8 @@ export const Compactable: Compactable1<URI> = {
   separate: (fa) => _partitionMapWithIndex(fa, (i, a) => a),
 }
 
-export const { flatten, ap, apFirst, apSecond } = pipeable(Chain)
+export const { flatten, ap, apFirst, apSecond, chain, chainFirst } =
+  pipeable(Chain)
 
 /**
  * @category instances

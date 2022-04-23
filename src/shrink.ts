@@ -27,6 +27,9 @@ export const array: <A>(fa: Shrink<A>) => Shrink<ReadonlyArray<A>> =
     pipe(
       fax,
       readonlyArray.traverse(iterable.Applicative)((a) => fa(a)),
+      iterable.chain((a) =>
+        readonlyArray.isEmpty(a) ? iterable.zero() : iterable.of(a),
+      ),
     )
 
 // export const partial: <T extends Record<string, unknown>>(fa: {
