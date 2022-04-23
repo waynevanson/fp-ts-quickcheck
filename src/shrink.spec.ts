@@ -14,7 +14,16 @@ describe("shrink", () => {
       expect(result([])).toEqual([])
     })
 
-    it("should remove the last element of an array if it is at it's lowest", () => {
+    it.skip("should remove the last element of an array if it is at it's lowest", () => {
+      const result = pipe(
+        shrink.integer,
+        shrink.array,
+        reader.map(iterable.toReadonlyArray),
+      )
+      expect(result([0, 0])).toEqual([[], [0]])
+    })
+
+    it.skip("should return arrays that increase in size over time", () => {
       const result = pipe(
         shrink.integer,
         shrink.array,
@@ -22,8 +31,6 @@ describe("shrink", () => {
       )
       expect(result([0, 0])).toEqual([[0], []])
     })
-
-    it.todo("should return arrays that increase in size over time")
 
     it("should return array no bigger than it is given", () => {
       const input = [1, 5, 54, 5483, 64]
@@ -40,6 +47,7 @@ describe("shrink", () => {
     })
 
     it.todo("should apply shrink at lower indexes first")
+    it.todo("should try all sizes at the size first")
   })
 
   describe("boolean", () => {
