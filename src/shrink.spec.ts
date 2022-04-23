@@ -1,4 +1,4 @@
-import { reader } from "fp-ts"
+import { reader, readonlyArray } from "fp-ts"
 import { pipe } from "fp-ts/lib/function"
 import { iterable } from "./modules"
 import * as shrink from "./shrink"
@@ -24,7 +24,21 @@ describe("shrink", () => {
     })
 
     it.todo("should return arrays that increase in size over time")
-    it.todo("should return array no bigger than it is given")
+
+    it("should return array no bigger than it is given", () => {
+      const input = [1, 5, 54, 5483, 64]
+      const result = pipe(
+        shrink.integer,
+        shrink.array,
+        reader.map(
+          iterable.every(
+            (fa) => readonlyArray.size(fa) <= readonlyArray.size(input),
+          ),
+        ),
+      )
+      expect(result(input)).toBeTruthy()
+    })
+
     it.todo("should apply shrink at lower indexes first")
   })
 
