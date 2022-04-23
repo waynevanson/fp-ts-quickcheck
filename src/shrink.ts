@@ -23,7 +23,7 @@ export const imap: <A, B>(
 
 export const zero: <A>() => Shrink<A> = () => reader.of(iterable.zero())
 
-export const recursiveWhile: <A>(f: (a: A) => option.Option<A>) => Shrink<A> =
+export const recursive: <A>(f: (a: A) => option.Option<A>) => Shrink<A> =
   (f) => (a) =>
     pipe(
       option.some(a),
@@ -34,7 +34,7 @@ export const recursiveWhile: <A>(f: (a: A) => option.Option<A>) => Shrink<A> =
 
 //array size is the length of the array
 export const array: <A>(fa: Shrink<A>) => Shrink<ReadonlyArray<A>> = (shrink) =>
-  recursiveWhile((fa) =>
+  recursive((fa) =>
     pipe(
       fa,
       readonlyArray.last,
