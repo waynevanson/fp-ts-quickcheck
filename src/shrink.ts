@@ -1,5 +1,5 @@
 import { option, reader, readonlyArray } from "fp-ts"
-import { pipe } from "fp-ts/lib/function"
+import { flow, pipe } from "fp-ts/lib/function"
 import { iterable } from "./modules"
 import { rightDichotomy } from "./utils"
 
@@ -38,9 +38,8 @@ export const array: <A>(fa: Shrink<A>) => Shrink<ReadonlyArray<A>> = (shrink) =>
     pipe(
       fa,
       readonlyArray.last,
-      option.chain((last) =>
-        pipe(
-          last,
+      option.chain(
+        flow(
           shrink,
           iterable.head,
           option.map((shrunk) =>
