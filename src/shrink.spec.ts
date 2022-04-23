@@ -53,5 +53,14 @@ describe("shrink", () => {
       const result = pipe(shrink.integer, reader.map(iterable.toReadonlyArray))
       expect(result(integer)[0]).toEqual(0)
     })
+
+    it("should only contain positive numbers given a positive number", () => {
+      const result = pipe(
+        shrink.integer,
+        reader.map(iterable.every((integer) => integer >= 0)),
+      )
+      const integer = 854
+      expect(result(integer)).toBeTruthy()
+    })
   })
 })
