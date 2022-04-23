@@ -3,26 +3,18 @@
  *
  * Please note that shrinking has not been implemented yet.
  */
-import {
-  either as E,
-  nonEmptyArray as NEA,
-  option as O,
-  readonlyRecord as RC,
-  identity as I,
-} from "fp-ts"
+import { nonEmptyArray, readonlyArray } from "fp-ts"
 import { Applicative1 } from "fp-ts/lib/Applicative"
 import { Apply1, sequenceS, sequenceT } from "fp-ts/lib/Apply"
 import { Chain1 } from "fp-ts/lib/Chain"
-import { flow, identity, Lazy, pipe, unsafeCoerce } from "fp-ts/lib/function"
+import { flow, Lazy, pipe, unsafeCoerce } from "fp-ts/lib/function"
 import { Functor1 } from "fp-ts/lib/Functor"
 import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
-import { iterable } from "./modules"
 import * as gen from "./gen"
-import { state as S } from "./modules/fp-ts"
-import * as shrink from "./shrink"
-import { EnforceNonEmptyRecord } from "./utils"
+import { iterable, rose } from "./modules"
+import { EnforceNonEmptyRecord, rightDichotomy } from "./utils"
 
 /**
  * @category Model
@@ -37,14 +29,8 @@ export type URI = typeof URI
 /**
  * @category Model
  */
-export interface Arbitrary<A> {
-  readonly generate: gen.Gen<A>
-  // shrink is contextual to arbitrary.
-  // using it
-  // find the first (and smallest) shrink value
-  // use that value on the shrinker recursively until it all passes or and empty iterable
-  readonly shrink: shrink.Shrink<A>
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Arbitrary<A> extends gen.Gen<rose.Rose<A>> {}
 
 declare module "fp-ts/HKT" {
   export interface URItoKind<A> {
@@ -52,60 +38,42 @@ declare module "fp-ts/HKT" {
   }
 }
 
-export function from<A>(
-  _generate: gen.Gen<A>,
-  _shrink: shrink.Shrink<A>,
-): Arbitrary<A> {
-  return { generate: _generate, shrink: _shrink }
-}
-
-export function fromK<T extends readonly unknown[], A>(
-  generate: (...args: T) => gen.Gen<A>,
-  shrink: (...args: T) => shrink.Shrink<A>,
-): (...args: T) => Arbitrary<A> {
-  return (...args) => ({ generate: generate(...args), shrink: shrink(...args) })
-}
-
-const shrink_ = shrink.zero
 // PIPEABLES
 
 /**
  * @category Pointed
  */
-export const of: <A>(a: A) => Arbitrary<A> = (a) => ({
-  generate: S.of(a),
-  shrink: shrink_(),
-})
+export const of: <A>(a: A) => Arbitrary<A> = (a) => gen.of(rose.of(a))
 
 /**
  * @category Functor
  */
 export const map: <A, B>(
   f: (a: A) => B,
-) => (fa: Arbitrary<A>) => Arbitrary<B> = (f) => (fa) => ({
-  generate: pipe(fa.generate, gen.map(f)),
-  shrink: pipe(fa.shrink, shrink.map(f)),
-})
+) => (fa: Arbitrary<A>) => Arbitrary<B> = (f) => gen.map(rose.map(f))
 
 /**
  * @category Apply
  */
 export const ap: <A>(
   fa: Arbitrary<A>,
-) => <B>(fab: Arbitrary<(a: A) => B>) => Arbitrary<B> = (fa) => (fab) => ({
-  generate: pipe(fab.generate, S.ap(fa.generate)),
-  shrink: pipe(fab.shrink, shrink.ap(fa.shrink)),
-})
+) => <B>(fab: Arbitrary<(a: A) => B>) => Arbitrary<B> = (fa) =>
+  gen.chain((rab) =>
+    pipe(
+      fa,
+      gen.map((ra) => pipe(rab, rose.ap(ra))),
+    ),
+  )
 
 /**
  * @category Chain
  */
 export const chain: <A, B>(
   f: (a: A) => Arbitrary<B>,
-) => (fa: Arbitrary<A>) => Arbitrary<B> = (f) => (fa) => ({
-  generate: pipe(fa.generate, S.chain(flow(f, (b) => b.generate))),
-  shrink: pipe(fa.shrink, shrink.chain(flow(f, (b) => b.shrink))),
-})
+) => (fa: Arbitrary<A>) => Arbitrary<B> = (f) =>
+  gen.chain((ra) =>
+    pipe(ra, rose.traverse(gen.Applicative)(f), gen.map(rose.flatten)),
+  )
 
 // INSTANCES
 
@@ -145,26 +113,47 @@ export const Chain: Chain1<URI> = {
  *
  * @category Constructors
  */
-export function fromGen<A>(
-  gen: gen.Gen<A>,
-  shrink: shrink.Shrink<A> = shrink_(),
-): Arbitrary<A> {
-  return { generate: gen, shrink }
+export function fromGen<A>(gen_: gen.Gen<A>): Arbitrary<A> {
+  return pipe(gen_, gen.map(rose.of))
 }
+
+export function fromGenK<T extends readonly unknown[], A>(
+  gen_: (...args: T) => gen.Gen<A>,
+): (...args: T) => Arbitrary<A> {
+  return flow(gen_, fromGen)
+}
+
+const fromShrinker: <A>(f: Shrinker<A>) => (a: A) => rose.Rose<A> = (f) =>
+  rose.unfoldRose((a) => ({ value: a, branch: f(a) }))
+
+export type Shrinker<A> = (a: A) => Iterable<A>
+
+const integralShrinker: Shrinker<number> = (int) =>
+  int === 0
+    ? // if zero end shrink
+      iterable.zero<number>()
+    : pipe(
+        // if negative, start shrink with positive of same number
+        int < 0 ? iterable.of(Math.abs(int)) : iterable.zero<number>(),
+        // 0
+        iterable.alt(() => iterable.of(0)),
+        // logarithmically approach the number from 0
+        iterable.alt(() => rightDichotomy(int)),
+      )
+
+const fromGenIntegral: (gen_: gen.Gen<number>) => Arbitrary<number> = gen.map(
+  fromShrinker(integralShrinker),
+)
 
 /**
  * @category Constructors
  */
-export const int = fromK(gen.int, shrink.int)
+export const int = flow(gen.int, fromGenIntegral)
 
 /**
  * @category Constructors
  */
-export function float(
-  options?: Partial<Record<"min" | "max", number>>,
-): Arbitrary<number> {
-  return { generate: gen.float(options), shrink: shrink_() }
-}
+export const float = flow(gen.float, fromGenIntegral)
 
 export type StringParams = Partial<Record<"from" | "to", string>>
 
@@ -176,18 +165,16 @@ export type StringParams = Partial<Record<"from" | "to", string>>
  */
 export const character: (options?: StringParams) => Arbitrary<string> = flow(
   gen.char,
-  fromGen,
+  gen.map((a) => a.charCodeAt(0)),
+  fromGenIntegral,
+  map((a) => String.fromCharCode(a)),
 )
 
 /**
  * @category Constructors
  */
-export const string: (options?: StringParams) => Arbitrary<string> = flow(
-  gen.string,
-  fromGen,
-)
-
-// COMBINATORS
+export const string: (options?: StringParams) => Arbitrary<string> =
+  flow(character)
 
 /**
  * Allow generating arbitraries of `T` or `null`.
@@ -196,48 +183,27 @@ export const string: (options?: StringParams) => Arbitrary<string> = flow(
  */
 export const nullable: <T>(arbitrary: Arbitrary<T>) => Arbitrary<T | null> = (
   arbitrary,
-) => union(arbitrary, of(null))
+) =>
+  pipe(
+    arbitrary,
+    // prepend null to iterators, unless value is null
+    gen.map((a) => a),
+  )
 
-/**
- * Creates an arbitrary as a struct that optionally defines properties.
- *
- * @category Combinators
- */
-export function partial<T extends Record<string, unknown>>(arbitraries: {
-  readonly [P in keyof T]: Arbitrary<T[P]>
-}): Arbitrary<Partial<T>> {
-  return {
-    generate: pipe(
-      S.get<gen.GenState>(),
-      S.map((s) =>
-        pipe(
-          arbitraries,
-          RC.fromRecord,
-          RC.map(flow(nullable, toGen, S.evaluate(s))),
-          RC.filterMap(O.fromNullable),
-          (a) => unsafeCoerce(a),
-        ),
-      ),
-    ),
-    //
-    shrink: pipe(
-      S.get<gen.GenState>(),
-      S.map((s) =>
-        pipe(
-          arbitraries,
-          RC.fromRecord,
-          RC.map(flow(nullable, toShrink, S.evaluate(s))),
-          RC.filterMap(
-            O.fromPredicate(
-              iterable.some((a): a is NonNullable<typeof a> => a != null),
-            ),
-          ),
-          (a) => unsafeCoerce(a),
-        ),
-      ),
-    ),
-  }
-}
+// /**
+//  * Creates an arbitrary as a struct that optionally defines properties.
+//  *
+//  * @category Combinators
+//  */
+// export function partial<T extends Record<string, unknown>>(arbitraries: {
+//   readonly [P in keyof T]: Arbitrary<T[P]>
+// }): Arbitrary<Partial<T>> {
+//   // todo shrink
+//   // all keys first and down on all,
+//   // then all permutations of keys with number of keys increasing
+
+//   return pipe()
+// }
 
 /**
  * Allows use of an arbitrary that is used after the current arbitrary is defined.
@@ -250,10 +216,7 @@ export function partial<T extends Record<string, unknown>>(arbitraries: {
  * // now y can use x without it being unreachable code
  */
 export function lazy<A>(lazy: Lazy<Arbitrary<A>>): Arbitrary<A> {
-  return {
-    generate: (s) => lazy().generate(s),
-    shrink: (s) => lazy().shrink(s),
-  }
+  return (s) => lazy()(s)
 }
 
 /**
@@ -270,27 +233,11 @@ export function filter<A>(
   predicate: Predicate<A>,
 ): (fa: Arbitrary<A>) => Arbitrary<A>
 export function filter<A>(predicate: Predicate<A>) {
-  return (fa: Arbitrary<A>): Arbitrary<A> => ({
-    generate: pipe(
-      fa.generate,
-      S.chain(
-        S.chainRec(
-          flow(
-            E.fromPredicate(predicate, identity),
-            E.map((a): gen.Gen<E.Either<A, A>> => gen.of(E.right(a))),
-            E.getOrElse(() =>
-              pipe(
-                fa.generate,
-                S.apFirst(gen.nextSeed),
-                gen.map((e) => E.left(e)),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-    shrink: shrink_(),
-  })
+  return (fa: Arbitrary<A>): Arbitrary<A> =>
+    pipe(
+      fa,
+      gen.filter((r) => predicate(r.value)),
+    )
 }
 
 /**
@@ -300,10 +247,11 @@ export function filter<A>(predicate: Predicate<A>) {
  * @category Combinators
  */
 export function array<A>(arbitrary: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> {
-  return {
-    generate: gen.arrayOf(arbitrary.generate),
-    shrink: shrink_(),
-  }
+  // smallest array size first
+  return pipe(
+    gen.arrayOf(arbitrary),
+    gen.map(flow(readonlyArray.sequence(rose.Applicative))),
+  )
 }
 
 /**
@@ -311,10 +259,12 @@ export function array<A>(arbitrary: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> {
  * @category Combinators
  */
 export function vector(size: number) {
-  return <A>(fa: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> => ({
-    generate: gen.vectorOf(size)(fa.generate),
-    shrink: shrink_(),
-  })
+  return <A>(fa: Arbitrary<A>): Arbitrary<ReadonlyArray<A>> =>
+    pipe(
+      fa,
+      gen.vectorOf(size),
+      gen.map(readonlyArray.sequence(rose.Applicative)),
+    )
 }
 
 /**
@@ -348,7 +298,7 @@ export function tuple<
 export function struct<R extends Record<string, unknown>>(
   struct: EnforceNonEmptyRecord<{ readonly [P in keyof R]: Arbitrary<R[P]> }>,
 ) {
-  return sequenceS(Apply)(struct) as Arbitrary<R>
+  return sequenceS(Apply)(struct)
 }
 
 /**
@@ -357,22 +307,10 @@ export function struct<R extends Record<string, unknown>>(
 export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
   ...arbitraries: { readonly [P in keyof T]: Arbitrary<T[P]> }
 ): Arbitrary<T[number]> {
+  // chain together rose ? how will it know when to use another shrink?
   return pipe(
-    I.Do,
-    I.bind("generate", () =>
-      gen.oneOf(
-        pipe(
-          arbitraries as unknown as NEA.NonEmptyArray<Arbitrary<T[number]>>,
-          NEA.map((arbitrary) => arbitrary.generate),
-        ),
-      ),
-    ),
-    I.bind("shrink", ({ generate }) =>
-      pipe(
-        generate,
-        // get smallest value
-        gen.map(() => iterable.zero()),
-      ),
+    gen.oneOf(
+      arbitraries as unknown as nonEmptyArray.NonEmptyArray<Arbitrary<T>>,
     ),
   )
 }
@@ -383,14 +321,10 @@ export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
  * @category Destructors
  */
 export function toGen<A>(fa: Arbitrary<A>) {
-  return fa.generate
-}
-
-/**
- * @category Destructors
- */
-export function toShrink<A>(fa: Arbitrary<A>) {
-  return fa.shrink
+  return pipe(
+    fa,
+    gen.map((r) => r.value),
+  )
 }
 
 //PRIMITIVES
@@ -398,7 +332,12 @@ export function toShrink<A>(fa: Arbitrary<A>) {
 /**
  * @category Primitives
  */
-export const boolean: Arbitrary<boolean> = from(gen.boolean, shrink.boolean)
+export const boolean: Arbitrary<boolean> = pipe(
+  gen.boolean,
+  gen.map(
+    fromShrinker((boolean) => (boolean ? iterable.of(false) : iterable.zero())),
+  ),
+)
 
 export function stringNonempty(options?: StringParams): Arbitrary<string> {
   return pipe(

@@ -43,11 +43,13 @@ export function test<F, I, A>({
   property,
 }: TestOptions<F, I, A>): Gen<TestResults<F>> {
   return pipe(
-    Arbitrary.generate,
-    S.chain((value) =>
+    Arbitrary,
+    S.chain((rose) =>
       pipe(
         S.get<gen.GenState>(),
-        S.map((seedState) => Testable.test({ property, value, seedState })),
+        S.map((seedState) =>
+          Testable.test({ property, value: rose.value, seedState }),
+        ),
       ),
     ),
     S.bindTo("resultM"),

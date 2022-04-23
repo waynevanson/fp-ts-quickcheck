@@ -1,16 +1,19 @@
 import * as gen from "@no-day/fp-ts-generators"
 import * as lcg from "@no-day/fp-ts-lcg"
-import { nonEmptyArray, state as S } from "fp-ts"
+import { either, nonEmptyArray } from "fp-ts"
 import { chainFirst as _chainFirst } from "fp-ts/lib/Chain"
-import { Lazy, pipe } from "fp-ts/lib/function"
+import { flow, Lazy, pipe } from "fp-ts/lib/function"
+import { Predicate } from "fp-ts/lib/Predicate"
+import { Refinement } from "fp-ts/lib/Refinement"
 import * as lens from "monocle-ts/Lens"
+import { state } from "./modules/fp-ts"
 
 export * from "@no-day/fp-ts-generators"
 
 export const chainFirst = _chainFirst(gen.Monad)
 
 export function variant(seed: number): gen.Gen<void> {
-  return S.modify(
+  return state.modify(
     pipe(
       lens.id<gen.GenState>(),
       lens.prop("newSeed"),
@@ -19,7 +22,7 @@ export function variant(seed: number): gen.Gen<void> {
   )
 }
 
-export const nextSeed: gen.Gen<void> = S.modify(({ newSeed, size }) => ({
+export const nextSeed: gen.Gen<void> = state.modify(({ newSeed, size }) => ({
   size,
   newSeed: lcg.lcgNext(newSeed),
 }))
@@ -43,4 +46,30 @@ export const ap: <A>(
 
 export function lazy<A>(lazy: Lazy<gen.Gen<A>>): gen.Gen<A> {
   return (s) => lazy()(s)
+}
+
+export const nullable: <T>(arbitrary: gen.Gen<T>) => gen.Gen<T | null> = (
+  arbitrary,
+) => gen.oneOf([arbitrary, gen.of(null)])
+
+export function filter<A, B extends A>(
+  f: Predicate<A> | Refinement<A, B>,
+): (fa: gen.Gen<A>) => gen.Gen<B> {
+  return state.chain(
+    state.chainRec(
+      flow(
+        either.fromPredicate(
+          (a): a is B => f(a),
+          (a) => a,
+        ),
+        either.map((b) => of(either.right<A, B>(b))),
+        either.getOrElse((a) =>
+          pipe(
+            nextSeed,
+            gen.map(() => either.left<A, B>(a)),
+          ),
+        ),
+      ),
+    ),
+  )
 }

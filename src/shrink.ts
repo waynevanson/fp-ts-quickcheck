@@ -1,14 +1,12 @@
-import { state } from "fp-ts"
-import { flow, Lazy, pipe } from "fp-ts/lib/function"
-import * as gen from "./gen"
-import * as iterable from "./modules/iterable"
-import { rightDichotomy } from "./utils"
+import { reader, readonlyArray } from "fp-ts"
+import { pipe } from "fp-ts/lib/function"
+import { iterable } from "./modules"
 
 export const URI = "Shrinkable"
 export type URI = typeof URI
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Shrink<A> extends gen.Gen<Iterable<A>> {}
+export interface Shrink<A> extends reader.Reader<A, Iterable<A>> {}
 
 declare module "fp-ts/HKT" {
   export interface URItoKind<A> {
@@ -16,87 +14,23 @@ declare module "fp-ts/HKT" {
   }
 }
 
-export function fromIterable<A>(fa: Iterable<A>): Shrink<A> {
-  return state.of(fa)
-}
+// Contravariant
+export const imap: <A, B>(
+  f: (a: A) => B,
+  g: (b: B) => A,
+) => (fa: Shrink<A>) => Shrink<B> = (f, g) => reader.promap(g, iterable.map(f))
 
-export function fromGen<A>(generator: gen.Gen<A>): Shrink<A> {
-  return pipe(generator, gen.map(iterable.of))
-}
+export const zero: <A>() => Shrink<A> = () => reader.of(iterable.zero())
 
-export function fromGenK<T extends readonly unknown[], A>(
-  f: (...args: T) => gen.Gen<A>,
-): (...args: T) => Shrink<A> {
-  return flow(f, fromGen)
-}
-
-export const of: <A>(a: A) => Shrink<A> = (a) => gen.of(iterable.of(a))
-
-export const map: <A, B>(f: (a: A) => B) => (fa: Shrink<A>) => Shrink<B> = (
-  f,
-) => flow(gen.map(iterable.map(f)))
-
-export const ap: <A>(
-  fa: Shrink<A>,
-) => <B>(fab: Shrink<(a: A) => B>) => Shrink<B> = (fa) => (fab) =>
-  pipe(
-    fab,
-    gen.chain((iab) =>
-      pipe(
-        fa,
-        gen.map((ia) => pipe(iab, iterable.ap(ia))),
-      ),
-    ),
-  )
-
-export const chain: <A, B>(
-  f: (a: A) => Shrink<B>,
-) => (fa: Shrink<A>) => Shrink<B> = (f) =>
-  flow(
-    gen.chain(iterable.traverse(gen.Applicative)(f)),
-    gen.map(iterable.flatten),
-  )
-
-export const zero: <A>() => Shrink<A> = () => gen.of(iterable.zero())
-
-export const alt: <A>(that: () => Shrink<A>) => (fa: Shrink<A>) => Shrink<A> =
-  (that) => (fa) =>
+export const array: <A>(fa: Shrink<A>) => Shrink<ReadonlyArray<A>> =
+  (fa) => (fax) =>
     pipe(
-      fa,
-      gen.chain((ia1) =>
-        pipe(
-          that(),
-          gen.map((ia2) =>
-            pipe(
-              ia1,
-              iterable.alt(() => ia2),
-            ),
-          ),
-        ),
-      ),
+      fax,
+      readonlyArray.traverse(iterable.Applicative)((a) => fa(a)),
     )
 
-export const boolean = pipe(
-  gen.boolean,
-  fromGen,
-  chain((boolean) => (boolean ? of(false) : zero<boolean>())),
-)
-
-export const int: (
-  options?: Partial<Record<"min" | "max", number>>,
-) => Shrink<number> = flow(
-  fromGenK(gen.int),
-  chain((int) =>
-    int === 0
-      ? zero()
-      : pipe(
-          int < 0 ? of(Math.abs(int)) : zero<number>(),
-          alt(() => of(0)),
-          alt(() => fromIterable(rightDichotomy(int))),
-        ),
-  ),
-)
-
-export function lazy<A>(lazy: Lazy<Shrink<A>>): Shrink<A> {
-  return (s) => lazy()(s)
-}
+// export const partial: <T extends Record<string, unknown>>(fa: {
+//   readonly [P in keyof T]: Shrink<T[P]>
+// }) => Shrink<Partial<T>> = (fa) => {
+//   const keys = Object.keys(fa) as ReadonlyArray<keyof T & string>
+// }

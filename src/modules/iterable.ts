@@ -1,7 +1,13 @@
 /**
  * @since 0.12.0
  */
-import { either as E, eq as EQ, option as O, readonlyArray as A } from "fp-ts"
+import {
+  either as E,
+  eq as EQ,
+  option as O,
+  readonlyArray as A,
+  readonlyArray,
+} from "fp-ts"
 import { HKT } from "fp-ts/HKT"
 import { Alt1 } from "fp-ts/lib/Alt"
 import {
@@ -24,7 +30,7 @@ import { Monad1 } from "fp-ts/lib/Monad"
 import { pipeable } from "fp-ts/lib/pipeable"
 import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
-import { Refinement } from "fp-ts/lib/Refinement"
+import { not, Refinement } from "fp-ts/lib/Refinement"
 import { PipeableTraverse1 } from "fp-ts/lib/Traversable"
 import { PipeableTraverseWithIndex1 } from "fp-ts/lib/TraversableWithIndex"
 import { TraversableWithIndex1 } from "fp-ts/lib/TraversableWithIndex"
@@ -576,4 +582,12 @@ export function iterate<A>(f: Endomorphism<A>) {
       }
     },
   })
+}
+
+export function isEmpty<A>(fa: Iterable<A>): fa is Iterable<never> {
+  return pipe(fa, take(1), toReadonlyArray, readonlyArray.size) <= 0
+}
+
+export function isNonempty<A>(fa: Iterable<A>) {
+  return not(isEmpty)(fa)
 }
