@@ -114,3 +114,12 @@ export const integer: Shrink<number> = (int) =>
         iterable.alt(() => iterable.of(0)),
         iterable.alt(() => rightDichotomy(int)),
       )
+
+export const char: Shrink<string> = pipe(
+  integer,
+  imap(
+    (integer) => String.fromCharCode(integer),
+    (char) => char.charCodeAt(0),
+  ),
+  reader.map(iterable.prepend("")),
+)
