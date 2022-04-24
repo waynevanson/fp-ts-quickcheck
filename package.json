@@ -21,6 +21,7 @@
     "dist"
   ],
   "devDependencies": {
+    "@milahu/patch-package-with-pnpm-support": "^6.4.10",
     "@types/jest": "^27.0.2",
     "@types/node": "^16.10.1",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
