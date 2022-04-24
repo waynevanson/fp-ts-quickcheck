@@ -23,15 +23,6 @@ export const imap: <A, B>(
 
 export const zero: <A>() => Shrink<A> = () => reader.of(iterable.zero())
 
-export const recursive: <A>(f: (a: A) => option.Option<A>) => Shrink<A> =
-  (f) => (a) =>
-    pipe(
-      option.some(a),
-      iterable.iterate(option.chain(f)),
-      iterable.skip(1),
-      iterable.takeWhileMapWithIndex((i, a) => a),
-    )
-
 //array size is the length of the array
 // start empty
 // for each, apply get the max and
