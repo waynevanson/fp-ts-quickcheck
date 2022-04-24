@@ -99,8 +99,8 @@ export function reader<R, A>(
   return {
     coarbitrary: (fea) => (fr) =>
       pipe(
-        ge.generate,
-        gen.map(fea),
+        ge,
+        gen.map((rose) => fea(rose.value)),
         gen.chain((a) => pipe(fr, fa.coarbitrary(a))),
       ),
   }
