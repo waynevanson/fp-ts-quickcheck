@@ -123,3 +123,12 @@ export const char: Shrink<string> = pipe(
   ),
   reader.map(iterable.prepend("")),
 )
+
+export const string: Shrink<string> = pipe(
+  char,
+  array,
+  imap(
+    (strings) => strings.join(""),
+    (string) => string.split(""),
+  ),
+)
