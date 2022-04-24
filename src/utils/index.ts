@@ -2,6 +2,8 @@ import { either as E } from "fp-ts"
 import { URIS2, Kind2, Kind, URIS, HKT } from "fp-ts/HKT"
 import { pipe } from "fp-ts/lib/function"
 import { Monad, Monad1, Monad2 } from "fp-ts/lib/Monad"
+import { Monoid } from "fp-ts/lib/Monoid"
+import { getAssignSemigroup } from "fp-ts/lib/struct"
 import { iterable } from "../modules"
 
 export type EnforceNonEmptyRecord<R> = keyof R extends never ? never : R
@@ -51,5 +53,10 @@ export const rightDichotomy = (n: number): Iterable<number> =>
     iterable.map((i) => n - i),
     iterable.takeWhile((m: number) => Math.abs(m) < Math.abs(n)),
   )
+
+export const getAssignMonoid = <A extends object>(): Monoid<A> => ({
+  ...getAssignSemigroup<A>(),
+  empty: {} as A,
+})
 
 export { combinations } from "./combinations"
