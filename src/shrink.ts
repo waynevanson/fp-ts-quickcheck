@@ -1,7 +1,7 @@
-import { option, reader, readonlyArray, readonlyRecord, semigroup } from "fp-ts"
+import { option, reader, readonlyArray, readonlyRecord } from "fp-ts"
 import { flow, pipe, unsafeCoerce } from "fp-ts/lib/function"
 import { iterable } from "./modules"
-import { combinations, rightDichotomy } from "./utils"
+import { combinations, getAssignMonoid, rightDichotomy } from "./utils"
 
 export const URI = "Shrinkable"
 export type URI = typeof URI
@@ -95,26 +95,24 @@ export const partial =
       ),
       readonlyRecord.keys,
       combinations,
-      readonlyArray.map(
-        readonlyArray.foldMap(readonlyRecord.getMonoid(semigroup.last()))(
-          (property) =>
-            Object.assign({}, { [property]: fa[property] }) as never,
-        ),
-      ),
-      readonlyArray.map((value) =>
-        pipe(
-          shrinks,
-          readonlyRecord.fromRecord,
-          readonlyRecord.filterWithIndex((i) =>
-            readonlyRecord.keys(value).includes(i),
+      iterable.chain(
+        flow(
+          readonlyArray.foldMap(getAssignMonoid<Record<string, unknown>>())(
+            (property) => ({ [property]: fa[property] }),
           ),
-          (shrink) => ({ shrink, value }),
+          (value) =>
+            pipe(
+              shrinks,
+              readonlyRecord.fromRecord,
+              readonlyRecord.filterWithIndex((i) =>
+                readonlyRecord.keys(value).includes(i),
+              ),
+              (shrink) => struct(shrink)(value as never),
+            ),
         ),
       ),
-      iterable.fromIterable,
-      iterable.chain(({ shrink, value }) => struct(shrink)(value)),
-      iterable.prepend({}),
       (a) => unsafeCoerce(a),
+      iterable.prepend<Partial<T>>({}),
     )
 
 export const integer: Shrink<number> = (int) =>
