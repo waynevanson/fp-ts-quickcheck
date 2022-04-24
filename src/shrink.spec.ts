@@ -100,4 +100,20 @@ describe("shrink", () => {
       expect(result(integer)).toBeTruthy()
     })
   })
+
+  describe("struct", () => {
+    it("should start premutations with the smallest values first", () => {
+      const result = pipe(
+        shrink.struct({ a: shrink.integer, b: shrink.integer }),
+        reader.map(iterable.toReadonlyArray),
+      )
+
+      expect(result({ a: 2, b: 2 })).toEqual([
+        { a: 0, b: 0 },
+        { a: 0, b: 1 },
+        { a: 1, b: 0 },
+        { a: 1, b: 1 },
+      ])
+    })
+  })
 })

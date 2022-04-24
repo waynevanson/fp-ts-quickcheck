@@ -1,5 +1,5 @@
-import { option, reader, readonlyArray } from "fp-ts"
-import { pipe } from "fp-ts/lib/function"
+import { option, reader, readonlyArray, readonlyRecord } from "fp-ts"
+import { flow, pipe, unsafeCoerce } from "fp-ts/lib/function"
 import { iterable } from "./modules"
 import { rightDichotomy } from "./utils"
 
@@ -62,6 +62,23 @@ export const array =
 
 export const boolean: Shrink<boolean> = (boolean) =>
   boolean ? iterable.of(false) : iterable.zero()
+
+export const struct = <T extends Record<string, unknown>>(shrinks: {
+  readonly [P in keyof T]: Shrink<T[P]>
+}): Shrink<T> =>
+  flow(
+    readonlyRecord.fromRecord,
+    readonlyRecord.filterMapWithIndex((k, a) =>
+      pipe(
+        shrinks,
+        readonlyRecord.fromRecord,
+        readonlyRecord.lookup(k),
+        option.flap(a as never),
+      ),
+    ),
+    readonlyRecord.sequence(iterable.Applicative),
+    (a) => unsafeCoerce(a),
+  )
 
 // export const partial: <T extends Record<string, unknown>>(fa: {
 //   readonly [P in keyof T]: Shrink<T[P]>
