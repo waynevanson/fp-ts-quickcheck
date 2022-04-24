@@ -1,7 +1,7 @@
-import { option, reader, readonlyArray, readonlyRecord } from "fp-ts"
+import { option, reader, readonlyArray, readonlyRecord, semigroup } from "fp-ts"
 import { flow, pipe, unsafeCoerce } from "fp-ts/lib/function"
 import { iterable } from "./modules"
-import { rightDichotomy } from "./utils"
+import { combinations, rightDichotomy } from "./utils"
 
 export const URI = "Shrinkable"
 export type URI = typeof URI
@@ -80,11 +80,42 @@ export const struct = <T extends Record<string, unknown>>(shrinks: {
     (a) => unsafeCoerce(a),
   )
 
-// export const partial: <T extends Record<string, unknown>>(fa: {
-//   readonly [P in keyof T]: Shrink<T[P]>
-// }) => Shrink<Partial<T>> = (fa) => {
-//   const keys = Object.keys(fa) as ReadonlyArray<keyof T & string>
-// }
+export const partial =
+  <T extends Record<string, unknown>>(shrinks: {
+    readonly [P in keyof T]: Shrink<T[P]>
+  }): Shrink<Partial<T>> =>
+  (fa) =>
+    pipe(
+      fa,
+      (a) => a as readonlyRecord.ReadonlyRecord<string, T[string] | undefined>,
+      readonlyRecord.filterMap(
+        option.fromPredicate(
+          (a): a is Exclude<typeof a, undefined> => typeof a !== "undefined",
+        ),
+      ),
+      readonlyRecord.keys,
+      combinations,
+      readonlyArray.map(
+        readonlyArray.foldMap(readonlyRecord.getMonoid(semigroup.last()))(
+          (property) =>
+            Object.assign({}, { [property]: fa[property] }) as never,
+        ),
+      ),
+      readonlyArray.map((value) =>
+        pipe(
+          shrinks,
+          readonlyRecord.fromRecord,
+          readonlyRecord.filterWithIndex((i) =>
+            readonlyRecord.keys(value).includes(i),
+          ),
+          (shrink) => ({ shrink, value }),
+        ),
+      ),
+      iterable.fromIterable,
+      iterable.chain(({ shrink, value }) => struct(shrink)(value)),
+      iterable.prepend({}),
+      (a) => unsafeCoerce(a),
+    )
 
 export const integer: Shrink<number> = (int) =>
   int === 0

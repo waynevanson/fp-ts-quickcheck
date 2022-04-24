@@ -606,3 +606,11 @@ export function head<A>(fa: Iterable<A>): option.Option<A> {
   }
   return option.none
 }
+
+export function prepend<A>(a: A): (fa: Iterable<A>) => Iterable<A> {
+  return (fa) =>
+    pipe(
+      of(a),
+      alt(() => fa),
+    )
+}

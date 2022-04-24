@@ -116,4 +116,35 @@ describe("shrink", () => {
       ])
     })
   })
+
+  describe("partial", () => {
+    it("should display some of the keys most of the time", () => {
+      const result = pipe(
+        shrink.partial({
+          a: shrink.integer,
+          b: shrink.integer,
+          // c: shrink.integer,
+        }),
+        reader.map(iterable.toReadonlyArray),
+      )
+
+      expect(result({ a: 2, b: 2 })).toEqual([
+        {},
+
+        // less keys first
+        { a: 0 },
+        { a: 1 },
+
+        { b: 0 },
+        { b: 1 },
+
+        // slowly add more keys
+        { a: 0, b: 0 },
+        { a: 0, b: 1 },
+
+        { a: 1, b: 0 },
+        { a: 1, b: 1 },
+      ])
+    })
+  })
 })
