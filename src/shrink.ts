@@ -86,20 +86,18 @@ export const partial =
       ),
       readonlyRecord.keys,
       combinations,
-      iterable.chain(
-        flow(
-          readonlyArray.foldMap(getAssignMonoid<Record<string, unknown>>())(
-            (property) => ({ [property]: fa[property] }),
+      iterable.chain((keys) =>
+        pipe(
+          keys,
+          readonlyArray.foldMap(getAssignMonoid<Partial<T>>())(
+            (property) => ({ [property]: fa[property] } as never),
           ),
-          (value) =>
-            pipe(
-              shrinks,
-              readonlyRecord.fromRecord,
-              readonlyRecord.filterWithIndex((i) =>
-                readonlyRecord.keys(value).includes(i),
-              ),
-              (shrink) => struct(shrink)(value as never),
-            ),
+          pipe(
+            shrinks,
+            readonlyRecord.fromRecord,
+            readonlyRecord.filterWithIndex((i) => keys.includes(i)),
+            (shinks) => struct<Partial<T>>(shinks as never),
+          ),
         ),
       ),
       (a) => unsafeCoerce(a),
