@@ -4,7 +4,7 @@ import * as paths from "./.config/paths"
 export default {
   preset: "ts-jest",
   testEnvironment: "node",
-  watchPlugins: ["jest-runner-eslint/watch-fix"],
+  watchPlugins: ["jest-runner-eslint/watch-fix", "jest-watch-select-projects"],
   collectCoverage: true,
   // coverageThreshold: {
   //   global: { branches: 100, functions: 100, lines: 100, statements: 100 },
