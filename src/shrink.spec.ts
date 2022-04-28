@@ -117,13 +117,24 @@ describe("shrink", () => {
     })
   })
 
+  describe("char", () => {
+    it("should always have a length of one", () => {
+      const result = pipe(shrink.char, reader.map(iterable.toReadonlyArray))
+      expect(result("u")).toMatchSnapshot()
+    })
+  })
+
+  describe("string", () => {
+    it.todo("should be able to generate more than a single character")
+    it.todo("should generate a single character")
+  })
+
   describe("partial", () => {
     it("should display some of the keys most of the time", () => {
       const result = pipe(
         shrink.partial({
           a: shrink.integer,
           b: shrink.integer,
-          // c: shrink.integer,
         }),
         reader.map(iterable.toReadonlyArray),
       )
