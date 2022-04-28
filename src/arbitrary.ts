@@ -14,7 +14,7 @@ import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
 import * as gen from "./gen"
 import { iterable, rose } from "./modules"
-import { EnforceNonEmptyRecord, rightDichotomy } from "./utils"
+import * as shrink from "./shrink"
 
 /**
  * @category Model
@@ -157,24 +157,13 @@ export const float = flow(gen.float, fromGenIntegral)
 
 export type StringParams = Partial<Record<"from" | "to", string>>
 
-/**
- * @summary
- * Generate a single character string.
- *
- * @category Constructors
- */
-export const character: (options?: StringParams) => Arbitrary<string> = flow(
-  gen.char,
-  gen.map((a) => a.charCodeAt(0)),
-  fromGenIntegral,
-  map((a) => String.fromCharCode(a)),
-)
+export function character(options?: StringParams): Arbitrary<string> {
+  return pipe(gen.char(options), gen.map(fromShrinker(shrink.string)))
+}
 
-/**
- * @category Constructors
- */
-export const string: (options?: StringParams) => Arbitrary<string> =
-  flow(character)
+export function string(options?: StringParams): Arbitrary<string> {
+  return pipe(gen.string(options), gen.map(fromShrinker(shrink.string)))
+}
 
 /**
  * Allow generating arbitraries of `T` or `null`.
