@@ -23,7 +23,14 @@ describe("gen", () => {
   })
 
   describe("lazy", () => {
-    it.todo("should allow usage of generators before their declaration")
+    it("should allow usage of generators before their declaration", () => {
+      const genState = { newSeed: gen.mkSeed(43), size: 0 }
+      const lazyGen = gen.lazy(() => nextGen)
+      const value = 24
+      const nextGen = gen.of(value)
+      const result = pipe(lazyGen, state.evaluate(genState))
+      expect(result).toBe(value)
+    })
   })
 
   describe("nullable", () => {
