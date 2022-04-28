@@ -237,6 +237,15 @@ export function filter<A>(predicate: Predicate<A>) {
     pipe(
       fa,
       gen.filter((r) => predicate(r.value)),
+      gen.map((fa) =>
+        rose.make(
+          fa.value,
+          pipe(
+            fa.branches,
+            iterable.filter((fa) => predicate(fa.value)),
+          ),
+        ),
+      ),
     )
 }
 
