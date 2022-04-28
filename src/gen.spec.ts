@@ -46,6 +46,15 @@ describe("gen", () => {
   })
 
   describe("filter", () => {
-    it.todo("should regenarate the values until a valid value has been found")
+    it("should regenarate the values until a valid value has been found", () => {
+      const predicate = (a: string) => a.length > 3
+      const result = pipe(
+        gen.string({ from: "a", to: "z" }),
+        gen.filter(predicate),
+        gen.generateSample({ seed: gen.mkSeed(24), count: 4 }),
+      )
+
+      expect(result.every(predicate)).toBeTruthy()
+    })
   })
 })

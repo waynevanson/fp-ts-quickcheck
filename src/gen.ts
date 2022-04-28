@@ -2,7 +2,7 @@ import * as gen from "@no-day/fp-ts-generators"
 import * as lcg from "@no-day/fp-ts-lcg"
 import { either, nonEmptyArray } from "fp-ts"
 import { chainFirst as _chainFirst } from "fp-ts/lib/Chain"
-import { flow, Lazy, pipe } from "fp-ts/lib/function"
+import { Lazy, pipe } from "fp-ts/lib/function"
 import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
 import * as lens from "monocle-ts/Lens"
@@ -56,21 +56,15 @@ export const nullable: <T>(arbitrary: gen.Gen<T>) => gen.Gen<T | null> = (
 export function filter<A, B extends A>(
   f: Predicate<A> | Refinement<A, B>,
 ): (fa: gen.Gen<A>) => gen.Gen<B> {
-  return state.chain(
-    state.chainRec(
-      flow(
-        either.fromPredicate(
-          (a): a is B => f(a),
-          (a) => a,
-        ),
-        either.map((b) => of(either.right<A, B>(b))),
-        either.getOrElse((a) =>
-          pipe(
-            nextSeed,
-            gen.map(() => either.left<A, B>(a)),
-          ),
+  return (fa) =>
+    pipe(
+      fa,
+      gen.chain(
+        state.chainRec((a) =>
+          f(a)
+            ? state.of(either.right(a))
+            : pipe(fa, state.apFirst(nextSeed), state.map(either.left)),
         ),
       ),
-    ),
-  )
+    )
 }
