@@ -125,8 +125,10 @@ describe("shrink", () => {
   })
 
   describe("string", () => {
-    it.todo("should be able to generate more than a single character")
-    it.todo("should generate a single character")
+    it('should be empty when passed an empty string ""', () => {
+      const result = pipe(shrink.string, reader.map(iterable.toReadonlyArray))
+      expect(result("")).toStrictEqual([])
+    })
   })
 
   describe("partial", () => {
