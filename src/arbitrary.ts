@@ -134,11 +134,6 @@ export type Shrinker<A> = (a: A) => Iterable<A>
  */
 export const int = flow(gen.int, gen.map(fromShrinker(shrink.integer)))
 
-/**
- * @category Constructors
- */
-export const float = flow(gen.float, fromGenIntegral)
-
 export type StringParams = Partial<Record<"from" | "to", string>>
 
 export function character(options?: StringParams): Arbitrary<string> {
