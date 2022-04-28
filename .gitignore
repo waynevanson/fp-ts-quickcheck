@@ -8,3 +8,4 @@ node_modules
 .pnp.*
 /dist
 .eslintcache
+/coverage
