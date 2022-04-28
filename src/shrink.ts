@@ -119,7 +119,12 @@ export const char: Shrink<string> = pipe(
     (integer) => String.fromCharCode(integer),
     (char) => char.charCodeAt(0),
   ),
-  reader.map(iterable.prepend("")),
+  reader.chain(
+    (strings) => (string) =>
+      string === ""
+        ? iterable.zero<string>()
+        : pipe(strings, iterable.prepend("")),
+  ),
 )
 
 export const string: Shrink<string> = pipe(
