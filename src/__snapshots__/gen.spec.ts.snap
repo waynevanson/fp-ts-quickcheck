@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`gen nullable should generate null and the current generator 1`] = `
+Array [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  "value",
+  "value",
+  null,
+]
+`;

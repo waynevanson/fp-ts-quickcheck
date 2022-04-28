@@ -34,7 +34,15 @@ describe("gen", () => {
   })
 
   describe("nullable", () => {
-    it.todo("should generate null and the current generator")
+    it("should generate null and the current generator", () => {
+      const value = "value"
+      const result = pipe(
+        gen.of(value),
+        gen.nullable,
+        gen.generateSample({ seed: gen.mkSeed(23), count: 10 }),
+      )
+      expect(result).toMatchSnapshot()
+    })
   })
 
   describe("filter", () => {
