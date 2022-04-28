@@ -129,6 +129,11 @@ describe("shrink", () => {
       const result = pipe(shrink.string, reader.map(iterable.toReadonlyArray))
       expect(result("")).toStrictEqual([])
     })
+
+    it('should always start with "" when given a nonempty string', () => {
+      const result = pipe(shrink.string, reader.map(iterable.toReadonlyArray))
+      expect(result("a")[0]).toBe("")
+    })
   })
 
   describe("partial", () => {
