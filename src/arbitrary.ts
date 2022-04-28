@@ -128,27 +128,10 @@ const fromShrinker: <A>(f: Shrinker<A>) => (a: A) => rose.Rose<A> = (f) =>
 
 export type Shrinker<A> = (a: A) => Iterable<A>
 
-const integralShrinker: Shrinker<number> = (int) =>
-  int === 0
-    ? // if zero end shrink
-      iterable.zero<number>()
-    : pipe(
-        // if negative, start shrink with positive of same number
-        int < 0 ? iterable.of(Math.abs(int)) : iterable.zero<number>(),
-        // 0
-        iterable.alt(() => iterable.of(0)),
-        // logarithmically approach the number from 0
-        iterable.alt(() => rightDichotomy(int)),
-      )
-
-const fromGenIntegral: (gen_: gen.Gen<number>) => Arbitrary<number> = gen.map(
-  fromShrinker(integralShrinker),
-)
-
 /**
  * @category Constructors
  */
-export const int = flow(gen.int, fromGenIntegral)
+export const int = flow(gen.int, gen.map(fromShrinker(shrink.integer)))
 
 /**
  * @category Constructors
