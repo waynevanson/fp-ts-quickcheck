@@ -27,6 +27,7 @@ export const nextSeed: gen.Gen<void> = state.modify(({ newSeed, size }) => ({
   newSeed: lcg.lcgNext(newSeed),
 }))
 
+/* istanbul ignore next */
 export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
   ...gens: { readonly [P in keyof T]: gen.Gen<T[P]> }
 ): gen.Gen<T[number]> {
@@ -50,7 +51,7 @@ export function lazy<A>(lazy: Lazy<gen.Gen<A>>): gen.Gen<A> {
 
 export const nullable: <T>(arbitrary: gen.Gen<T>) => gen.Gen<T | null> = (
   arbitrary,
-) => gen.oneOf([arbitrary, gen.of(null)])
+) => union(arbitrary, gen.of(null))
 
 export function filter<A, B extends A>(
   f: Predicate<A> | Refinement<A, B>,
