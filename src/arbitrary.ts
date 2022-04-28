@@ -14,6 +14,7 @@ import { Predicate } from "fp-ts/lib/Predicate"
 import { Refinement } from "fp-ts/lib/Refinement"
 import * as gen from "./gen"
 import { iterable, rose } from "./modules"
+import { EnforceNonEmptyRecord } from "./utils"
 import * as shrink from "./shrink"
 
 /**
