@@ -36,6 +36,7 @@ import { PipeableTraverse1 } from "fp-ts/lib/Traversable"
 import { PipeableTraverseWithIndex1 } from "fp-ts/lib/TraversableWithIndex"
 import { TraversableWithIndex1 } from "fp-ts/lib/TraversableWithIndex"
 import { Zero1 } from "fp-ts/lib/Zero"
+import { bind as bind_ } from "fp-ts/Chain"
 
 /**
  * @category Model
@@ -614,3 +615,20 @@ export function prepend<A>(a: A): (fa: Iterable<A>) => Iterable<A> {
       alt(() => fa),
     )
 }
+
+export function flap<A>(a: A) {
+  return <B>(fab: Iterable<(a: A) => B>): Iterable<B> =>
+    pipe(
+      fab,
+      map((ab) => ab(a)),
+    )
+}
+
+export const bind = bind_(Chain)
+export const bindTo =
+  <K extends string>(name: K) =>
+  <A>(fa: Iterable<A>): Iterable<{ readonly [P in K]: A }> =>
+    pipe(
+      fa,
+      map((a) => ({ [name]: a })),
+    ) as never
