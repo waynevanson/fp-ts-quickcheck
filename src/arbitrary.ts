@@ -124,24 +124,28 @@ export function fromGenK<T extends readonly unknown[], A>(
   return flow(gen_, fromGen)
 }
 
-const fromShrinker: <A>(f: Shrinker<A>) => (a: A) => rose.Rose<A> = (f) =>
-  rose.unfoldRose((a) => ({ value: a, branch: f(a) }))
+export const fromShrink: <A>(f: shrink.Shrink<A>) => (a: A) => rose.Rose<A> = (
+  f,
+) => rose.unfoldRose((a) => ({ value: a, branch: f(a) }))
 
-export type Shrinker<A> = (a: A) => Iterable<A>
+export const mk = <A>(
+  generator: gen.Gen<A>,
+  shrinker: shrink.Shrink<A> = shrink.zero(),
+): Arbitrary<A> => pipe(generator, gen.map(fromShrink(shrinker)))
 
 /**
  * @category Constructors
  */
-export const int = flow(gen.int, gen.map(fromShrinker(shrink.integer)))
+export const int = flow(gen.int, gen.map(fromShrink(shrink.integer)))
 
 export type StringParams = Partial<Record<"from" | "to", string>>
 
 export function character(options?: StringParams): Arbitrary<string> {
-  return pipe(gen.char(options), gen.map(fromShrinker(shrink.string)))
+  return pipe(gen.char(options), gen.map(fromShrink(shrink.string)))
 }
 
 export function string(options?: StringParams): Arbitrary<string> {
-  return pipe(gen.string(options), gen.map(fromShrinker(shrink.string)))
+  return pipe(gen.string(options), gen.map(fromShrink(shrink.string)))
 }
 
 /**
@@ -312,7 +316,7 @@ export function toGen<A>(fa: Arbitrary<A>) {
 export const boolean: Arbitrary<boolean> = pipe(
   gen.boolean,
   gen.map(
-    fromShrinker((boolean) => (boolean ? iterable.of(false) : iterable.zero())),
+    fromShrink((boolean) => (boolean ? iterable.of(false) : iterable.zero())),
   ),
 )
 
