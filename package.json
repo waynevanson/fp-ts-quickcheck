@@ -64,7 +64,8 @@
     "*.ts": [
       "eslint --cache --fix",
       "prettier --write",
-      "jest --selectProjects unit -o --passWithNoTests"
+      "jest --selectProjects unit -o --passWithNoTests",
+      "docs"
     ]
   }
 }
