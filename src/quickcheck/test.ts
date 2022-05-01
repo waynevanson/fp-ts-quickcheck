@@ -29,14 +29,32 @@ export interface TestResults1<F extends URIS> {
   readonly resultM: Kind<F, Result>
 }
 
+/**
+ * @summary
+ * Generates a value given an `Arbitrary`,
+ * using the `Testable` instance to test if the `property` passes or fails,
+ * then returning the information the loop requires.
+ */
 export function test<F extends URIS, I, A>(
   options: TestOptions1<F, I, A>,
 ): Gen<TestResults1<F>>
 
+/**
+ * @summary
+ * Generates a value given an `Arbitrary`,
+ * using the `Testable` instance to test if the `property` passes or fails,
+ * then returning the information the loop requires.
+ */
 export function test<F, I, A>(
   options: TestOptions<F, I, A>,
 ): Gen<TestResults<F>>
 
+/**
+ * @summary
+ * Generates a value given an `Arbitrary`,
+ * using the `Testable` instance to test if the `property` passes or fails,
+ * then returning the information the loop requires.
+ */
 export function test<F, I, A>({
   Arbitrary,
   Testable,
