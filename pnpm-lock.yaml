@@ -6,6 +6,7 @@ specifiers:
   '@no-day/fp-ts-generators': ^0.1.0-rc.4
   '@no-day/fp-ts-lcg': ^1.0.0-rc.2
   '@types/jest': ^27.0.2
+  '@types/micromatch': ^4.0.2
   '@types/node': ^16.10.1
   '@typescript-eslint/eslint-plugin': ^5.14.0
   '@typescript-eslint/parser': ^5.14.0
@@ -52,6 +53,7 @@ devDependencies:
   '@jest/types': 28.0.2
   '@milahu/patch-package': 6.4.11
   '@types/jest': 27.4.1
+  '@types/micromatch': 4.0.2
   '@types/node': 16.11.26
   '@typescript-eslint/eslint-plugin': 5.14.0_2a76ad7ayfzat4bpjwuy5simsy
   '@typescript-eslint/parser': 5.14.0_5drzsg24huoxcdjjyxzx62d5lu
@@ -887,6 +889,10 @@ packages:
       '@babel/types': 7.17.0
     dev: true
 
+  /@types/braces/3.0.1:
+    resolution: {integrity: sha512-+euflG6ygo4bn0JHtn4pYqcXwRtLvElQ7/nnjDu7iYG56H0+OhCd7d6Ug0IE3WcFpZozBKW2+80FUbv5QGk5AQ==}
+    dev: true
+
   /@types/dashdash/1.14.1:
     resolution: {integrity: sha512-3UAiw52g6LARDS9I5lpYwUzj/nBuMvor/0BWiza7ibuOIEaNIo+m3whnVBLLj/ue0DzlcX+96c24YdZCuDwOiQ==}
     dev: true
@@ -922,6 +928,12 @@ packages:
 
   /@types/json-schema/7.0.9:
     resolution: {integrity: sha512-qcUXuemtEu+E5wZSJHNxUXeCZhAfXKQ41D+duX+VYPde7xyEVZci+/oXKJL13tnRs9lR2pr4fod59GT6/X1/yQ==}
+    dev: true
+
+  /@types/micromatch/4.0.2:
+    resolution: {integrity: sha512-oqXqVb0ci19GtH0vOA/U2TmHTcRY9kuZl4mqUxe0QmJAlIW13kzhuK5pi1i9+ngav8FjpSb9FVS/GE00GLX1VA==}
+    dependencies:
+      '@types/braces': 3.0.1
     dev: true
 
   /@types/minimist/1.2.2:
