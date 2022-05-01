@@ -5,21 +5,12 @@ export default {
   preset: "ts-jest",
   testEnvironment: "node",
   watchPlugins: ["jest-runner-eslint/watch-fix", "jest-watch-select-projects"],
-  collectCoverage: true,
-  // coverageThreshold: {
-  //   global: { branches: 100, functions: 100, lines: 100, statements: 100 },
-  // },
-  roots: ["src"],
   projects: [
-    {
-      preset: "ts-jest",
-      displayName: "unit",
-      testMatch: paths.tests,
-    },
+    "<rootDir>/packages/*",
     {
       runner: "jest-runner-eslint",
       displayName: "lint",
-      roots: ["src"],
+      roots: ["packages"],
       testMatch: ["**/*.ts"],
     },
   ],
