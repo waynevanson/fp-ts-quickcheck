@@ -63,11 +63,8 @@ export function test<F, I, A>({
   return pipe(
     Arbitrary,
     S.chain((rose) =>
-      pipe(
-        S.get<gen.GenState>(),
-        S.map((seedState) =>
-          Testable.test({ property, value: rose.value, seedState }),
-        ),
+      S.gets((seedState: gen.GenState) =>
+        Testable.test({ property, value: rose.value, seedState }),
       ),
     ),
     S.bindTo("resultM"),
