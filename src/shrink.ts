@@ -23,9 +23,12 @@ export const imap: <A, B>(
 
 export const zero: <A>() => Shrink<A> = () => reader.of(iterable.zero())
 
-//array size is the length of the array
-// start empty
-// for each, apply get the max and
+/**
+ * @summary
+ * Shrinks an array, using the provided `Shrink` to shrink the elements.
+ *
+ * @todo Use `rightDichotomy` for the indexes, otherwise we'll end up far too many arrays.
+ */
 export const array =
   <A>(shrink: Shrink<A>): Shrink<ReadonlyArray<A>> =>
   (fa) =>
@@ -48,8 +51,6 @@ export const array =
           iterable.alt(() => a),
         ),
     )
-// for each item in array,
-//
 
 export const boolean: Shrink<boolean> = (boolean) =>
   boolean ? iterable.of(false) : iterable.zero()
