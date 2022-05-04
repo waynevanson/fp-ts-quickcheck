@@ -296,6 +296,19 @@ export function union<T extends readonly [unknown, ...(readonly unknown[])]>(
   )
 }
 
+/**
+ * @category Combinators
+ */
+export function intersect<B extends Record<string, unknown>>(fb: Arbitrary<B>) {
+  return <A extends Record<string, unknown>>(
+    fa: Arbitrary<A>,
+  ): Arbitrary<A & B> =>
+    pipe(
+      tuple(fa, fb),
+      map(([a, b]) => Object.assign({}, a, b)),
+    )
+}
+
 // DESTRUCTORS
 
 /**
