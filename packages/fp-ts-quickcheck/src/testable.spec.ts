@@ -12,7 +12,7 @@ const seedState: gen.GenState = {
 describe("testable", () => {
   describe("boolean", () => {
     it("should return no errors when true is returned from the property", () => {
-      const result = t.boolean.test({
+      const result = t.boolean({
         property: constTrue,
         seedState,
         value: constVoid(),
@@ -21,7 +21,7 @@ describe("testable", () => {
     })
 
     it("should return errors when false is returned from the property", () => {
-      const result = t.boolean.test({
+      const result = t.boolean({
         property: constFalse,
         seedState,
         value: constVoid(),
@@ -41,7 +41,7 @@ describe("testable", () => {
 
   describe("assertion", () => {
     it("should pass when there there is no value thrown", () => {
-      const result = t.assertionSync.test({
+      const result = t.assertionSync({
         property: constVoid,
         value: constVoid(),
         seedState,
@@ -50,7 +50,7 @@ describe("testable", () => {
     })
 
     it("should catch the error that is thrown within", () => {
-      const result = t.assertionSync.test({
+      const result = t.assertionSync({
         property: () => {
           throw new Error()
         },
@@ -62,7 +62,7 @@ describe("testable", () => {
 
     it("should fail when there there is a value thrown", () => {
       const error = new Error()
-      const result = t.assertionSync.test({
+      const result = t.assertionSync({
         property: () => {
           throw error
         },

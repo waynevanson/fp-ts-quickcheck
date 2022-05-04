@@ -64,7 +64,7 @@ export function test<F, I, A>({
     Arbitrary,
     S.chain((rose) =>
       S.gets((seedState: gen.GenState) =>
-        Testable.test({ property, value: rose.value, seedState }),
+        Testable({ property, value: rose.value, seedState }),
       ),
     ),
     S.bindTo("resultM"),

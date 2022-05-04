@@ -24,46 +24,43 @@ export type Result = O.Option<unknown>
 
 // eventually these functions will use the value from the arbitrary in the messages.
 export interface Testable<F, A> {
-  readonly test: <I>(options: TestableOptions<I, A>) => HKT<F, Result>
+  <I>(options: TestableOptions<I, A>): HKT<F, Result>
 }
 export interface Testable1<F extends URIS, A> {
-  readonly test: <I>(options: TestableOptions<I, A>) => Kind<F, Result>
+  <I>(options: TestableOptions<I, A>): Kind<F, Result>
 }
 export interface Testable2<F extends URIS2, E, A> {
-  readonly test: <I>(options: TestableOptions<I, A>) => Kind2<F, E, Result>
+  <I>(options: TestableOptions<I, A>): Kind2<F, E, Result>
 }
 
-export const boolean: Testable1<I.URI, boolean> = {
-  test: ({ property, value }) =>
-    property(value)
-      ? O.none
-      : O.some(
-          new AssertionError({
-            operator: "boolean",
-            message: "Received false but expected true",
-            actual: false,
-            expected: true,
-          }),
-        ),
-}
+export const boolean: Testable1<I.URI, boolean> = ({ property, value }) =>
+  property(value)
+    ? O.none
+    : O.some(
+        new AssertionError({
+          operator: "boolean",
+          message: "Received false but expected true",
+          actual: false,
+          expected: true,
+        }),
+      )
 
-export const assertionSync: Testable1<IO.URI, void> = {
-  test: ({ property, value }) =>
-    pipe(
-      value,
-      IOE.tryCatchK(property, (e) => e),
-      IOE.match(O.some, O.zero),
-    ),
-}
+export const assertionSync: Testable1<IO.URI, void> = ({ property, value }) =>
+  pipe(
+    value,
+    IOE.tryCatchK(property, (e) => e),
+    IOE.match(O.some, O.zero),
+  )
 
-export const assertionAsync: Testable1<T.URI, Promise<void>> = {
-  test: ({ property, value }) =>
-    pipe(
-      value,
-      TE.tryCatchK(property, (e) => e),
-      TE.match(O.some, O.zero),
-    ),
-}
+export const assertionAsync: Testable1<T.URI, Promise<void>> = ({
+  property,
+  value,
+}) =>
+  pipe(
+    value,
+    TE.tryCatchK(property, (e) => e),
+    TE.match(O.some, O.zero),
+  )
 
 export type Thunk<A> = () => A
 export type Promisable<A> = A | Promise<A>
@@ -97,22 +94,20 @@ const fromMain =
       TE.chainTaskK(constant),
     )
 
-export const assertion: Testable1<T.URI, Assertion> = {
-  test: ({ property, value }) =>
-    pipe(
-      fromMain(property)(value),
-      TE.chainEitherKW(
-        E.fromPredicate(
-          (a) => typeof a !== "boolean" || a,
-          () =>
-            new AssertionError({
-              operator: "boolean",
-              message: "Received false but expected true",
-              actual: false,
-              expected: true,
-            }),
-        ),
+export const assertion: Testable1<T.URI, Assertion> = ({ property, value }) =>
+  pipe(
+    fromMain(property)(value),
+    TE.chainEitherKW(
+      E.fromPredicate(
+        (a) => typeof a !== "boolean" || a,
+        () =>
+          new AssertionError({
+            operator: "boolean",
+            message: "Received false but expected true",
+            actual: false,
+            expected: true,
+          }),
       ),
-      TE.match(O.some, O.zero),
     ),
-}
+    TE.match(O.some, O.zero),
+  )
