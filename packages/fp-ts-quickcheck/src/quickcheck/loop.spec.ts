@@ -1,5 +1,5 @@
 import * as lcg from "@no-day/fp-ts-lcg"
-import { identity as I, option as O } from "fp-ts"
+import { identity as I, option as O, option } from "fp-ts"
 import { pipe } from "fp-ts/lib/function"
 import * as A from "../arbitrary"
 import { LoopFailure } from "./loopstate"
@@ -53,10 +53,9 @@ describe(loop, () => {
         failure: O.some({
           data: {
             operator: "boolean",
-            expected: true,
-            actual: false,
-            code: "ERR_ASSERTION",
-            generatedMessage: false,
+            expected: option.some(true),
+            actual: option.some(false),
+            message: "Received false but expected true",
           },
           index: 1,
           seed: lcg.lcgNext(lcg.mkSeed(1)),

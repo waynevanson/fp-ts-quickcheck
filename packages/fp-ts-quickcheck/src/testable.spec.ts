@@ -1,5 +1,4 @@
-import { AssertionError } from "assert"
-import { option as O } from "fp-ts"
+import { option as O, option } from "fp-ts"
 import * as t from "./testable"
 import { constFalse, constTrue, constVoid } from "fp-ts/lib/function"
 
@@ -19,14 +18,14 @@ describe("testable", () => {
         value: constVoid(),
       })
       expect(result).toEqual(
-        O.some(
-          new AssertionError({
-            operator: "boolean",
-            message: "Received false but expected true",
-            actual: false,
-            expected: true,
-          }),
-        ),
+        O.some({
+          operator: "boolean",
+          message: "Received false but expected true",
+          actual: option.some(false),
+          expected: option.some(true),
+          exception: option.none,
+          value: option.some(true),
+        }),
       )
     })
   })
@@ -59,7 +58,16 @@ describe("testable", () => {
         value: constVoid(),
       })
 
-      expect(result()).toEqual(O.some(error))
+      expect(result()).toEqual(
+        O.some({
+          exception: option.some(error),
+          actual: option.none,
+          expected: option.none,
+          operator: "sync",
+          value: undefined,
+          message: "The property threw, which means the test has failed",
+        }),
+      )
     })
   })
 })

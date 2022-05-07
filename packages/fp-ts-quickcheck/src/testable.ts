@@ -10,7 +10,7 @@ import {
   taskEither,
 } from "fp-ts"
 import { HKT, Kind, Kind2, URIS, URIS2 } from "fp-ts/HKT"
-import { constant, pipe } from "fp-ts/lib/function"
+import { constant, constVoid, not, pipe } from "fp-ts/lib/function"
 
 /**
  * @summary The result of a single test (from a property)
@@ -45,7 +45,7 @@ export interface Testable2<F extends URIS2, E, A> {
 export const boolean: Testable1<I.URI, boolean> = ({ property, value }) =>
   pipe(
     value,
-    option.fromPredicate(property),
+    option.fromPredicate(not(property)),
     O.map(() => ({
       operator: "boolean",
       message: "Received false but expected true",
