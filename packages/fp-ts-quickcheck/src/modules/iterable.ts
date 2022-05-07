@@ -9,6 +9,7 @@ import {
   readonlyArray as A,
   readonlyArray,
 } from "fp-ts"
+import { bind as bind_ } from "fp-ts/Chain"
 import { HKT } from "fp-ts/HKT"
 import { Alt1 } from "fp-ts/lib/Alt"
 import {
@@ -25,7 +26,7 @@ import {
   RefinementWithIndex,
 } from "fp-ts/lib/FilterableWithIndex"
 import { FoldableWithIndex1 } from "fp-ts/lib/FoldableWithIndex"
-import { flow, pipe } from "fp-ts/lib/function"
+import { pipe } from "fp-ts/lib/function"
 import { FunctorWithIndex1 } from "fp-ts/lib/FunctorWithIndex"
 import { Monad1 } from "fp-ts/lib/Monad"
 import { pipeable } from "fp-ts/lib/pipeable"
@@ -33,10 +34,11 @@ import { Pointed1 } from "fp-ts/lib/Pointed"
 import { Predicate } from "fp-ts/lib/Predicate"
 import { not, Refinement } from "fp-ts/lib/Refinement"
 import { PipeableTraverse1 } from "fp-ts/lib/Traversable"
-import { PipeableTraverseWithIndex1 } from "fp-ts/lib/TraversableWithIndex"
-import { TraversableWithIndex1 } from "fp-ts/lib/TraversableWithIndex"
+import {
+  PipeableTraverseWithIndex1,
+  TraversableWithIndex1,
+} from "fp-ts/lib/TraversableWithIndex"
 import { Zero1 } from "fp-ts/lib/Zero"
-import { bind as bind_ } from "fp-ts/Chain"
 
 /**
  * @category Model

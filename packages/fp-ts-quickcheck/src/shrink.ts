@@ -1,5 +1,4 @@
-import { identity, option, reader, readonlyArray, readonlyRecord } from "fp-ts"
-import { Endomorphism } from "fp-ts/lib/Endomorphism"
+import { option, reader, readonlyArray, readonlyRecord } from "fp-ts"
 import { flow, pipe, unsafeCoerce } from "fp-ts/lib/function"
 import { iterable } from "./modules"
 import { combinations, getAssignMonoid, rightDichotomy } from "./utils"
