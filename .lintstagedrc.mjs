@@ -18,7 +18,7 @@ export default (allFiles) =>
         [
           "eslint --cache --fix",
           "prettier --write",
-          "jest --selectProjects unit --passWithNoTests",
+          "jest --selectProjects --passWithNoTests",
         ],
         readonlyArray.map((string) => string.split(" ")),
         readonlyArray.map(readonlyArray.alt(constant(tsfiles))),
