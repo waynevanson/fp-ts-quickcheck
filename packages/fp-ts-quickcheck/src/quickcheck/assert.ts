@@ -4,7 +4,7 @@ import { constVoid, flow, pipe } from "fp-ts/lib/function"
 import { Arbitrary } from "../arbitrary"
 import { task as T, io as IO } from "../modules/fp-ts"
 import { MonadRecIO, MonadRecIO1 } from "../modules/monad-rec-io"
-import { assertion, assertionSync, Testable, Testable1 } from "../testable"
+import * as testable from "../testable"
 import { tests } from "./tests"
 
 export interface QuickCheckOptions {
@@ -23,13 +23,13 @@ export const quickcheckOptionsDefault: QuickCheckOptions = {
 
 export interface AssertOptions<F, A> {
   readonly MonadRecIO: MonadRecIO<F>
-  readonly Testable: Testable<F, A>
+  readonly Testable: testable.Testable<F, A>
   readonly defaults?: QuickCheckOptions
 }
 
 export interface AssertOptions1<F extends URIS, A> {
   readonly MonadRecIO: MonadRecIO1<F>
-  readonly Testable: Testable1<F, A>
+  readonly Testable: testable.Testable1<F, A>
   readonly defaults?: QuickCheckOptions
 }
 
@@ -85,13 +85,13 @@ export function mk<F, A>({
 }
 
 export const io = mk({
-  Testable: assertionSync,
+  Testable: testable.sync,
   MonadRecIO: IO.MonadRecIO,
 })
 
 export const task = mk({
   MonadRecIO: T.MonadRecIO,
-  Testable: assertion,
+  Testable: testable.async,
 })
 
 // eslint-disable-next-line functional/no-return-void
