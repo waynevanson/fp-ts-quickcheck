@@ -62,7 +62,7 @@ importers:
       typedoc: 0.22.15_typescript@4.6.4
       typescript: 4.6.4
 
-  packages/core:
+  packages/fp-ts-quickcheck:
     specifiers:
       '@jest/types': ^28.0.2
       '@no-day/fp-ts-generators': ^0.1.0-rc.4
