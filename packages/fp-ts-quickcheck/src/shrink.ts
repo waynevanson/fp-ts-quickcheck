@@ -1,4 +1,5 @@
-import { option, reader, readonlyArray, readonlyRecord } from "fp-ts"
+import { identity, option, reader, readonlyArray, readonlyRecord } from "fp-ts"
+import { Endomorphism } from "fp-ts/lib/Endomorphism"
 import { flow, pipe, unsafeCoerce } from "fp-ts/lib/function"
 import { iterable } from "./modules"
 import { combinations, getAssignMonoid, rightDichotomy } from "./utils"
@@ -33,23 +34,20 @@ export const array =
   <A>(shrink: Shrink<A>): Shrink<ReadonlyArray<A>> =>
   (fa) =>
     pipe(
-      readonlyArray.makeBy(fa.length, (i) => fa.slice(0, i + 1)),
-      iterable.fromIterable,
+      fa.length <= 10
+        ? readonlyArray.makeBy(fa.length - 1, (size) => size + 1)
+        : rightDichotomy(fa.length),
+      iterable.append(fa.length),
+      iterable.map((size) => pipe(fa, readonlyArray.takeLeft(size))),
       iterable.chain(
-        readonlyArray.traverseWithIndex(iterable.Applicative)((i, a) =>
-          pipe(
-            shrink(a),
-            iterable.alt(() =>
-              i === fa.length - 1 ? iterable.zero() : iterable.of(a),
-            ),
-          ),
+        readonlyArray.traverse(iterable.Applicative)((a) =>
+          pipe(a, shrink, iterable.append(a)),
         ),
       ),
-      (a) =>
-        pipe(
-          fa.length === 0 ? iterable.zero<ReadonlyArray<A>>() : iterable.of([]),
-          iterable.alt(() => a),
-        ),
+      iterable.skipRight(1),
+      iterable.prepends(
+        fa.length === 0 ? iterable.zero() : iterable.of(readonlyArray.zero()),
+      ),
     )
 
 export const boolean: Shrink<boolean> = (boolean) =>

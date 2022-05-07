@@ -15,7 +15,7 @@ import {
   Applicative as Applicative_,
   Applicative1,
 } from "fp-ts/lib/Applicative"
-import { Apply1 } from "fp-ts/lib/Apply"
+import { Apply1, apS as apS_ } from "fp-ts/lib/Apply"
 import { Chain1 } from "fp-ts/lib/Chain"
 import { Compactable1 } from "fp-ts/lib/Compactable"
 import { Endomorphism } from "fp-ts/lib/Endomorphism"
@@ -25,7 +25,7 @@ import {
   RefinementWithIndex,
 } from "fp-ts/lib/FilterableWithIndex"
 import { FoldableWithIndex1 } from "fp-ts/lib/FoldableWithIndex"
-import { pipe } from "fp-ts/lib/function"
+import { flow, pipe } from "fp-ts/lib/function"
 import { FunctorWithIndex1 } from "fp-ts/lib/FunctorWithIndex"
 import { Monad1 } from "fp-ts/lib/Monad"
 import { pipeable } from "fp-ts/lib/pipeable"
@@ -632,3 +632,24 @@ export const bindTo =
       fa,
       map((a) => ({ [name]: a })),
     ) as never
+
+export const append = <A>(a: A) => alt(() => of(a))
+export const apS = apS_(Apply)
+export const Do = of({})
+
+export const prepends =
+  <A>(first: Iterable<A>) =>
+  (second: Iterable<A>) =>
+    alt(() => second)(first)
+
+export const skipRight =
+  (count: number) =>
+  <A>(fa: Iterable<A>): Iterable<A> => ({
+    *[Symbol.iterator]() {
+      const buffer = []
+      for (const a of fa) {
+        buffer.push(a)
+        if (buffer.length > count) yield buffer.shift() as A
+      }
+    },
+  })
